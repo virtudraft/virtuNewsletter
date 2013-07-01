@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="virtunewsletter" baseClass="xPDOObject" platform="mysql" defaultEngine="MyISAM" version="1.1">
+	<object class="Categories" table="categories" extends="xPDOSimpleObject">
+		<field key="name" dbtype="varchar" precision="255" phptype="string" null="false" />
+		<field key="description" dbtype="text" phptype="string" null="true" />
+
+        <composite alias="CategoriesHasUsergroups" class="CategoriesHasUsergroups" local="id" foreign="category_id" cardinality="many" owner="local" />
+        <composite alias="NewslettersHasCategories" class="NewslettersHasCategories" local="id" foreign="category_id" cardinality="many" owner="local" />
+
+	</object>
+	<object class="CategoriesHasUsergroups" table="categories_has_usergroups" extends="xPDOObject">
+		<field key="category_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+		<field key="usergroup_id" dbtype="int" precision="10" phptype="integer" null="false" index="pk" />
+
+		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
+			<column key="category_id" length="" collation="A" null="false" />
+			<column key="usergroup_id" length="" collation="A" null="false" />
+		</index>
+
+        <aggregate alias="Categories" class="Categories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
+        <aggregate alias="Usergroups" class="Usergroups" local="usergroup_id" foreign="id" cardinality="one" owner="foreign" />
+
+	</object>
+	<object class="Newsletters" table="newsletters" extends="xPDOSimpleObject">
+		<field key="resource_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="index" />
+		<field key="subject" dbtype="varchar" precision="255" phptype="string" null="false" />
+		<field key="content" dbtype="mediumtext" phptype="string" null="false" />
+		<field key="created_on" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+		<field key="created_by" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="true" />
+		<field key="scheduled_for" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+		<field key="is_recurring" dbtype="tinyint" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+		<field key="recurrence_unit" dbtype="varchar" precision="50" phptype="string" null="true" />
+		<field key="recurrence_times" dbtype="tinyint" precision="2" attributes="unsigned" phptype="integer" null="true" />
+
+		<index alias="newsletter_id" name="newsletter_id" primary="false" unique="false" type="BTREE" >
+			<column key="resource_id" length="" collation="A" null="false" />
+		</index>
+
+        <composite alias="NewslettersHasCategories" class="NewslettersHasCategories" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
+        <composite alias="Reports" class="Reports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
+
+	</object>
+	<object class="NewslettersHasCategories" table="newsletters_has_categories" extends="xPDOObject">
+		<field key="newsletter_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+		<field key="category_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+
+		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
+			<column key="newsletter_id" length="" collation="A" null="false" />
+			<column key="category_id" length="" collation="A" null="false" />
+		</index>
+
+        <aggregate alias="Newsletters" class="Newsletters" local="newsletter_id" foreign="id" cardinality="one" owner="foreign" />
+        <aggregate alias="Categories" class="Categories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
+
+	</object>
+	<object class="Reports" table="reports" extends="xPDOSimpleObject">
+		<field key="newsletter_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+		<field key="subscriber_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+		<field key="status" dbtype="varchar" precision="10" phptype="string" null="false" />
+		<field key="status_changed_on" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+
+        <aggregate alias="Newsletters" class="Newsletters" local="newsletter_id" foreign="id" cardinality="one" owner="foreign" />
+        <aggregate alias="Subscribers" class="Subscribers" local="subscriber_id" foreign="id" cardinality="one" owner="foreign" />
+
+	</object>
+	<object class="Subscribers" table="subscribers" extends="xPDOSimpleObject">
+		<field key="user_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" index="index" />
+		<field key="email" dbtype="varchar" precision="255" phptype="string" null="false" />
+		<field key="name" dbtype="varchar" precision="255" phptype="string" null="true" />
+		<field key="is_active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="1" />
+
+        <aggregate alias="Users" class="Users" local="user_id" foreign="id" cardinality="one" owner="foreign" />
+
+        <composite alias="Reports" class="Reports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
+
+	</object>
+	<object class="Usergroups" extends="modUserGroup">
+        <composite alias="CategoriesHasUsergroups" class="CategoriesHasUsergroups" local="id" foreign="usergroup_id" cardinality="many" owner="local" />
+	</object>
+	<object class="Users" extends="modUser">
+        <composite alias="Subscribers" class="Subscribers" local="id" foreign="user_id" cardinality="one" owner="local" />
+    </object>
+</model>

@@ -1,0 +1,1 @@
+<div id="virtunewsletter-panel-home-div"></div>

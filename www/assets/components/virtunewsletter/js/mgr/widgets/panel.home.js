@@ -47,6 +47,10 @@ VirtuNewsletter.panel.Home = function(config) {
                                 html: '<p>' + _('virtunewsletter.subscribers_desc') + '</p>',
                                 border: false,
                                 bodyCssClass: 'panel-desc'
+                            }, {
+                                xtype: 'virtunewsletter-grid-subscribers',
+                                cls: 'main-wrapper',
+                                preventRender: true
                             }
                         ]
                     }

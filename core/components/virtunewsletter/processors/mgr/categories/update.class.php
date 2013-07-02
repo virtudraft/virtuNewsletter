@@ -11,14 +11,15 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
      * @return boolean
      */
     public function afterSave() {
-        $catHasUgOld = $this->object->getMany('CategoriesHasUsergroups');
-        $this->modx->removeCollection('CategoriesHasUsergroups', $catHasUgOld);
+        $catId = $this->getProperty('id');
+        $this->modx->removeCollection('CategoriesHasUsergroups', array(
+            'category_id' => $catId
+        ));
 
         $usergroups = $this->getProperty('usergroups');
         $usergroups = @explode(',', $usergroups);
         if ($usergroups) {
             $addUsergroups = array();
-            $catId = $this->object->getPrimaryKey();
             foreach ($usergroups as $usergroup) {
                 $catHasUg = $this->modx->newObject('CategoriesHasUsergroups');
                 $catHasUg->fromArray(array(

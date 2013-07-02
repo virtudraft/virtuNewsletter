@@ -16,8 +16,7 @@ VirtuNewsletter.panel.Newsletter = function(config) {
         items: [
             {
                 id: 'virtunewsletter-panel-newsletter-center',
-                region: 'center',
-                html: 'center'
+                region: 'center'
             }, {
                 region: 'west',
                 xtype: 'virtunewsletter-tree-newsletters',

@@ -14,9 +14,19 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         $resourceId = $this->getProperty('resource_id');
         if (empty($resourceId)) {
             $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id'));
+            return FALSE;
         }
-        $url = $this->modx->makeUrl($resourceId);
+        $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
+        $url = $this->modx->makeUrl($resourceId, $ctx, '', 'full');
+        if (empty($url)) {
+            $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_url'));
+            return FALSE;
+        }
         $content = file_get_contents($url);
+        if (empty($content)) {
+            $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_content'));
+            return FALSE;
+        }
         $this->setProperty('content', $content);
         $this->setProperty('created_on', time());
         $userId = $this->modx->user->get('id');
@@ -36,22 +46,22 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
      * @return boolean
      */
     public function afterSave() {
-        $newsletterId = $this->object->getPrimaryKey();
-        $categoryId = $this->getProperty('category_id');
-        $params = array(
-                'newsletter_id' => $newsletterId,
-                'category_id' => $categoryId
-        );
-
-        $newslettersHasCategories = $this->modx->newObject('NewslettersHasCategories');
-        $newslettersHasCategories->fromArray($params, '', TRUE, TRUE);
-        $addMany = array($newslettersHasCategories);
-        $this->object->addMany($addMany);
-
-        
-
-
-        $this->object->save();
+        $categories = $this->getProperty('categories');
+        $categories = @explode(',', $categories);
+        if ($categories) {
+            $addCats = array();
+            $newsId = $this->object->getPrimaryKey();
+            foreach ($categories as $category) {
+                $newsHasCat = $this->modx->newObject('NewslettersHasCategories');
+                $newsHasCat->fromArray(array(
+                    'newsletter_id' => $newsId,
+                    'category_id' => $category,
+                        ), NULL, TRUE, TRUE);
+                $addCats[] = $newsHasCat;
+            }
+            $this->object->addMany($addCats);
+            $this->object->save();
+        }
 
         return true;
     }

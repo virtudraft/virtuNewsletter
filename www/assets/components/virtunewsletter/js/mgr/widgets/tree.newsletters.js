@@ -84,6 +84,9 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 },
                 icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/folder_add.png',
                 handler: function() {
+                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                    contentPanel.removeAll();
+
                     var catWindow = new VirtuNewsletter.window.Category({
                         title: _('virtunewsletter.category_create'),
                         baseParams: {
@@ -103,6 +106,9 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 },
                 icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/new-static-resource.png',
                 handler: function() {
+                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                    contentPanel.removeAll();
+
                     var schWindow = new VirtuNewsletter.window.Schedule({
                         title: _('virtunewsletter.schedule_create'),
                         baseParams: {
@@ -125,12 +131,12 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         listeners: {
             click: function(node) {
                 if (!node.attributes.content) {
-                    if (node.expanded === true) {
-                        // odd?
-                        node.expand();
-                    } else {
-                        node.collapse();
-                    }
+//                    if (node.expanded === true) {
+//                        // odd?
+//                        node.expand();
+//                    } else {
+//                        node.collapse();
+//                    }
                     return this.categoriesPanel(node);
                 } else {
                     return this.newslettersPanel(node);
@@ -218,7 +224,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
                 var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
                 return newslettersTree.refreshTree();
             },
-            record: node.attributes
+            node: node
         });
 
         node.attributes.id = node.attributes.catid;
@@ -237,7 +243,8 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
             success: function() {
                 var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
                 return newslettersTree.refreshTree();
-            }
+            },
+            node: node
         });
         node.attributes.id = node.attributes.newsid;
         schWindow.setValues(node.attributes);

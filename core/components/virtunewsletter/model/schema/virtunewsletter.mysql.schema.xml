@@ -32,7 +32,7 @@
 		<field key="recurrence_unit" dbtype="varchar" precision="50" phptype="string" null="true" />
 		<field key="recurrence_times" dbtype="tinyint" precision="2" attributes="unsigned" phptype="integer" null="true" />
 
-		<index alias="newsletter_id" name="newsletter_id" primary="false" unique="false" type="BTREE" >
+		<index alias="resource_id" name="resource_id" primary="false" unique="false" type="BTREE" >
 			<column key="resource_id" length="" collation="A" null="false" />
 		</index>
 
@@ -74,6 +74,19 @@
         <composite alias="Reports" class="Reports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
 
 	</object>
+	<object class="SubscribersHasCategories" table="subscribers_has_categories" extends="xPDOObject">
+		<field key="subscriber_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+		<field key="category_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
+
+		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
+			<column key="subscriber_id" length="" collation="A" null="false" />
+			<column key="category_id" length="" collation="A" null="false" />
+		</index>
+
+        <aggregate alias="Subscribers" class="Subscribers" local="subscriber_id" foreign="id" cardinality="one" owner="foreign" />
+        <aggregate alias="Categories" class="Categories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
+	</object>
+
 	<object class="Usergroups" extends="modUserGroup">
         <composite alias="CategoriesHasUsergroups" class="CategoriesHasUsergroups" local="id" foreign="usergroup_id" cardinality="many" owner="local" />
 	</object>

@@ -31,7 +31,7 @@ VirtuNewsletter.window.Category = function(config) {
             }, {
                 xtype: 'virtunewsletter-grid-usergroups',
                 fieldLabel: _('virtunewsletter.usergroups') + ':',
-                record: config.record ? config.record : '',
+                node: config.node ? config.node : '',
                 anchor: '100%',
                 tbar: [
                     {
@@ -42,11 +42,11 @@ VirtuNewsletter.window.Category = function(config) {
                         text: _('virtunewsletter.add'),
                         handler: function() {
                             var topToolbar = this.getTopToolbar();
-                            var ugCombo = topToolbar.items.items[0];
-                            var usergroup = ugCombo.getValue();
-                            var text = ugCombo.lastSelectionText;
-                            if (usergroup) {
-                                this.data.push([usergroup, text]);
+                            var combo = topToolbar.items.items[0];
+                            var comboValue = combo.getValue();
+                            var text = combo.lastSelectionText;
+                            if (comboValue) {
+                                this.data.push([comboValue, text]);
                                 this.getStore().loadData(this.data);
                                 this.getView().refresh();
                             }

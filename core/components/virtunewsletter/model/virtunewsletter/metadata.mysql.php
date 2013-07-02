@@ -12,6 +12,7 @@ $xpdo_meta_map = array (
   array (
     0 => 'CategoriesHasUsergroups',
     1 => 'NewslettersHasCategories',
+    2 => 'SubscribersHasCategories',
   ),
   'modUserGroup' => 
   array (

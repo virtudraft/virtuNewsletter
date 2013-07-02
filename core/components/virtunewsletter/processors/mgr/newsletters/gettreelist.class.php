@@ -35,18 +35,25 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         $objectArray = $object->toArray();
         $objectArray['newsid'] = $objectArray['id'];
         $objectArray['text'] = $objectArray['subject'];
-//        $readerPage = $this->modx->getOption('virtunewsletter.readerpage');
-//        if (!empty($readerPage) && is_numeric($readerPage)) {
-//            $url = $this->modx->makeUrl($readerPage, '', 'newsid=' . $objectArray['id']);
-//        }
-        $url = dirname($this->modx->virtunewsletter->config['connectorUrl']) . '/web.php?action=web/newsletters/read&newsid=' . $objectArray['id'];
-        $objectArray['content'] = '<iframe src="' . $url . '" height="400" width="100%"></iframe>';
         $objectArray['leaf'] = TRUE;
         $objectArray['scheduled_for'] = date('m/d/Y', $objectArray['scheduled_for']);
-        $category = $object->getOne('NewslettersHasCategories');
-        if ($category) {
-            $objectArray['category_id'] = $category->get('category_id');
+
+        $categories = $object->getMany('NewslettersHasCategories');
+        $categoriesArray = array();
+        if ($categories) {
+            foreach ($categories as $category) {
+                $categoryId = $category->get('category_id');
+                $categoryObj = $this->modx->getObject('Categories', $categoryId);
+                if ($categoryObj) {
+                    $categoriesArray[] = array(
+                        'category_id' => $categoryId,
+                        'category' => $categoryObj->get('name')
+                    );
+                }
+            }
         }
+        $objectArray['categories'] = $categoriesArray;
+
         unset($objectArray['id']); // avoid Ext component's ID
 
         return $objectArray;

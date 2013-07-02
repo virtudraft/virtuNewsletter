@@ -91,9 +91,9 @@ $xpdo_meta_map['Newsletters']= array (
   ),
   'indexes' => 
   array (
-    'newsletter_id' => 
+    'resource_id' => 
     array (
-      'alias' => 'newsletter_id',
+      'alias' => 'resource_id',
       'primary' => false,
       'unique' => false,
       'type' => 'BTREE',

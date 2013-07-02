@@ -30,6 +30,7 @@ class VirtuNewsletter {
             'cssUrl' => $assetsUrl . 'css/',
             'assetsUrl' => $assetsUrl,
             'connectorUrl' => $assetsUrl . 'conn/mgr.php',
+            'webConnectorUrl' => $assetsUrl . 'conn/web.php',
                 ), $config);
 
         $this->modx->lexicon->load('virtunewsletter:default');
@@ -230,6 +231,6 @@ class VirtuNewsletter {
     }
 
     public function processQueue() {
-        
+
     }
 }

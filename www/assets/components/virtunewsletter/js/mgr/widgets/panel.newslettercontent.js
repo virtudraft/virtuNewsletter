@@ -20,22 +20,6 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
                         xtype: 'virtunewsletter-panel-newsletter-configuration',
                         node: config.node
                     }, {
-                        title: _('virtunewsletter.content'),
-                        preventRender: true,
-                        html: config.node &&
-                                config.node.attributes &&
-                                config.node.attributes.content ?
-                                config.node.attributes.content : '',
-                        listeners: {
-                            'afterrender': {
-                                fn: function(panel) {
-                                    var topTab = Ext.getCmp('virtunewsletter-panel-home');
-//                                    console.log('topTab.getHeight()', topTab.getHeight());
-                                    topTab.doLayout();
-                                }
-                            }
-                        }
-                    }, {
                         title: _('virtunewsletter.reports'),
                         preventRender: true,
                         xtype: 'virtunewsletter-grid-reports',

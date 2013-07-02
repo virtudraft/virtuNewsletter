@@ -12,6 +12,8 @@ VirtuNewsletter.grid.Reports = function(config) {
         remoteSort: true,
         anchor: '97%',
         autoExpandColumn: 'email',
+        dateFormat: 'U',
+        displayFormat: 'm/d/Y',
         columns: [
             {
                 header: _('id'),
@@ -34,7 +36,11 @@ VirtuNewsletter.grid.Reports = function(config) {
             }, {
                 header: _('virtunewsletter.date'),
                 dataIndex: 'status_changed_on',
-                sortable: true
+                sortable: true,
+                renderer: function(value) {
+                    var date = Date.parseDate(value, config.dateFormat);
+                    return date.format(config.displayFormat);
+                }
             }
         ]
     });

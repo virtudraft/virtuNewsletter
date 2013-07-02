@@ -214,7 +214,7 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
                     fn: function() {
                         var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
                         this.pageMask.hide();
-                        return newslettersTree.refreshTree();
+                        return newslettersTree.refreshNode(this.config.node.attributes.id);
                     },
                     scope: this
                 },
@@ -228,20 +228,18 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
         });
     },
     removeNewsletter: function() {
-        var node = this.cm.activeNode;
-
         MODx.msg.confirm({
             title: _('virtunewsletter.remove'),
             text: _('virtunewsletter.remove_confirm'),
-            url: VirtuNewsletter.config.connectorUrl,
+            url: VirtuNewsletter.config.connectorUrl + '?action=mgr/newsletters/remove',
             params: {
-                action: 'mgr/newsletter/remove',
-                id: node.attributes.newsid
+                id: this.config.node.attributes.newsid
             },
             listeners: {
                 'success': {
                     fn: function() {
-                        this.refreshNode(node.id);
+                        var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
+                        newslettersTree.refreshNode(this.config.node.attributes.id);
                         var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
                         contentPanel.removeAll();
                         var container = Ext.getCmp('modx-content');

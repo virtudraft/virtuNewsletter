@@ -11,6 +11,7 @@ class VirtuNewsletterHomeManagerController extends VirtuNewsletterManagerControl
     }
 
     public function loadCustomCssJs() {
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/CheckColumn.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.subscribers.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.recurrenceunit.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.categories.js');

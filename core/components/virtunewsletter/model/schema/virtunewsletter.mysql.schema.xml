@@ -6,6 +6,7 @@
 
         <composite alias="CategoriesHasUsergroups" class="CategoriesHasUsergroups" local="id" foreign="category_id" cardinality="many" owner="local" />
         <composite alias="NewslettersHasCategories" class="NewslettersHasCategories" local="id" foreign="category_id" cardinality="many" owner="local" />
+        <composite alias="SubscribersHasCategories" class="SubscribersHasCategories" local="id" foreign="category_id" cardinality="many" owner="local" />
 
 	</object>
 	<object class="CategoriesHasUsergroups" table="categories_has_usergroups" extends="xPDOObject">
@@ -72,6 +73,7 @@
         <aggregate alias="Users" class="Users" local="user_id" foreign="id" cardinality="one" owner="foreign" />
 
         <composite alias="Reports" class="Reports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
+        <composite alias="SubscribersHasCategories" class="SubscribersHasCategories" local="id" foreign="subscriber_id" cardinality="many" owner="local" />
 
 	</object>
 	<object class="SubscribersHasCategories" table="subscribers_has_categories" extends="xPDOObject">
@@ -85,6 +87,7 @@
 
         <aggregate alias="Subscribers" class="Subscribers" local="subscriber_id" foreign="id" cardinality="one" owner="foreign" />
         <aggregate alias="Categories" class="Categories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
+
 	</object>
 
 	<object class="Usergroups" extends="modUserGroup">

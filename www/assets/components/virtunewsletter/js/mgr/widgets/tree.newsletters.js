@@ -131,12 +131,12 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         listeners: {
             click: function(node) {
                 if (!node.attributes.content) {
-//                    if (node.expanded === true) {
-//                        // odd?
-//                        node.expand();
-//                    } else {
-//                        node.collapse();
-//                    }
+                    if (node.expanded === true) {
+                        // odd?
+                        node.collapse();
+                    } else {
+                        node.expand();
+                    }
                     return this.categoriesPanel(node);
                 } else {
                     return this.newslettersPanel(node);
@@ -263,7 +263,13 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
             },
             listeners: {
                 'success': {
-                    fn: this.refreshTree,
+                    fn: function() {
+                        this.refreshNode(node.attributes.id);
+                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                        contentPanel.removeAll();
+                        var container = Ext.getCmp('modx-content');
+                        return container.doLayout();
+                    },
                     scope: this
                 }
             }

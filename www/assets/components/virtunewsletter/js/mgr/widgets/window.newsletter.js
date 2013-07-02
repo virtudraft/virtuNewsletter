@@ -75,7 +75,6 @@ VirtuNewsletter.window.Schedule = function(config) {
                         listeners: {
                             'render': {
                                 fn: function(obj) {
-                                    console.log('this', this);
                                     // for initial loading
                                     var isRecurring = this.fp.getForm().findField('is_recurring');
                                     if (!isRecurring.value) {

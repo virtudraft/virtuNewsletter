@@ -58,12 +58,40 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
                     'category_id' => $category,
                         ), NULL, TRUE, TRUE);
                 $addCats[] = $newsHasCat;
+                $this->_setQueue($category, $newsId);
             }
             $this->object->addMany($addCats);
             $this->object->save();
         }
 
         return true;
+    }
+
+    private function _setQueue($catId, $newsId) {
+        $c = $this->modx->newQuery('Subscribers');
+        $c->leftJoin('SubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = ' . $catId);
+        $subscribers = $this->modx->getCollection('Subscribers', $c);
+        if ($subscribers) {
+            $time = time();
+            foreach ($subscribers as $subscriber) {
+                $report = $this->modx->newObject('Reports');
+                $subscriberId = $subscriber->get('id');
+                $params = array(
+                    'subscriber_id' => $subscriberId,
+                    'newsletter_id' => $newsId,
+                    'status' => 'queue',
+                    'status_changed_on' => $time,
+                );
+                $report->fromArray($params, NULL, TRUE, TRUE);
+                $addMany = array($report);
+                $subscriber->addMany($addMany);
+                if ($subscriber->save() === FALSE) {
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
+                }
+            }
+        }
     }
 
 }

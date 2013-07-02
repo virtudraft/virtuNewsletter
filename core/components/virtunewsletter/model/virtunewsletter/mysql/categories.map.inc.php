@@ -43,5 +43,13 @@ $xpdo_meta_map['Categories']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
+    'SubscribersHasCategories' => 
+    array (
+      'class' => 'SubscribersHasCategories',
+      'local' => 'id',
+      'foreign' => 'category_id',
+      'cardinality' => 'many',
+      'owner' => 'local',
+    ),
   ),
 );

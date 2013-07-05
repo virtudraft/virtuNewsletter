@@ -2,7 +2,7 @@
 
 class ReportsGetListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'Reports';
+    public $classKey = 'vnewsReports';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.ReportsGetList';
     public $defaultSortField = 'id';
@@ -21,11 +21,12 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
                 'newsletter_id' => $newsletterId
             ));
         }
-        $c->leftJoin('Subscribers', 'Subscribers', 'Subscribers.user_id = Reports.subscriber_id');
+        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
         $c->select(array(
-            'Reports.*',
-            $this->modx->getSelectColumns('Subscribers', 'Subscribers', null, array('id', 'is_active'), TRUE),
+            'vnewsReports.*',
+            $this->modx->getSelectColumns('vnewsSubscribers', 'vnewsSubscribers', null, array('id', 'is_active'), TRUE),
         ));
+
         return $c;
     }
 

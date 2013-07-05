@@ -2,7 +2,7 @@
 
 class NewslettersGetListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'Newsletters';
+    public $classKey = 'vnewsNewsletters';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.NewslettersGetList';
     public $defaultSortField = 'id';

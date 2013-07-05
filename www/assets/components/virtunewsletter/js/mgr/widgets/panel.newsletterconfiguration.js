@@ -5,7 +5,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
 
     Ext.apply(config, {
         baseCls: 'modx-formpanel',
-        cls: 'container',
         layout: 'anchor',
         border: false,
         items: [
@@ -76,18 +75,18 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 xtype: 'xcheckbox',
                                 boxLabel: _('virtunewsletter.is_recurring'),
                                 name: 'is_recurring',
-                                value: config.node &&
+                                checked: config.node &&
                                         config.node.attributes &&
                                         config.node.attributes.is_recurring ? config.node.attributes.is_recurring : 0,
                                 listeners: {
                                     check: {
                                         fn: function(cb, checked) {
                                             if (checked) {
-                                                this.form.findField('recurrence_times').enable();
-                                                this.form.findField('recurrence_unit').enable();
+                                                this.form.findField('recurrence_number').enable();
+                                                this.form.findField('recurrence_range').enable();
                                             } else {
-                                                this.form.findField('recurrence_times').disable();
-                                                this.form.findField('recurrence_unit').disable();
+                                                this.form.findField('recurrence_number').disable();
+                                                this.form.findField('recurrence_range').disable();
                                             }
                                         },
                                         scope: this
@@ -96,17 +95,17 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                             }, {
                                 xtype: 'numberfield',
                                 fieldLabel: _('virtunewsletter.number_of_times'),
-                                name: 'recurrence_times',
+                                name: 'recurrence_number',
                                 value: config.node &&
                                         config.node.attributes &&
-                                        config.node.attributes.recurrence_times ? config.node.attributes.recurrence_times : ''
+                                        config.node.attributes.recurrence_number ? config.node.attributes.recurrence_number : ''
                             }, {
-                                xtype: 'virtunewsletter-combo-recurrenceunit',
+                                xtype: 'virtunewsletter-combo-recurrence-range',
                                 fieldLabel: _('virtunewsletter.by'),
-                                name: 'recurrence_unit',
+                                name: 'recurrence_range',
                                 value: config.node &&
                                         config.node.attributes &&
-                                        config.node.attributes.recurrence_unit ? config.node.attributes.recurrence_unit : ''
+                                        config.node.attributes.recurrence_range ? config.node.attributes.recurrence_range : ''
                             }
                         ],
                         listeners: {
@@ -114,12 +113,12 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 fn: function(obj) {
                                     // for initial loading
                                     var isRecurring = this.form.findField('is_recurring');
-                                    if (!isRecurring.value) {
-                                        this.form.findField('recurrence_times').disable();
-                                        this.form.findField('recurrence_unit').disable();
+                                    if (!isRecurring.checked) {
+                                        this.form.findField('recurrence_number').disable();
+                                        this.form.findField('recurrence_range').disable();
                                     } else {
-                                        this.form.findField('recurrence_times').enable();
-                                        this.form.findField('recurrence_unit').enable();
+                                        this.form.findField('recurrence_number').enable();
+                                        this.form.findField('recurrence_range').enable();
                                     }
                                 },
                                 scope: this
@@ -133,6 +132,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 fieldLabel: _('virtunewsletter.categories'),
                                 node: config.node ? config.node : '',
                                 anchor: '100%',
+                                // this tbar is for this panel only!
                                 tbar: [
                                     {
                                         xtype: 'virtunewsletter-combo-categories',
@@ -140,17 +140,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                         lazyRender: true
                                     }, {
                                         text: _('virtunewsletter.add'),
-                                        handler: function() {
-                                            var topToolbar = this.getTopToolbar();
-                                            var combo = topToolbar.items.items[0];
-                                            var comboValue = combo.getValue();
-                                            var text = combo.lastSelectionText;
-                                            if (comboValue) {
-                                                this.data.push([comboValue, text]);
-                                                this.getStore().loadData(this.data);
-                                                this.getView().refresh();
-                                            }
-                                        }
+                                        handler: this.addCategory
                                     }, {
                                         text: _('virtunewsletter.clear'),
                                         handler: function() {
@@ -163,6 +153,14 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                         ]
                     }
                 ]
+            }, {
+                xtype: 'xcheckbox',
+                boxLabel: _('virtunewsletter.active'),
+                name: 'is_active',
+                anchor: '100%',
+                checked: config.node &&
+                        config.node.attributes &&
+                        config.node.attributes.is_active ? 1 : 0
             }
         ],
         tbar: [
@@ -185,9 +183,21 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
             }
         ]
     });
+
     VirtuNewsletter.panel.NewsletterConfiguration.superclass.constructor.call(this, config);
 };
 Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
+    addCategory: function() {
+        var topToolbar = this.getTopToolbar();
+        var combo = topToolbar.items.items[0];
+        var comboValue = combo.getValue();
+        var text = combo.lastSelectionText;
+        if (comboValue) {
+            this.data.push([comboValue, text]);
+            this.getStore().loadData(this.data);
+            this.getView().refresh();
+        }
+    },
     updateNewsletter: function(btn, evt) {
         var values = this.form.getValues();
         var grid = Ext.getCmp('virtunewsletter-grid-categories');
@@ -195,7 +205,9 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
 
         var categories = [];
         for (var i = 0, l = store.data.items.length; i < l; i++) {
-            categories.push(store.data.items[i].data.category_id);
+            if (store.data.items[i].data.category_id !== 0) {
+                categories.push(store.data.items[i].data.category_id);
+            }
         }
         values['categories'] = categories.join(',');
 
@@ -240,7 +252,7 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
                     fn: function() {
                         var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
                         newslettersTree.refreshNode(this.config.node.attributes.id);
-                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                         contentPanel.removeAll();
                         var container = Ext.getCmp('modx-content');
                         return container.doLayout();
@@ -251,7 +263,7 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
         });
     },
     cleanCenter: function() {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         var container = Ext.getCmp('modx-content');
         return container.doLayout();

@@ -2,7 +2,7 @@
 
 class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
 
-    public $classKey = 'Subscribers';
+    public $classKey = 'vnewsSubscribers';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.SubscribersUpdate';
 

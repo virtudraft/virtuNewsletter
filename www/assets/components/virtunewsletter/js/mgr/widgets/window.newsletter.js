@@ -11,6 +11,7 @@ VirtuNewsletter.window.Schedule = function(config) {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.subject'),
                 name: 'subject',
+                allowBlank: false,
                 anchor: '100%'
             }, {
                 layout: 'column',
@@ -25,7 +26,8 @@ VirtuNewsletter.window.Schedule = function(config) {
                             {
                                 xtype: 'numberfield',
                                 fieldLabel: _('virtunewsletter.resource_id'),
-                                name: 'resource_id'
+                                name: 'resource_id',
+                                allowBlank: false
                             }
                         ]
                     }, {
@@ -34,7 +36,8 @@ VirtuNewsletter.window.Schedule = function(config) {
                             {
                                 xtype: 'datefield',
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
-                                name: 'scheduled_for'
+                                name: 'scheduled_for',
+                                allowBlank: false
                             }
                         ]
                     }, {
@@ -52,11 +55,11 @@ VirtuNewsletter.window.Schedule = function(config) {
                                     check: {
                                         fn: function(cb, checked) {
                                             if (checked) {
-                                                this.fp.getForm().findField('recurrence_times').enable();
-                                                this.fp.getForm().findField('recurrence_unit').enable();
+                                                this.fp.getForm().findField('recurrence_number').enable();
+                                                this.fp.getForm().findField('recurrence_range').enable();
                                             } else {
-                                                this.fp.getForm().findField('recurrence_times').disable();
-                                                this.fp.getForm().findField('recurrence_unit').disable();
+                                                this.fp.getForm().findField('recurrence_number').disable();
+                                                this.fp.getForm().findField('recurrence_range').disable();
                                             }
                                         },
                                         scope: this
@@ -65,11 +68,11 @@ VirtuNewsletter.window.Schedule = function(config) {
                             }, {
                                 xtype: 'numberfield',
                                 fieldLabel: _('virtunewsletter.number_of_times'),
-                                name: 'recurrence_times'
+                                name: 'recurrence_number'
                             }, {
-                                xtype: 'virtunewsletter-combo-recurrenceunit',
+                                xtype: 'virtunewsletter-combo-recurrence-range',
                                 fieldLabel: _('virtunewsletter.by'),
-                                name: 'recurrence_unit'
+                                name: 'recurrence_range'
                             }
                         ],
                         listeners: {
@@ -78,11 +81,11 @@ VirtuNewsletter.window.Schedule = function(config) {
                                     // for initial loading
                                     var isRecurring = this.fp.getForm().findField('is_recurring');
                                     if (!isRecurring.value) {
-                                        this.fp.getForm().findField('recurrence_times').disable();
-                                        this.fp.getForm().findField('recurrence_unit').disable();
+                                        this.fp.getForm().findField('recurrence_number').disable();
+                                        this.fp.getForm().findField('recurrence_range').disable();
                                     } else {
-                                        this.fp.getForm().findField('recurrence_times').enable();
-                                        this.fp.getForm().findField('recurrence_unit').enable();
+                                        this.fp.getForm().findField('recurrence_number').enable();
+                                        this.fp.getForm().findField('recurrence_range').enable();
                                     }
                                 },
                                 scope: this
@@ -125,6 +128,11 @@ VirtuNewsletter.window.Schedule = function(config) {
                         }
                     }
                 ]
+            }, {
+                xtype: 'xcheckbox',
+                boxLabel: _('virtunewsletter.active'),
+                name: 'is_active',
+                anchor: '100%'
             }
         ],
         listeners: {
@@ -134,9 +142,12 @@ VirtuNewsletter.window.Schedule = function(config) {
                     var store = grid.getStore();
                     var categories = [];
                     for (var i = 0, l = store.data.items.length; i < l; i++) {
-                        categories.push(store.data.items[i].data.category_id);
+                        if (store.data.items[i].data.category_id !== 0) {
+                            categories.push(store.data.items[i].data.category_id);
+                        }
                     }
                     values['categories'] = categories;
+                    values['is_active'] = values['is_active'] - 0; // typecasting
                     this.fp.getForm().setValues(values);
 
                     return true;

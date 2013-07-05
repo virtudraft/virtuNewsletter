@@ -8,10 +8,9 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
             {
                 xtype: 'modx-tabs',
                 defaults: {
-                    border: false,
-                    autoHeight: true
+                    border: false
                 },
-                bodyStyle: 'padding:20px; overflow-y: scroll;',
+                bodyStyle: 'padding:20px;',
                 border: true,
                 items: [
                     {

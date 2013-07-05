@@ -2,9 +2,21 @@
 
 class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
 
-    public $classKey = 'Categories';
+    public $classKey = 'vnewsCategories';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesUpdate';
+
+    /**
+     * {@inheritDoc}
+     * @return boolean
+     */
+    public function initialize() {
+        $name = $this->getProperty('name');
+        if (empty($name)) {
+            $this->addFieldError('name', $this->modx->lexicon('virtunewsletter.category_err_ns_name'));
+        }
+        return parent::initialize();
+    }
 
     /**
      * Override in your derivative class to do functionality after save() is run
@@ -12,7 +24,7 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
      */
     public function afterSave() {
         $catId = $this->getProperty('id');
-        $this->modx->removeCollection('CategoriesHasUsergroups', array(
+        $this->modx->removeCollection('vnewsCategoriesHasUsergroups', array(
             'category_id' => $catId
         ));
 
@@ -21,7 +33,7 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
         if ($usergroups) {
             $addUsergroups = array();
             foreach ($usergroups as $usergroup) {
-                $catHasUg = $this->modx->newObject('CategoriesHasUsergroups');
+                $catHasUg = $this->modx->newObject('vnewsCategoriesHasUsergroups');
                 $catHasUg->fromArray(array(
                     'category_id' => $catId,
                     'usergroup_id' => $usergroup,

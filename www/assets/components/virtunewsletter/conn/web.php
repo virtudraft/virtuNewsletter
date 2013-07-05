@@ -7,6 +7,8 @@
  */
 $validActions = array(
     'web/newsletters/read',
+    'web/crons/queues/set',
+    'web/crons/queues/process',
 );
 if (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], $validActions)) {
     @session_cache_limiter('public');

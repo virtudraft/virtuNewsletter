@@ -1,69 +1,87 @@
 VirtuNewsletter.panel.Home = function(config) {
     config = config || {};
+
     Ext.apply(config, {
         id: 'virtunewsletter-panel-home',
-        border: false,
         baseCls: 'modx-formpanel',
-        cls: 'container',
+        layout: 'border',
+        defaults: {
+            collapsible: false,
+            split: true,
+            bodyStyle: 'padding: 15px',
+            border: false,
+            autoHeight: true
+        },
+        bodyStyle: 'min-height: 500px;',
+        preventRender: false,
         items: [
             {
-                html: '<h2>' + _('virtunewsletter') + '</h2>',
-                border: false,
-                cls: 'modx-page-header'
-            }, {
-                xtype: 'modx-tabs',
+                region: 'north',
+                id: 'virtunewsletter-panel-home-north',
                 defaults: {
                     border: false,
                     autoHeight: true
                 },
-                border: true,
                 items: [
                     {
-                        title: _('virtunewsletter.newsletters'),
-                        preventRender: true,
+                        layout: 'hbox',
+                        border: false,
                         defaults: {
-                            autoHeight: true
+                            border: false
                         },
                         items: [
                             {
-                                html: '<p>' + _('virtunewsletter.newsletters_desc') + '</p>',
+                                html: '<h2>' + _('virtunewsletter') + '</h2>',
                                 border: false,
-                                bodyCssClass: 'panel-desc'
+                                cls: 'modx-page-header'
                             }, {
-                                xtype: 'virtunewsletter-panel-newsletter',
-                                cls: 'main-wrapper',
-                                preventRender: true
-                            }
-                        ]
-                    },
-                    {
-                        title: _('virtunewsletter.subscribers'),
-                        preventRender: true,
-                        defaults: {
-                            autoHeight: true
-                        },
-                        items: [
-                            {
-                                html: '<p>' + _('virtunewsletter.subscribers_desc') + '</p>',
+                                xtype: 'buttongroup',
                                 border: false,
-                                bodyCssClass: 'panel-desc'
-                            }, {
-                                xtype: 'virtunewsletter-grid-subscribers',
-                                cls: 'main-wrapper',
-                                preventRender: true
+                                bodyStyle: 'background-image: none;',
+                                columns: 2,
+                                items: [
+                                    {
+                                        text: _('virtunewsletter.newsletters'),
+                                        listeners: {
+                                            'click': {
+                                                fn: function() {
+                                                    return this.openPage('newsletters');
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    }, {
+                                        text: _('virtunewsletter.subscribers'),
+                                        listeners: {
+                                            'click': {
+                                                fn: function() {
+                                                    return this.openPage('subscribers');
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     }
-                ],
-                listeners: {
-                    'afterrender': function(tabPanel) {
-                        tabPanel.doLayout();
-                    }
-                }
+                ]
             }, {
+                region: 'center',
+                id: 'virtunewsletter-panel-home-center',
+                padding: 0,
+                layout: 'fit',
+                items: [
+                    {
+                        xtype: 'virtunewsletter-panel-newsletters'
+                    }
+                ]
+            }, {
+                region: 'south',
+                id: 'virtunewsletter-panel-home-south',
                 html: '<a href="javascript:void(0);" style="color: #bbbbbb;" id="virtunewsletter_about">' + _('virtunewsletter_about') + '</a>',
                 border: false,
-                bodyStyle: 'font-size: 10px; text-align: right; margin: 5px;',
+                bodyStyle: 'font-size: 10px; margin: 5px;',
                 listeners: {
                     afterrender: function() {
                         Ext.get('virtunewsletter_about').on('click', function() {
@@ -77,9 +95,35 @@ VirtuNewsletter.panel.Home = function(config) {
                     }
                 }
             }
-        ]
+        ],
+        listeners: {
+            beforerender: {
+                fn: function(panel) {
+                    var modxHeaderHeight = Ext.get('modx-header').getHeight();
+                    var modxContentHeight = Ext.get('modx-content').getHeight();
+                    this.height = modxContentHeight - modxHeaderHeight;
+                },
+                scope: this
+            }
+        }
     });
+
     VirtuNewsletter.panel.Home.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.panel.Home, MODx.Panel);
+Ext.extend(VirtuNewsletter.panel.Home, MODx.Panel, {
+    openPage: function(page) {
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-home-center');
+        contentPanel.removeAll();
+        contentPanel.update({
+            layout: 'fit'
+        });
+
+        contentPanel.add({
+            xtype: 'virtunewsletter-panel-' + page
+        });
+
+        var container = Ext.getCmp('modx-content');
+        return container.doLayout();
+    }
+});
 Ext.reg('virtunewsletter-panel-home', VirtuNewsletter.panel.Home);

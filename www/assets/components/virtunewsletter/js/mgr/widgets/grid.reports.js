@@ -7,7 +7,7 @@ VirtuNewsletter.grid.Reports = function(config) {
             action: 'mgr/reports/getList',
             newsletter_id: config.newsletter_id
         },
-        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_changed_on'],
+        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'current_occurrence_time', 'status', 'status_logged_on', 'next_occurrence_time'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -30,16 +30,36 @@ VirtuNewsletter.grid.Reports = function(config) {
                 dataIndex: 'email',
                 sortable: true
             }, {
+                header: _('virtunewsletter.current_occurrence_time'),
+                dataIndex: 'current_occurrence_time',
+                sortable: true,
+                renderer: function(value) {
+                    if (value) {
+                        var date = Date.parseDate(value, config.dateFormat);
+                        return date.format(config.displayFormat);
+                    }
+                }
+            }, {
                 header: _('virtunewsletter.status'),
                 dataIndex: 'status',
                 sortable: true
             }, {
                 header: _('virtunewsletter.date'),
-                dataIndex: 'status_changed_on',
+                dataIndex: 'status_logged_on',
                 sortable: true,
                 renderer: function(value) {
                     var date = Date.parseDate(value, config.dateFormat);
                     return date.format(config.displayFormat);
+                }
+            }, {
+                header: _('virtunewsletter.next_occurrence_time'),
+                dataIndex: 'next_occurrence_time',
+                sortable: true,
+                renderer: function(value) {
+                    if (value) {
+                        var date = Date.parseDate(value, config.dateFormat);
+                        return date.format(config.displayFormat);
+                    }
                 }
             }
         ]

@@ -36,15 +36,16 @@ foreach ($usergroups as $usergroup) {
  * Generate users
  */
 if ($usersArray) {
+
     foreach ($usersArray as $user) {
-        $subscriber = $modx->getObject('Subscribers', array(
+        $subscriber = $modx->getObject('vnewsSubscribers', array(
             'email' => $user['email']
         ));
         if ($subscriber) {
             continue;
         }
 
-        $subscriber = $modx->newObject('Subscribers');
+        $subscriber = $modx->newObject('vnewsSubscribers');
         $subscriber->fromArray(array(
             'user_id' => $user['user_id'],
             'email' => $user['email'],
@@ -52,35 +53,34 @@ if ($usersArray) {
             'is_active' => 1,
         ));
         $subscriber->save();
-    }
-}
+        $subscriberId = $subscriber->getPrimaryKey();
 
-/**
- * Generate intermediate table SubscribersHasCategories because
- * CategoriesHasUsergroups
- */
-foreach ($usersArray as $user) {
-    $c = $modx->newQuery('Categories');
-    $c->leftJoin('CategoriesHasUsergroups', 'CategoriesHasUsergroups', array(
-        'CategoriesHasUsergroups.usergroup_id:IN' => $user['usergroups']
-    ));
-    $categories = $modx->getCollection('Categories', $c);
-    if ($categories) {
-        foreach ($categories as $category) {
-            $categoryId = $category->get('id');
-            $subsHasCats = $modx->getObject('SubscribersHasCategories', array(
-                'subscriber_id' => $user['user_id'],
-                'category_id' => $categoryId
-            ));
-            if ($subsHasCats)
-                continue;
+        /**
+         * Generate intermediate table vnewsSubscribersHasCategories for usergroups
+         * because vnewsCategoriesHasUsergroups
+         */
+        $c = $modx->newQuery('vnewsCategories');
+        $c->leftJoin('vnewsCategoriesHasUsergroups', 'vnewsCategoriesHasUsergroups', array(
+            'vnewsCategoriesHasUsergroups.usergroup_id:IN' => $user['usergroups']
+        ));
+        $categories = $modx->getCollection('vnewsCategories', $c);
+        if ($categories) {
+            foreach ($categories as $category) {
+                $categoryId = $category->get('id');
+                $subsHasCats = $modx->getObject('vnewsSubscribersHasCategories', array(
+                    'subscriber_id' => $subscriberId,
+                    'category_id' => $categoryId
+                ));
+                if ($subsHasCats)
+                    continue;
 
-            $subsHasCats = $modx->newObject('SubscribersHasCategories');
-            $subsHasCats->fromArray(array(
-                'subscriber_id' => $user['user_id'],
-                'category_id' => $categoryId
-            ), NULL, TRUE, TRUE);
-            $subsHasCats->save();
+                $subsHasCats = $modx->newObject('vnewsSubscribersHasCategories');
+                $subsHasCats->fromArray(array(
+                    'subscriber_id' => $subscriberId,
+                    'category_id' => $categoryId
+                        ), NULL, TRUE, TRUE);
+                $subsHasCats->save();
+            }
         }
     }
 }

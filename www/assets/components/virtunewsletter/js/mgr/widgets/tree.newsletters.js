@@ -53,6 +53,10 @@ VirtuNewsletter.tree.Newsletters = function(config) {
             expanded: true
         },
         rootVisible: false,
+        title: _('virtunewsletter.newsletterstree.title'),
+        autoScroll: true,
+        enableDD: false,
+        containerScroll: true,
         tbar: [
             {
                 tooltip: {
@@ -84,7 +88,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 },
                 icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/folder_add.png',
                 handler: function() {
-                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                     contentPanel.removeAll();
 
                     var catWindow = new VirtuNewsletter.window.Category({
@@ -106,7 +110,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 },
                 icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/new-static-resource.png',
                 handler: function() {
-                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                     contentPanel.removeAll();
 
                     var schWindow = new VirtuNewsletter.window.Schedule({
@@ -124,10 +128,6 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 }
             }
         ],
-        title: _('virtunewsletter.newsletterstree.title'),
-        autoScroll: true,
-        enableDD: false,
-        containerScroll: true,
         listeners: {
             click: function(node) {
                 if (!node.attributes.content) {
@@ -146,11 +146,11 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 return this.getRootNode().expand(true);
             },
             collapse: function(panel) {
-                var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                 return contentPanel.doLayout();
             },
             expand: function(panel) {
-                var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                 return contentPanel.doLayout();
             }
         }
@@ -212,6 +212,9 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
         });
     },
     updateCategory: function() {
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
+        contentPanel.removeAll();
+
         var node = this.cm.activeNode;
 
         var catWindow = new VirtuNewsletter.window.Category({
@@ -232,6 +235,9 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
         return catWindow.show();
     },
     updateNewsletter: function() {
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
+        contentPanel.removeAll();
+
         var node = this.cm.activeNode;
 
         var schWindow = new VirtuNewsletter.window.Schedule({
@@ -265,7 +271,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
                 'success': {
                     fn: function() {
                         this.refreshNode(node.attributes.id);
-                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                         contentPanel.removeAll();
                         var container = Ext.getCmp('modx-content');
                         return container.doLayout();
@@ -285,7 +291,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
         return categoriesTree.getLoader().load(categoriesTree.root);
     },
     newslettersPanel: function(node) {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         contentPanel.update({
             layout: 'fit'
@@ -304,7 +310,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
         return container.doLayout();
     },
     categoriesPanel: function(node) {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         contentPanel.update({
             layout: 'fit'

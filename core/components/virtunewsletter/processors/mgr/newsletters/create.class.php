@@ -2,7 +2,7 @@
 
 class NewslettersCreateProcessor extends modObjectCreateProcessor {
 
-    public $classKey = 'Newsletters';
+    public $classKey = 'vnewsNewsletters';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.NewslettersCreate';
 
@@ -11,9 +11,25 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
      * @return boolean
      */
     public function initialize() {
+        $subject = $this->getProperty('subject');
+        if (empty($subject)) {
+            $this->addFieldError('subject', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_subject'));
+            return FALSE;
+        }
         $resourceId = $this->getProperty('resource_id');
         if (empty($resourceId)) {
             $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id'));
+            return FALSE;
+        }
+        $scheduledFor = $this->getProperty('scheduled_for');
+        if (empty($scheduledFor)) {
+            $this->addFieldError('scheduled_for', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_scheduled_for'));
+            return FALSE;
+        }
+        $categories = $this->getProperty('categories');
+        $categories = @explode(',', $categories);
+        if (empty($categories) || (isset($categories[0]) && empty($categories[0]))) {
+            $this->addFieldError('categories', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_categories'));
             return FALSE;
         }
         $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
@@ -52,13 +68,13 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             $addCats = array();
             $newsId = $this->object->getPrimaryKey();
             foreach ($categories as $category) {
-                $newsHasCat = $this->modx->newObject('NewslettersHasCategories');
+                $category = intval($category);
+                $newsHasCat = $this->modx->newObject('vnewsNewslettersHasCategories');
                 $newsHasCat->fromArray(array(
                     'newsletter_id' => $newsId,
                     'category_id' => $category,
                         ), NULL, TRUE, TRUE);
                 $addCats[] = $newsHasCat;
-                $this->_setQueue($category, $newsId);
             }
             $this->object->addMany($addCats);
             $this->object->save();
@@ -67,32 +83,6 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         return true;
     }
 
-    private function _setQueue($catId, $newsId) {
-        $c = $this->modx->newQuery('Subscribers');
-        $c->leftJoin('SubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = ' . $catId);
-        $subscribers = $this->modx->getCollection('Subscribers', $c);
-        if ($subscribers) {
-            $time = time();
-            foreach ($subscribers as $subscriber) {
-                $report = $this->modx->newObject('Reports');
-                $subscriberId = $subscriber->get('id');
-                $params = array(
-                    'subscriber_id' => $subscriberId,
-                    'newsletter_id' => $newsId,
-                    'status' => 'queue',
-                    'status_changed_on' => $time,
-                );
-                $report->fromArray($params, NULL, TRUE, TRUE);
-                $addMany = array($report);
-                $subscriber->addMany($addMany);
-                if ($subscriber->save() === FALSE) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
-                }
-            }
-        }
-    }
 
 }
 

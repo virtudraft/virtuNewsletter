@@ -3,7 +3,6 @@ VirtuNewsletter.panel.Category = function(config) {
 
     Ext.apply(config, {
         baseCls: 'modx-formpanel',
-        cls: 'container',
         layout: 'anchor',
         items: [
             {
@@ -93,7 +92,7 @@ VirtuNewsletter.panel.Category = function(config) {
         ],
         tbar: [
             '->', {
-                text: _('virtunewsletter.category_update'),
+                text: _('virtunewsletter.save'),
                 handler: this.updateCategory,
                 scope: this
             }, {
@@ -146,7 +145,7 @@ Ext.extend(VirtuNewsletter.panel.Category, MODx.FormPanel, {
         });
     },
     cleanCenter: function() {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletter-center');
+        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         var container = Ext.getCmp('modx-content');
         return container.doLayout();

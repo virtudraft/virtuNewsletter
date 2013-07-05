@@ -2,7 +2,7 @@
 
 class UsergroupsGetListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'CategoriesHasUsergroups';
+    public $classKey = 'vnewsCategoriesHasUsergroups';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.UsergroupsGetList';
     public $defaultSortField = 'usergroup_id';

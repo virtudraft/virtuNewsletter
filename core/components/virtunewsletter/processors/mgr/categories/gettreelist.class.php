@@ -2,7 +2,7 @@
 
 class CategoriesGetTreeListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'Categories';
+    public $classKey = 'vnewsCategories';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesGetTreeList';
     public $defaultSortField = 'id';
@@ -20,7 +20,7 @@ class CategoriesGetTreeListProcessor extends modObjectGetListProcessor {
         $hasChildren = $this->_hasChildren($objectArray['catid']);
         $objectArray['leaf'] = $hasChildren ? FALSE : TRUE;
 
-        $usergroups = $object->getMany('CategoriesHasUsergroups');
+        $usergroups = $object->getMany('vnewsCategoriesHasUsergroups');
         $usergroupsArray = array();
         if ($usergroups) {
             foreach ($usergroups as $usergroup) {
@@ -47,10 +47,49 @@ class CategoriesGetTreeListProcessor extends modObjectGetListProcessor {
     }
 
     private function _hasChildren($catid) {
-        return $this->modx->getCount('NewslettersHasCategories', array(
-            'category_id' => $catid
+        return $this->modx->getCount('vnewsNewslettersHasCategories', array(
+                    'category_id' => $catid
         ));
     }
+
+    /**
+     * Can be used to insert a row before iteration
+     * @param array $list
+     * @return array
+     */
+    public function afteriteration(array $list) {
+        $c = $this->modx->newQuery('vnewsNewslettersHasCategories');
+        $c->distinct(TRUE);
+        $newsHasCats = $this->modx->getCollection('vnewsNewslettersHasCategories', $c);
+        if ($newsHasCats) {
+            $newsHasCatsArray = array();
+            foreach ($newsHasCats as $newsHasCat) {
+                $newsHasCatsArray[] = $newsHasCat->get('newsletter_id');
+            }
+        }
+        if (!empty($newsHasCatsArray)) {
+            $orphanNewsletters = $this->modx->getCollection('vnewsNewsletters', array(
+                'id:NOT IN' => $newsHasCatsArray
+            ));
+
+            $hasChildren = $orphanNewsletters ? TRUE : FALSE;
+            $leaf = $hasChildren ? FALSE : TRUE;
+            array_unshift($list, array(
+                'name' => $this->modx->lexicon('virtunewsletter.uncategorized'),
+                'description' => $this->modx->lexicon('virtunewsletter.uncategorized_desc'),
+                'catid' => 0,
+                'text' => $this->modx->lexicon('virtunewsletter.uncategorized'),
+                'leaf' => $leaf,
+                'usergroups' => array(
+                    'usergroup_id' => 0,
+                    'usergroup' => ''
+                ),
+            ));
+        }
+
+        return $list;
+    }
+
 }
 
 return 'CategoriesGetTreeListProcessor';

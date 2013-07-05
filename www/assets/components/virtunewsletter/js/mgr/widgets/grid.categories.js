@@ -5,10 +5,15 @@ VirtuNewsletter.grid.Categories = function(config) {
     if (check) {
         check.destroy();
     }
-    var data = [];
-    if (config.node && config.node.attributes && config.node.attributes.categories) {
-        for (var i = 0, l = config.node.attributes.categories.length; i < l; i++) {
-            data.push([config.node.attributes.categories[i].category_id, config.node.attributes.categories[i].category]);
+
+    if (!this.data) {
+        var data = [];
+        if (config.node && config.node.attributes && config.node.attributes.categories) {
+            for (var i = 0, l = config.node.attributes.categories.length; i < l; i++) {
+                if (config.node.attributes.categories[i].category_id !== 0) {
+                    data.push([config.node.attributes.categories[i].category_id, config.node.attributes.categories[i].category]);
+                }
+            }
         }
     }
 
@@ -55,8 +60,11 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.LocalGrid, {
             }
             newData.push(this.data[i]);
         }
+
+        this.data = newData;
         this.getStore().loadData(newData);
         this.getView().refresh();
+        return newData;
     }
 });
 Ext.reg('virtunewsletter-grid-categories', VirtuNewsletter.grid.Categories);

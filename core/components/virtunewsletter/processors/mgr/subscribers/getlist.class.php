@@ -2,7 +2,7 @@
 
 class SubscribersGetListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'Subscribers';
+    public $classKey = 'vnewsSubscribers';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.SubscribersGetList';
     public $defaultSortField = 'id';

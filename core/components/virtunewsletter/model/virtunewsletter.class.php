@@ -217,12 +217,17 @@ class VirtuNewsletter {
         }
     }
 
+    /**
+     * Get a newsletter
+     * @param   int     $newsId newsletter's ID
+     * @return  mixed   false|array
+     */
     public function getNewsletter($newsId) {
         if (intval($newsId) < 1) {
             return FALSE;
         }
 
-        $newsletters = $this->modx->getObject('Newsletters', $newsId);
+        $newsletters = $this->modx->getObject('vnewsNewsletters', $newsId);
         $newslettersArray = array();
         if ($newsletters) {
             $newslettersArray = $newsletters->toArray();
@@ -230,7 +235,256 @@ class VirtuNewsletter {
         return $newslettersArray;
     }
 
-    public function processQueue() {
+    /**
+     * Calculate the next occurrence time of a newsletter if it is recurring
+     * @param   int     $newsId newsletter's ID
+     * @return  mixed   false|null|UNIX date of the next occurrence
+     */
+    public function nextOccurrenceTime($newsId) {
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        if (!$newsletter) {
+            return FALSE;
+        }
+        $currentOccurrenceTime = $newsletter->get('scheduled_for');
+        $isRecurring = $newsletter->get('is_recurring');
+        if (!$isRecurring) {
+            $nextOccurrenceTime = NULL;
+        } else {
+            $timeRange = 0;
+            $recurrenceRange = $newsletter->get('recurrence_range');
+            $recurrenceNumber = $newsletter->get('recurrence_number');
+            if (intval($recurrenceNumber) > 0) {
+                if ($recurrenceRange === 'weekly') {
+                    $daysRange = ceil(7 / $recurrenceNumber);
+                    $timeRange = $daysRange * 24 * 60 * 60;
+                } elseif ($recurrenceRange === 'monthly') {
+                    $numberOfDays = date('t', $currentOccurrenceTime);
+                    $daysRange = ceil($numberOfDays / $recurrenceNumber);
+                    $timeRange = $daysRange * 24 * 60 * 60;
+                } elseif ($recurrenceRange === 'yearly') {
+                    $numberOfDays = date('z', mktime(0, 0, 0, 12, 31, date('Y', $currentOccurrenceTime))) + 1;
+                    $daysRange = ceil($numberOfDays / $recurrenceNumber);
+                    $timeRange = $daysRange * 24 * 60 * 60;
+                }
+            }
+
+            $nextOccurrenceTime = $currentOccurrenceTime + $timeRange;
+        }
+
+        return $nextOccurrenceTime;
+    }
+
+    /**
+     * Set subscribers queue of a newsletter
+     * @param   int     $newsId newsletter's ID
+     * @return  mixed   false|report array
+     */
+    public function setNewsletterQueue($newsId) {
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        if (!$newsletter) {
+            return FALSE;
+        }
+        $time = time();
+
+        $outputReports = array();
+        $currentOccurrenceTime = $newsletter->get('scheduled_for');
+        $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
+        $subscribers = $this->getNewsletterSubscribers($newsletter->get('id'));
+        if (!$subscribers) {
+            return FALSE;
+        }
+        $newsletterId = $newsletter->get('id');
+        foreach ($subscribers as $subscriber) {
+            $report = $this->modx->getObject('vnewsReports', array(
+                'subscriber_id' => $subscriber['id'],
+                'newsletter_id' => $newsletterId,
+                'current_occurrence_time' => $currentOccurrenceTime,
+            ));
+            if ($report) {
+                continue;
+            }
+
+            $report = $this->modx->newObject('vnewsReports');
+            $params = array(
+                'subscriber_id' => $subscriber['id'],
+                'newsletter_id' => $newsletterId,
+                'current_occurrence_time' => $currentOccurrenceTime,
+                'status' => 'queue',
+                'status_logged_on' => $time,
+                'next_occurrence_time' => $nextOccurrenceTime,
+            );
+            $report->fromArray($params, NULL, TRUE);
+            if ($report->save() === FALSE) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
+                continue;
+            } else {
+                $outputReports[] = $report->toArray();
+            }
+        }
+
+        return $outputReports;
+    }
+
+    /**
+     * Set all queues
+     * @param   boolean $todayOnly  strict to today's queue (default: false)
+     * @return  array   report's array
+     */
+    public function setQueues($todayOnly = TRUE) {
+        $c = $this->modx->newQuery('vnewsNewsletters');
+        $c->where(array(
+            'content:!=' => '',
+            'AND:is_active:=' => 1,
+        ));
+        if ($todayOnly) {
+            date_default_timezone_set('UTC');
+            $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $c->where(array(
+                'scheduled_for' => $today,
+                    ), 'AND');
+        }
+        $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
+        $time = time();
+
+        $outputReports = array();
+        foreach ($newsletters as $newsletter) {
+            $currentOccurrenceTime = $newsletter->get('scheduled_for');
+            $newsletterId = $newsletter->get('id');
+            $nextOccurrenceTime = $this->nextOccurrenceTime($newsletterId);
+            $subscribers = $this->getNewsletterSubscribers($newsletterId);
+            if (!$subscribers) {
+                continue;
+            }
+            foreach ($subscribers as $subscriber) {
+                $report = $this->modx->getObject('vnewsReports', array(
+                    'subscriber_id' => $subscriber['id'],
+                    'newsletter_id' => $newsletterId,
+                    'current_occurrence_time' => $currentOccurrenceTime,
+                ));
+                if ($report) {
+                    continue;
+                }
+
+                $report = $this->modx->newObject('vnewsReports');
+                $params = array(
+                    'subscriber_id' => $subscriber['id'],
+                    'newsletter_id' => $newsletterId,
+                    'current_occurrence_time' => $currentOccurrenceTime,
+                    'status' => 'queue',
+                    'status_logged_on' => $time,
+                    'next_occurrence_time' => $nextOccurrenceTime,
+                );
+                $report->fromArray($params, NULL, TRUE);
+                if ($report->save() === FALSE) {
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
+                } else {
+                    $outputReports[] = $report->toArray();
+                }
+            }
+        }
+
+        return $outputReports;
+    }
+
+    /**
+     * Get all subscribers for a newsletter
+     * @param   int     $newsId newsletter's ID
+     * @return  mixed   false|subscribers array
+     */
+    public function getNewsletterSubscribers($newsId) {
+        $subscribersArray = array();
+
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        if (!$newsletter) {
+            return FALSE;
+        }
+
+        $c = $this->modx->newQuery('vnewsNewslettersHasCategories');
+        $c->distinct(TRUE);
+        $newsletterHasCategories = $newsletter->getMany('vnewsNewslettersHasCategories', $c);
+        if (!$newsletterHasCategories) {
+            return FALSE;
+        }
+
+        $categories = array();
+        foreach ($newsletterHasCategories as $newsHasCats) {
+            $categories[] = $newsHasCats->getOne('vnewsCategories');
+        }
+        if (!$categories) {
+            return FALSE;
+        }
+        foreach ($categories as $category) {
+            // some newsletters might not have category at the moment
+            if (empty($category)) {
+                continue;
+            }
+            $subscribersHasCategories = $category->getMany('vnewsSubscribersHasCategories');
+            if ($subscribersHasCategories) {
+                foreach ($subscribersHasCategories as $subsHasCats) {
+                    $subscribers = $subsHasCats->getOne('vnewsSubscribers');
+                    if ($subscribers) {
+                        $subscribersArray[] = $subscribers->toArray();
+                    }
+                }
+            }
+        }
+
+        return $subscribersArray;
+    }
+
+    /**
+     * Process queue
+     * @param   boolean $todayOnly  strict to today's queue (default: false)
+     * @return void
+     */
+    public function processQueue($todayOnly = FALSE) {
+        $c = $this->modx->newQuery('vnewsReports');
+        $c->where(array(
+            'status' => 'queue'
+        ));
+        if ($todayOnly) {
+            date_default_timezone_set('UTC');
+            $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $c->where(array(
+                'current_occurrence_time' => $today,
+            ));
+        }
+        $limit = $this->modx->getOption('virtunewsletter.email_limit');
+        $c->limit($limit);
+        $queues = $this->modx->getCollection('vnewsReports', $c);
+        if ($queues) {
+            foreach ($queues as $queue) {
+                $sent = $this->sendNewsletter($queue->get('newsletter_id'), $queue->get('subscriber_id'));
+                if ($sent) {
+                    $queue->set('status_logged_on', time());
+                    $nextOccurrenceTime = $queue->get('next_occurrence_time');
+                    if (!empty($nextOccurrenceTime)) {
+                        $queue->set('current_occurrence_time', $nextOccurrenceTime);
+                        $nextOccurrenceTime = $this->nextOccurrenceTime($queue->get('newsletter_id'));
+                        $queue->set('next_occurrence_time', $nextOccurrenceTime);
+                    } else {
+                        $queue->set('status', 'sent');
+                    }
+                    if ($queue->save() === FALSE) {
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to update a queue! ' . print_r($queue->toArray(), TRUE));
+                    }
+                } else {
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to send a queue! ' . print_r($queue->toArray(), TRUE));
+                }
+            }
+        }
+    }
+
+    public function sendNewsletter($newsId, $subscriberId) {
 
     }
+
 }

@@ -2,7 +2,7 @@
 
 class CategoriesCreateProcessor extends modObjectCreateProcessor {
 
-    public $classKey = 'Categories';
+    public $classKey = 'vnewsCategories';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesCreate';
 
@@ -30,7 +30,7 @@ class CategoriesCreateProcessor extends modObjectCreateProcessor {
             $addUsergroups = array();
             $catId = $this->object->getPrimaryKey();
             foreach ($usergroups as $usergroup) {
-                $catHasUg = $this->modx->newObject('CategoriesHasUsergroups');
+                $catHasUg = $this->modx->newObject('vnewsCategoriesHasUsergroups');
                 $catHasUg->fromArray(array(
                     'category_id' => $catId,
                     'usergroup_id' => $usergroup,

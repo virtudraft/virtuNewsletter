@@ -2,7 +2,7 @@
 
 class NewslettersGetListProcessor extends modObjectGetListProcessor {
 
-    public $classKey = 'Newsletters';
+    public $classKey = 'vnewsNewsletters';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.NewslettersGetList';
     public $defaultSortField = 'id';
@@ -15,14 +15,29 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
      * @return xPDOQuery
      */
     public function prepareQueryBeforeCount(xPDOQuery $c) {
-        $categoryId = $this->getProperty('category_id');
+        $categoryId = (int)$this->getProperty('category_id');
         if (!empty($categoryId)) {
-            $c->innerJoin('NewslettersHasCategories', 'NewslettersHasCategories');
-            $c->leftJoin('Categories', 'Categories', 'Categories.id = NewslettersHasCategories.category_id');
+            $c->innerJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories');
+            $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsNewslettersHasCategories.category_id');
             $c->where(array(
-                'Categories.id' => $categoryId
+                'vnewsCategories.id' => $categoryId
+            ));
+        } elseif ($categoryId === 0) {
+            $criteria = $this->modx->newQuery('vnewsNewslettersHasCategories');
+            $criteria->distinct();
+            $newsHasCats = $this->modx->getCollection('vnewsNewslettersHasCategories', $criteria);
+            $newsHasCatsArray = array();
+            if ($newsHasCats) {
+                foreach ($newsHasCats as $item) {
+                    $newsHasCatsArray[] = $item->get('newsletter_id');
+                }
+            }
+
+            $c->where(array(
+                'id:NOT IN' => $newsHasCatsArray
             ));
         }
+        
         return $c;
     }
 
@@ -38,12 +53,12 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         $objectArray['leaf'] = TRUE;
         $objectArray['scheduled_for'] = date('m/d/Y', $objectArray['scheduled_for']);
 
-        $categories = $object->getMany('NewslettersHasCategories');
+        $categories = $object->getMany('vnewsNewslettersHasCategories');
         $categoriesArray = array();
         if ($categories) {
             foreach ($categories as $category) {
                 $categoryId = $category->get('category_id');
-                $categoryObj = $this->modx->getObject('Categories', $categoryId);
+                $categoryObj = $this->modx->getObject('vnewsCategories', $categoryId);
                 if ($categoryObj) {
                     $categoriesArray[] = array(
                         'category_id' => $categoryId,
@@ -51,6 +66,11 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
                     );
                 }
             }
+        } else {
+            $categoriesArray[] = array(
+                'category_id' => 0,
+                'category' => 'uncategorized'
+            );
         }
         $objectArray['categories'] = $categoriesArray;
 

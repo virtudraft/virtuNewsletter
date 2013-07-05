@@ -18,6 +18,7 @@ VirtuNewsletter.window.Category = function(config) {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.name') + ':',
                 name: 'name',
+                allowBlank:  false,
                 anchor: '100%'
             }, {
                 xtype: 'textarea',

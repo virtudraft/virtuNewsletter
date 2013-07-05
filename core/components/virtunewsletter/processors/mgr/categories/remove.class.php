@@ -2,7 +2,7 @@
 
 class CategoriesRemoveProcessor extends modObjectRemoveProcessor {
 
-    public $classKey = 'Categories';
+    public $classKey = 'vnewsCategories';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesRemove';
 

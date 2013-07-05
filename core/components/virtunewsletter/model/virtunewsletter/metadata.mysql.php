@@ -3,23 +3,23 @@
 $xpdo_meta_map = array (
   'xPDOSimpleObject' => 
   array (
-    0 => 'Categories',
-    1 => 'Newsletters',
-    2 => 'Reports',
-    3 => 'Subscribers',
+    0 => 'vnewsCategories',
+    1 => 'vnewsNewsletters',
+    2 => 'vnewsSubscribers',
   ),
   'xPDOObject' => 
   array (
-    0 => 'CategoriesHasUsergroups',
-    1 => 'NewslettersHasCategories',
-    2 => 'SubscribersHasCategories',
+    0 => 'vnewsCategoriesHasUsergroups',
+    1 => 'vnewsNewslettersHasCategories',
+    2 => 'vnewsReports',
+    3 => 'vnewsSubscribersHasCategories',
   ),
   'modUserGroup' => 
   array (
-    0 => 'Usergroups',
+    0 => 'vnewsUsergroups',
   ),
   'modUser' => 
   array (
-    0 => 'Users',
+    0 => 'vnewsUsers',
   ),
 );

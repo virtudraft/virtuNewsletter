@@ -80,7 +80,8 @@ VirtuNewsletter.window.Schedule = function(config) {
                                 fn: function(obj) {
                                     // for initial loading
                                     var isRecurring = this.fp.getForm().findField('is_recurring');
-                                    if (!isRecurring.value) {
+                                    console.log('isRecurring', isRecurring);
+                                    if (!isRecurring.checked) {
                                         this.fp.getForm().findField('recurrence_number').disable();
                                         this.fp.getForm().findField('recurrence_range').disable();
                                     } else {
@@ -147,7 +148,13 @@ VirtuNewsletter.window.Schedule = function(config) {
                         }
                     }
                     values['categories'] = categories;
-                    values['is_active'] = values['is_active'] - 0; // typecasting
+                    /**
+                     * typecasting
+                     * for some reason, xcheckbox fails on form submission.
+                     * it went uncheck each time.
+                     */
+                    values['is_recurring'] = values['is_recurring'] - 0;
+                    values['is_active'] = values['is_active'] - 0;
                     this.fp.getForm().setValues(values);
 
                     return true;

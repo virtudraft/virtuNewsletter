@@ -1,0 +1,3 @@
+[submodule "core/components/virtunewsletter/vendors/CssToInlineStyles"]
+	path = core/components/virtunewsletter/vendors/CssToInlineStyles
+	url = https://github.com/tijsverkoyen/CssToInlineStyles.git

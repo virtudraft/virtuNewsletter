@@ -22,10 +22,7 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
                         title: _('virtunewsletter.reports'),
                         preventRender: true,
                         xtype: 'virtunewsletter-grid-reports',
-                        newsletter_id: config.node &&
-                                config.node.attributes &&
-                                config.node.attributes.newsid ?
-                                config.node.attributes.newsid : ''
+                        node: config.node
                     }
                 ]
             }

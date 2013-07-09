@@ -5,9 +5,9 @@ VirtuNewsletter.grid.Reports = function(config) {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/reports/getList',
-            newsletter_id: config.newsletter_id
+            newsletter_id: config.node.attributes.newsid
         },
-        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'current_occurrence_time', 'status', 'status_logged_on', 'next_occurrence_time'],
+        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'current_occurrence_time', 'status', 'status_logged_on', 'next_occurrence_time'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -16,11 +16,6 @@ VirtuNewsletter.grid.Reports = function(config) {
         displayFormat: 'm/d/Y',
         columns: [
             {
-                header: _('id'),
-                dataIndex: 'id',
-                sortable: true,
-                width: 60
-            }, {
                 header: _('virtunewsletter.name'),
                 dataIndex: 'name',
                 sortable: true,
@@ -62,9 +57,104 @@ VirtuNewsletter.grid.Reports = function(config) {
                     }
                 }
             }
+        ],
+        tbar: [
+            {
+                text: _('virtunewsletter.queue_generate'),
+                scope: this,
+                handler: this.generateQueues
+            }, {
+                text: _('virtunewsletter.remove_all'),
+                scope: this,
+                handler: this.clearQueues
+            }, {
+                text: _('virtunewsletter.send'),
+                scope: this,
+                handler: this.send
+            }
         ]
     });
     VirtuNewsletter.grid.Reports.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid);
+Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
+    getMenu: function() {
+        var menu = [
+            {
+                text: _('virtunewsletter.remove'),
+                handler: this.removeQueue
+            }
+        ];
+
+        return menu;
+    },
+    generateQueues: function() {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.create_all'),
+            text: _('virtunewsletter.create_all_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/createall',
+                newsletter_id: this.node.attributes.newsid
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    },
+    clearQueues: function() {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.remove_all'),
+            text: _('virtunewsletter.remove_all_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/removeall',
+                newsletter_id: this.node.attributes.newsid
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    },
+    removeQueue: function(btn, e) {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.remove'),
+            text: _('virtunewsletter.remove_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/remove',
+                newsletter_id: this.menu.record.newsletter_id,
+                subscriber_id: this.menu.record.subscriber_id
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    },
+    send: function() {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.send_now'),
+            text: _('virtunewsletter.send_now_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/send',
+                newsletter_id: this.node.attributes.newsid
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    }
+});
 Ext.reg('virtunewsletter-grid-reports', VirtuNewsletter.grid.Reports);

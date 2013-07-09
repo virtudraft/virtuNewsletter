@@ -1,13 +1,37 @@
 <?php
 
 /**
- * @license     public domain
- * @package     class helper methods
+ * virtuNewsletter
+ *
+ * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ *
+ * This file is part of virtuNewsletter, a newsletter system for MODX
+ * Revolution.
+ *
+ * virtuNewsletter is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation version 3,
+ *
+ * virtuNewsletter is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+ * Suite 330, Boston, MA 02111-1307 USA
+ *
+ * @package virtunewsletter
+ * @subpackage main_class
  */
 class VirtuNewsletter {
 
+    const version = '1.0.0-beta.1';
+
     public $modx;
     public $config;
+    private $_error = '';
+    private $_output = '';
+    private $_placeholders = array();
 
     /**
      * constructor
@@ -20,6 +44,7 @@ class VirtuNewsletter {
         $basePath = $this->modx->getOption('virtunewsletter.core_path', $config, $this->modx->getOption('core_path') . 'components/virtunewsletter/');
         $assetsUrl = $this->modx->getOption('virtunewsletter.assets_url', $config, $this->modx->getOption('assets_url') . 'components/virtunewsletter/');
         $this->config = array_merge(array(
+            'version' => self::version,
             'basePath' => $basePath,
             'corePath' => $basePath,
             'modelPath' => $basePath . 'model/',
@@ -227,12 +252,23 @@ class VirtuNewsletter {
             return FALSE;
         }
 
-        $newsletters = $this->modx->getObject('vnewsNewsletters', $newsId);
-        $newslettersArray = array();
-        if ($newsletters) {
-            $newslettersArray = $newsletters->toArray();
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        $newsletterArray = array();
+        if ($newsletter) {
+            $newsletterArray = $newsletter->toArray();
+            if ($newsletterArray['is_recurring']) {
+                $ctx = $this->modx->getObject('modResource', $newsletterArray['resource_id'])->get('context_key');
+                $url = $this->modx->makeUrl($newsletterArray['resource_id'], $ctx, '', 'full');
+                if (empty($url)) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get URL for newsletter w/ resource_id:' . $newsletterArray['resource_id'], '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    return FALSE;
+                }
+                $newsletterArray['content'] = file_get_contents($url);
+            }
         }
-        return $newslettersArray;
+        return $newsletterArray;
     }
 
     /**
@@ -289,25 +325,21 @@ class VirtuNewsletter {
         $outputReports = array();
         $currentOccurrenceTime = $newsletter->get('scheduled_for');
         $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
-        $subscribers = $this->getNewsletterSubscribers($newsletter->get('id'));
+        $subscribers = $this->getNewsletterSubscribers($newsId);
         if (!$subscribers) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        $newsletterId = $newsletter->get('id');
+        $this->modx->removeCollection('vnewsReports', array(
+            'newsletter_id' => $newsId,
+        ));
         foreach ($subscribers as $subscriber) {
-            $report = $this->modx->getObject('vnewsReports', array(
-                'subscriber_id' => $subscriber['id'],
-                'newsletter_id' => $newsletterId,
-                'current_occurrence_time' => $currentOccurrenceTime,
-            ));
-            if ($report) {
-                continue;
-            }
-
             $report = $this->modx->newObject('vnewsReports');
             $params = array(
                 'subscriber_id' => $subscriber['id'],
-                'newsletter_id' => $newsletterId,
+                'newsletter_id' => $newsId,
                 'current_occurrence_time' => $currentOccurrenceTime,
                 'status' => 'queue',
                 'status_logged_on' => $time,
@@ -315,9 +347,9 @@ class VirtuNewsletter {
             );
             $report->fromArray($params, NULL, TRUE);
             if ($report->save() === FALSE) {
-                $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
-                $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
-                $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
                 continue;
             } else {
                 $outputReports[] = $report->toArray();
@@ -335,8 +367,7 @@ class VirtuNewsletter {
     public function setQueues($todayOnly = TRUE) {
         $c = $this->modx->newQuery('vnewsNewsletters');
         $c->where(array(
-            'content:!=' => '',
-            'AND:is_active:=' => 1,
+            'is_active' => 1,
         ));
         if ($todayOnly) {
             date_default_timezone_set('UTC');
@@ -378,9 +409,9 @@ class VirtuNewsletter {
                 );
                 $report->fromArray($params, NULL, TRUE);
                 if ($report->save() === FALSE) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to save report! ' . print_r($params, TRUE));
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
                 } else {
                     $outputReports[] = $report->toArray();
                 }
@@ -470,21 +501,465 @@ class VirtuNewsletter {
                         $queue->set('status', 'sent');
                     }
                     if ($queue->save() === FALSE) {
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to update a queue! ' . print_r($queue->toArray(), TRUE));
+                        $this->modx->setDebug();
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                        $this->modx->setDebug(FALSE);
                     }
                 } else {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __FILE__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __METHOD__ . ' ');
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': failed to send a queue! ' . print_r($queue->toArray(), TRUE));
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
                 }
             }
         }
     }
 
-    public function sendNewsletter($newsId, $subscriberId) {
+    /**
+     * Subscribe a user
+     * @param   array   $fields required information (email) and additional one (name)
+     * @return  boolean
+     */
+    public function subscribe($fields) {
+        if (!isset($fields[$this->config['emailKey']])) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
+                'email' => $fields[$this->config['emailKey']]
+            ));
+            $this->setError($msg);
+            return FALSE;
+        }
+        $registeredSubscriber = $this->modx->getObject('vnewsSubscribers', array(
+            'email' => $fields[$this->config['emailKey']]
+        ));
+        if ($registeredSubscriber) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
+                'email' => $fields[$this->config['emailKey']]
+            ));
+            $this->setError($msg);
+            return FALSE;
+//            $name = $registeredSubscriber->get('name');
+//            if (isset($fields[$this->config['nameKey']])) {
+//                $name = $fields[$this->config['nameKey']];
+//            }
+//            $registeredSubscriber->set('name', $name);
+//            $registeredSubscriber->set('is_active', 1);
+//            return TRUE;
+        }
+        $newSubscriber = $this->modx->newObject('vnewsSubscribers');
 
+        $c = $this->modx->newQuery('vnewsUsers');
+        $c->leftJoin('modUserProfile', 'modUserProfile', 'vnewsUsers.id = modUserProfile.internalKey');
+        $c->where(array(
+            'modUserProfile.email' => $fields[$this->config['emailKey']]
+        ));
+        $user = $this->modx->getObject('vnewsUsers', $c);
+        $name = '';
+        if (isset($fields[$this->config['nameKey']])) {
+            $name = $fields[$this->config['nameKey']];
+        }
+        $userId = '';
+        if ($user) {
+            if (empty($name)) {
+                $fullname = $user->getOne('Profile')->get('fullname');
+                $name = !empty($fullname) ? $fullname : $user->get('username');
+            }
+            $userId = $user->get('id');
+        }
+
+        $params = array(
+            'user_id' => $userId,
+            'email' => $fields[$this->config['emailKey']],
+            'name' => $name,
+            'is_active' => 0, // wait to confirm
+            'hash' => $this->setHash($fields[$this->config['emailKey']])
+        );
+
+        $newSubscriber->fromArray($params);
+        if ($newSubscriber->save() === FALSE) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_save');
+            $this->setError($msg);
+            return FALSE;
+        }
+
+        if (isset($fields[$this->config['categoryKey']])) {
+            $category = $this->modx->getObjectGraph('vnewsCategories'
+                    , array('vnewsSubscribersHasCategories' => array())
+                    , array(
+                'name' => $fields[$this->config['categoryKey']]
+            ));
+            if ($category) {
+                $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
+                $addManyParams = array(
+                    'subscriber_id' => $newSubscriber->getPrimaryKey(),
+                    'category_id' => $category->get('id')
+                );
+                $subscribersHasCategories->fromArray($addManyParams, '', TRUE, TRUE);
+                $addMany = array($subscribersHasCategories);
+                $newSubscriber->addMany($addMany);
+                $newSubscriber->save();
+            }
+        }
+
+        $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_save');
+        $this->setOutput($msg);
+
+        $confirmLinkArgs = $this->confirmationLinkArguments($params['email']);
+        $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'subscribe'));
+        $phs = $newSubscriber->toArray();
+        $phs = array_merge($phs, array('args' => $confirmLinkArgs));
+        $this->setPlaceholders($phs);
+
+        return TRUE;
+    }
+
+    /**
+     * Get arguments to be appended to the confirmation URL
+     * @param   string  $email  email address
+     * @return  mixed   false|array of arguments
+     */
+    public function confirmationLinkArguments($email) {
+        $subscriber = $this->modx->getObject('vnewsSubscribers', array(
+            'email' => $email
+        ));
+        if (!$subscriber) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with email: ' . $email, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        $linkArgs = array(
+            'subid' => $subscriber->get('id'),
+            'hash' => $subscriber->get('hash'),
+        );
+        return $linkArgs;
+    }
+
+    /**
+     * Confirmation action
+     * @param   array   $arguments  required arguments
+     * @return  boolean
+     */
+    public function confirmAction($arguments) {
+        $subscriber = $this->modx->getObject('vnewsSubscribers', array(
+            'id' => $arguments['id'],
+            'hash' => $arguments['hash'],
+        ));
+        if (!$subscriber) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_ne');
+            $this->setError($msg);
+            return FALSE;
+        }
+        $this->setPlaceholder('emailTo', $subscriber->get('email'));
+
+        switch ($arguments['action']) {
+            case 'subscribe':
+                $subscriber->set('is_active', 1);
+                $subscriber->save();
+                $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_activated');
+                $this->setOutput($msg);
+                break;
+            case 'unsubscribe':
+                $subscriber->set('is_active', 0);
+                $subscriber->save();
+                $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_deactivated');
+                $this->setOutput($msg);
+                break;
+            default:
+                break;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Hash for email
+     * @param   string  $email  email address
+     * @return  string  hashed string
+     */
+    public function setHash($email) {
+        return str_rot13(base64_encode(hash('sha512', time() . $email)));
+    }
+
+    /**
+     * Set string error for boolean returned methods
+     * @return  void
+     */
+    public function setError($msg) {
+        $this->_error = $msg;
+    }
+
+    /**
+     * Get string error for boolean returned methods
+     * @return  string  output
+     */
+    public function getError() {
+        return $this->_error;
+    }
+
+    /**
+     * Set string output for boolean returned methods
+     * @return  void
+     */
+    public function setOutput($msg) {
+        $this->_output = $msg;
+    }
+
+    /**
+     * Get string output for boolean returned methods
+     * @return  string  output
+     */
+    public function getOutput() {
+        return $this->_output;
+    }
+
+    /**
+     * Trim array values
+     * @param   array   $array          array contents
+     * @param   string  $charlist       [default: null] defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  array   trimmed array
+     */
+    public function trimArray($input, $charlist = null) {
+        if (is_array($input)) {
+            $output = array_map(array($this, 'trimArray'), $input);
+        } else {
+            $output = $this->trimString($input, $charlist);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Trim string value
+     * @param   string  $string     source text
+     * @param   string  $charlist   defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  string  trimmed text
+     */
+    public function trimString($string, $charlist = null) {
+        if (empty($string)) {
+            return '';
+        }
+        $string = htmlentities($string);
+        // blame TinyMCE!
+        $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
+        $string = trim($string, $charlist);
+        $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
+        return $string;
+    }
+
+    /**
+     * Merge multi dimensional associative arrays with separator
+     * @param   array   $array      raw associative array
+     * @param   string  $keyName    parent key of this array
+     * @param   string  $separator  separator between the merged keys
+     * @param   array   $holder     to hold temporary array results
+     * @return  array   one level array
+     */
+    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
+        $phs = !empty($holder) ? $holder : array();
+        foreach ($array as $k => $v) {
+            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
+            if (is_array($v)) {
+                $phs = $this->implodePhs($v, $key, $separator, $phs);
+            } else {
+                $phs[$key] = $v;
+            }
+        }
+        return $phs;
+    }
+
+    /**
+     * Set internal placeholder
+     * @param   string  $key    key
+     * @param   string  $value  value
+     * @param   string  $prefix add prefix if it's required
+     */
+    public function setPlaceholder($key, $value, $prefix = '') {
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $this->_placeholders[$prefix . $key] = $value;
+    }
+
+    /**
+     * Set internal placeholders
+     * @param   array   $placeholders   placeholders in an associative array
+     * @param   string  $prefix         add prefix if it's required
+     * @return  boolean
+     */
+    public function setPlaceholders($placeholders, $prefix = '') {
+        if (empty($placeholders)) {
+            return FALSE;
+        }
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $placeholders = $this->trimArray($placeholders);
+        $placeholders = $this->implodePhs($placeholders, rtrim($prefix, '.'));
+        $this->_placeholders = array_merge($this->_placeholders, $placeholders);
+    }
+
+    /**
+     * Get internal placeholders in an associative array
+     * @return array
+     */
+    public function getPlaceholders() {
+        return $this->_placeholders;
+    }
+
+    /**
+     * Get an internal placeholder
+     * @param   string  $key    key
+     * @return  string  value
+     */
+    public function getPlaceholder($key) {
+        return $this->_placeholders[$key];
+    }
+
+    /**
+     * Apply CSS rules:
+     * @param   string  $html   HTML content
+     *
+     * @return  string  parsed HTML content
+     * @author  Josh Gulledge <jgulledge19@hotmail.com>
+     */
+    public function inlineCss($html) {
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/CssToInlineStyles.php';
+
+        // embedded CSS:
+        preg_match_all('|<style(.*)>(.*)</style>|isU', $html, $css);
+        $css_rules = '';
+        if (!empty($css[2])) {
+            foreach ($css[2] as $cssblock) {
+                $css_rules .= $cssblock;
+            }
+        }
+
+        $cssToInlineStyles = new TijsVerkoyen\CSSToInlineStyles\CSSToInlineStyles($html, $css_rules);
+
+        // the processed HTML
+        $html = $cssToInlineStyles->convert();
+
+        // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
+        //$html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html) );
+
+        return $html;
+    }
+
+    /**
+     * Send newsletter emails
+     * @param   int $newsId         Newsletter's ID
+     * @param   int $subscriberId   Subscriber's ID
+     * @return  boolean
+     */
+    public function sendNewsletter($newsId, $subscriberId) {
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        if (!$newsletter) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        $newsletterArray = $newsletter->toArray();
+        $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
+        if (!$subscriber) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get subscriber w/ id:' . $subscriberId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        $subscriberArray = $subscriber->toArray();
+        if ($newsletterArray['is_recurring']) {
+            $ctx = $this->modx->getObject('modResource', $newsletterArray['resource_id'])->get('context_key');
+            $url = $this->modx->makeUrl($newsletterArray['resource_id'], $ctx, '', 'full');
+            if (empty($url)) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get URL for newsletter w/ resource_id:' . $newsletterArray['resource_id'], '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                return FALSE;
+            }
+            $newsletterArray['content'] = file_get_contents($url);
+        }
+
+        $confirmLinkArgs = $this->confirmationLinkArguments($subscriberArray['email']);
+        $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
+        $this->setPlaceholders(array(
+            'subscriber' => $subscriberArray,
+            'unsubscribeLink' => $confirmLinkArgs
+        ));
+        $phs = $this->getPlaceholders();
+        return $this->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email'], $phs);
+    }
+
+    /**
+     * Send email
+     * @param   string  $subject        Email's subject
+     * @param   string  $message        Email's body
+     * @param   string  $emailTo        Email address of the receiver
+     * @param   array   $phs            placeholders for the email's body
+     * @param   string  $emailFrom      Email address of the sender
+     * @param   string  $emailFromName  Name of the sender
+     * @return boolean
+     */
+    public function sendMail($subject, $message, $emailTo, $phs = array(), $emailFrom = '', $emailFromName = '') {
+        if (!$this->modx->mail) {
+            if (!$this->modx->getService('mail', 'mail.modPHPMailer')) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to load modPHPMailer class!', '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                return FALSE;
+            }
+        }
+        if (empty($emailTo)) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Missing email target!', '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+
+        if (empty($emailFrom)) {
+            $emailFrom = $this->modx->getOption('virtunewsletter.email_sender');
+            if (empty($emailFrom)) {
+                $emailFrom = $this->modx->getOption('emailsender');
+                if (empty($emailFrom)) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Missing email sender!', '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    return FALSE;
+                }
+            }
+        }
+        if (empty($emailFromName)) {
+            $emailFromName = $this->modx->getOption('site_name');
+        }
+        $message = $this->inlineCss($message);
+        if ($this->modx->getOption('virtunewsletter.email_debug')) {
+            $this->modx->setDebug();
+            $debugOutput = array(
+                'subject' => $subject,
+                'message' => $message,
+                'emailTo' => $emailTo,
+                'emailFrom' => $emailFrom,
+                'emailFromName' => $emailFromName,
+                'placeholders' => $phs,
+            );
+            $this->modx->log(modX::LOG_LEVEL_ERROR, print_r($debugOutput, TRUE), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return TRUE;
+        }
+
+        $this->modx->mail->set(modMail::MAIL_BODY, $message);
+        $this->modx->mail->set(modMail::MAIL_FROM, $emailFrom);
+        $this->modx->mail->set(modMail::MAIL_FROM_NAME, $emailFromName);
+        $this->modx->mail->set(modMail::MAIL_SUBJECT, $subject);
+        $this->modx->mail->address('to', $emailTo);
+        $this->modx->mail->address('reply-to', $emailFrom);
+        $this->modx->mail->setHTML(true);
+        if (!$this->modx->mail->send()) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: ' . $this->modx->mail->mailer->ErrorInfo, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+        }
+        $this->modx->mail->reset();
     }
 
 }

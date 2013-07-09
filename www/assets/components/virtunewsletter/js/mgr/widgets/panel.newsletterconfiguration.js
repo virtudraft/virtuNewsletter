@@ -180,6 +180,17 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                 text: _('virtunewsletter.close'),
                 handler: this.cleanCenter,
                 scope: this
+            }, {
+                text: _('virtunewsletter.test'),
+                handler: function() {
+                    var newsTest = new VirtuNewsletter.window.NewsletterTest({
+                        baseParams: {
+                            action: 'mgr/newsletters/test'
+                        },
+                        node: config.node
+                    });
+                    return newsTest.show();
+                }
             }
         ]
     });
@@ -187,6 +198,9 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
     VirtuNewsletter.panel.NewsletterConfiguration.superclass.constructor.call(this, config);
 };
 Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
+    testNewsletter: function() {
+
+    },
     addCategory: function() {
         var topToolbar = this.getTopToolbar();
         var combo = topToolbar.items.items[0];

@@ -130,7 +130,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         ],
         listeners: {
             click: function(node) {
-                if (!node.attributes.content) {
+                if (node.attributes.catid) {
                     if (node.expanded === true) {
                         // odd?
                         node.collapse();

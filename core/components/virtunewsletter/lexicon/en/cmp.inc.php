@@ -1,5 +1,28 @@
 <?php
 
+/**
+ * virtuNewsletter
+ *
+ * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ *
+ * This file is part of virtuNewsletter, a newsletter system for MODX
+ * Revolution.
+ *
+ * virtuNewsletter is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation version 3,
+ *
+ * virtuNewsletter is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+ * Suite 330, Boston, MA 02111-1307 USA
+ *
+ * @package virtunewsletter
+ * @subpackage lexicon
+ */
 $_lang['virtunewsletter'] = 'virtuNewsletter';
 $_lang['virtunewsletter_about'] = 'About';
 $_lang['virtunewsletter.newsletters'] = 'Newsletters';
@@ -36,7 +59,9 @@ $_lang['virtunewsletter.email'] = 'Email';
 $_lang['virtunewsletter.status'] = 'Status';
 $_lang['virtunewsletter.date'] = 'Date';
 $_lang['virtunewsletter.remove'] = 'Delete';
+$_lang['virtunewsletter.remove_all'] = 'Delete All';
 $_lang['virtunewsletter.remove_confirm'] = 'Are you sure you want to delete this? This is irreversible.';
+$_lang['virtunewsletter.remove_all_confirm'] = 'Are you sure you want to delete all? This is irreversible.';
 $_lang['virtunewsletter.update'] = 'Update';
 $_lang['virtunewsletter.configurations'] = 'Configurations';
 $_lang['virtunewsletter.close'] = 'Close';
@@ -56,3 +81,11 @@ $_lang['virtunewsletter.uncategorized'] = 'Uncategorized';
 $_lang['virtunewsletter.uncategorized_desc'] = 'Uncategorized newsletters';
 $_lang['virtunewsletter.current_occurrence_time'] = 'Current Occurrence';
 $_lang['virtunewsletter.next_occurrence_time'] = 'Next Occurrence';
+$_lang['virtunewsletter.subscriber_remove'] = 'Remove Subscriber';
+$_lang['virtunewsletter.create_all'] = 'Create All';
+$_lang['virtunewsletter.send'] = 'Send';
+$_lang['virtunewsletter.send_now'] = 'Send Now!';
+$_lang['virtunewsletter.send_now_confirm'] = 'Some web hosting has limitation to the amount of mass emails, usually 50. More than that will be blocked by system. You need to consult your webhost about this limitation. Are you sure want to send these now?';
+$_lang['virtunewsletter.queue_generate'] = 'Generate Queue';
+$_lang['virtunewsletter.create_all_confirm'] = 'Are you sure want to create all?';
+$_lang['virtunewsletter.test'] = 'Test';

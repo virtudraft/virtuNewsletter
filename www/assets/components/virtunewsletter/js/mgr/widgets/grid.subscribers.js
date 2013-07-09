@@ -8,7 +8,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             action: 'mgr/subscribers/getList',
             newsletter_id: config.newsletter_id
         },
-        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'is_active'],
+        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'categories', 'is_active'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -35,6 +35,10 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 dataIndex: 'email',
                 sortable: true
             }, {
+                header: _('virtunewsletter.categories'),
+                dataIndex: 'categories',
+                sortable: true
+            }, {
                 header: _('virtunewsletter.usergroups'),
                 dataIndex: 'usergroups',
                 sortable: true
@@ -44,7 +48,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 dataIndex: 'is_active',
                 sortable: true,
                 width: 30,
-                processEvent : function(name, e, grid, rowIndex, colIndex){
+                processEvent: function(name, e, grid, rowIndex, colIndex) {
                     if (name === 'mousedown') {
                         var record = grid.store.getAt(rowIndex);
                         record.set(this.dataIndex, !record.data[this.dataIndex]);
@@ -56,7 +60,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                             },
                             listeners: {
                                 'success': {
-                                    fn: function(){
+                                    fn: function() {
                                         Ext.getCmp('virtunewsletter-grid-reports').refresh();
                                     }
                                 }
@@ -81,7 +85,6 @@ VirtuNewsletter.grid.Subscribers = function(config) {
 };
 Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
     syncUsergroups: function() {
-
         MODx.msg.confirm({
             title: _('virtunewsletter.sync_usergroups'),
             text: _('virtunewsletter.sync_usergroups_confirm'),
@@ -94,6 +97,33 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                     fn: function() {
                         return this.refresh();
                     },
+                    scope: this
+                }
+            }
+        });
+    },
+    getMenu: function() {
+        var menu = [
+            {
+                text: _('virtunewsletter.remove'),
+                handler: this.removeSubscriber
+            }
+        ];
+
+        return menu;
+    },
+    removeSubscriber: function(btn, e) {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.subscriber_remove'),
+            text: _('virtunewsletter.remove_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/subscribers/remove',
+                id: this.menu.record.id
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
                     scope: this
                 }
             }

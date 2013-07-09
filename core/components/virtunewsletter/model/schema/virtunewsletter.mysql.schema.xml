@@ -79,6 +79,7 @@
 		<field key="email" dbtype="varchar" precision="255" phptype="string" null="false" />
 		<field key="name" dbtype="varchar" precision="255" phptype="string" null="true" />
 		<field key="is_active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="1" />
+		<field key="hash" dbtype="varchar" precision="255" phptype="string" null="false" />
 
 		<index alias="user_id" name="user_id" primary="false" unique="false" type="BTREE" >
 			<column key="user_id" length="" collation="A" null="false" />

@@ -10,6 +10,7 @@ $xpdo_meta_map['vnewsSubscribers']= array (
     'email' => NULL,
     'name' => NULL,
     'is_active' => 1,
+    'hash' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -45,6 +46,13 @@ $xpdo_meta_map['vnewsSubscribers']= array (
       'phptype' => 'integer',
       'null' => false,
       'default' => 1,
+    ),
+    'hash' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '255',
+      'phptype' => 'string',
+      'null' => false,
     ),
   ),
   'indexes' => 

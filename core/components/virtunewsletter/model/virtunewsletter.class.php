@@ -25,12 +25,32 @@
  */
 class VirtuNewsletter {
 
-    const version = '1.0.0-beta.1';
+    const version = '1.0.0-beta.2';
 
+    /**
+     * modX object
+     * @var object
+     */
     public $modx;
+    /**
+     * $scriptProperties
+     * @var array
+     */
     public $config;
+    /**
+     * To hold error message
+     * @var string
+     */
     private $_error = '';
+    /**
+     * To hold output message
+     * @var string
+     */
     private $_output = '';
+    /**
+     * To hold placeholder array, flatten array with prefixable
+     * @var array
+     */
     private $_placeholders = array();
 
     /**

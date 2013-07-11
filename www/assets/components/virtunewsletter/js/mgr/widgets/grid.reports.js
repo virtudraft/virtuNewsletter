@@ -145,7 +145,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             text: _('virtunewsletter.send_now_confirm'),
             url: VirtuNewsletter.config.connectorUrl,
             params: {
-                action: 'mgr/reports/send',
+                action: 'mgr/reports/sendall',
                 newsletter_id: this.node.attributes.newsid
             },
             listeners: {

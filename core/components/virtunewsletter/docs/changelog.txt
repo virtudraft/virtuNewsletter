@@ -1,8 +1,11 @@
-virtuNewsletter 1.0.0-beta.2 (July 10, 2013)
+virtuNewsletter 1.0.0-beta.2 (July 11, 2013)
 =================================
 - added snippets and plugin
 - added HTML parser to inline the CSS styles
 - improved the CMP
+- bugfixed manual sending to all
+- bugfixed inactive filter on generate queue
+- bugfixed table prefix option
 
 virtuNewsletter 1.0.0-beta.1 (July 8, 2013)
 =================================

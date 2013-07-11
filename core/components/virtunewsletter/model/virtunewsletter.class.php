@@ -79,7 +79,7 @@ class VirtuNewsletter {
                 ), $config);
 
         $this->modx->lexicon->load('virtunewsletter:default');
-        $this->modx->addPackage('virtunewsletter', $this->config['modelPath'], 'modx_virtunewsletter_');
+        $this->modx->addPackage('virtunewsletter', $this->config['modelPath'], modX::OPT_TABLE_PREFIX . 'virtunewsletter_');
     }
 
     /**
@@ -476,7 +476,9 @@ class VirtuNewsletter {
             $subscribersHasCategories = $category->getMany('vnewsSubscribersHasCategories');
             if ($subscribersHasCategories) {
                 foreach ($subscribersHasCategories as $subsHasCats) {
-                    $subscribers = $subsHasCats->getOne('vnewsSubscribers');
+                    $subscribers = $subsHasCats->getOne('vnewsSubscribers', array(
+                        'is_active' => 1
+                    ));
                     if ($subscribers) {
                         $subscribersArray[] = $subscribers->toArray();
                     }

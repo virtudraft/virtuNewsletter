@@ -450,7 +450,7 @@ class VirtuNewsletter {
      */
     public function removeSubscriberQueues($subscriberId) {
         return $this->modx->removeCollection('vnewsReports', array(
-            'subscriber_id' => $subscriberId
+                    'subscriber_id' => $subscriberId
         ));
     }
 
@@ -693,17 +693,19 @@ class VirtuNewsletter {
     }
 
     /**
-     * Get arguments to be appended to the confirmation URL
-     * @param   string  $email  email address
+     * Get subsriber
+     * @param   array   $where  criteria in an array
      * @return  mixed   false|array of arguments
      */
-    public function confirmationLinkArguments($email) {
-        $subscriber = $this->modx->getObject('vnewsSubscribers', array(
-            'email' => $email
-        ));
+    public function getSubscriber(array $where = array()) {
+        $c = $this->modx->newQuery('vnewsSubscribers');
+        if (!empty($where)) {
+            $c->where($where);
+        }
+        $subscriber = $this->modx->getObject('vnewsSubscribers', $c);
         if (!$subscriber) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with email: ' . $email, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with criteria: ' . print_r($where, TRUE), '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
@@ -827,6 +829,7 @@ class VirtuNewsletter {
         $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
         $string = trim($string, $charlist);
         $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
+        $string = html_entity_decode($string);
         return $string;
     }
 
@@ -920,7 +923,7 @@ class VirtuNewsletter {
         $html = $cssToInlineStyles->convert();
 
         // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
-        //$html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html) );
+        $html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html) );
 
         return $html;
     }
@@ -960,9 +963,9 @@ class VirtuNewsletter {
             $newsletterArray['content'] = file_get_contents($url);
         }
 
-        $confirmLinkArgs = $this->confirmationLinkArguments($subscriberArray['email']);
+        $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
         $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
-        $phs = array_merge($subscriberArray, $confirmLinkArgs);
+        $phs = array_merge($subscriberArray, $confirmLinkArgs, array('id' => $newsId));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $this->setPlaceholders($phs, $systemEmailPrefix);
         $phs = $this->getPlaceholders();
@@ -1041,8 +1044,11 @@ class VirtuNewsletter {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: ' . $this->modx->mail->mailer->ErrorInfo, '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(FALSE);
+            return FALSE;
         }
         $this->modx->mail->reset();
+
+        return TRUE;
     }
 
 }

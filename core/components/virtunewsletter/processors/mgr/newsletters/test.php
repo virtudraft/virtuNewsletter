@@ -27,7 +27,7 @@ if ($newsletterArray['is_recurring']) {
 }
 
 $systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
-$confirmLinkArgs = $modx->virtunewsletter->confirmationLinkArguments($subscriberArray['email']);
+$confirmLinkArgs = $modx->virtunewsletter->getSubscriber(array('email' => $subscriberArray['email']));
 if ($confirmLinkArgs) {
     $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
     $modx->virtunewsletter->setPlaceholders($confirmLinkArgs, $systemEmailPrefix);

@@ -23,7 +23,8 @@
  * @package virtunewsletter
  * @subpackage snippet
  */
-$newsId = $modx->getOption('newsId', $scriptProperties, ($modx->getOption('newsid', $_GET)));
+$newsId = !empty($scriptProperties['newsid']) && is_numeric($scriptProperties['newsid']) ? intval($scriptProperties['newsid']) :
+        (isset($_GET['newsid']) && is_numeric($_GET['newsid']) ? intval($_GET['newsid']) : '');
 if (intval($newsId) < 1) {
     return;
 }
@@ -41,19 +42,26 @@ if (!($virtuNewsletter instanceof VirtuNewsletter))
 $virtuNewsletter->setConfigs($scriptProperties);
 
 $newsletter = $virtuNewsletter->getNewsletter($newsId);
-$phs = array();
-foreach ($newsletter as $k => $v) {
-    if ($v['is_recurring']) {
-        $ctx = $this->modx->getObject('modResource', $v['resource_id'])->get('context_key');
-        $url = $this->modx->makeUrl($v['resource_id'], $ctx, '', 'full');
-        if (empty($url)) {
-            return FALSE;
-        }
-        $v['content'] = file_get_contents($url);
-    }
-
-    $phs[$phsPrefix . $k] = $v;
+if (!$newsletter) {
+    $modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId);
+    return FALSE;
 }
+if ($newsletter['is_recurring']) {
+    $ctx = $modx->getObject('modResource', $newsletter['resource_id'])->get('context_key');
+    $url = $modx->makeUrl($newsletter['resource_id'], $ctx, '', 'full');
+    if (empty($url)) {
+        return FALSE;
+    }
+    $newsletter['content'] = file_get_contents($url);
+}
+$newsletter['content'] = str_replace('%5B%5B%2B', '[[+', $newsletter['content']);
+$newsletter['content'] = str_replace('%5D%5D', ']]', $newsletter['content']);
+
+$subscriberEmail = isset($_GET['e']) ? $_GET['e'] : '';
+$subscriber = $virtuNewsletter->getSubscriber(array('email' => $subscriberEmail));
+
+$phs = $virtuNewsletter->setPlaceholders(array_merge($newsletter, $subscriber), $phsPrefix);
+$phs = $virtuNewsletter->getPlaceholders();
 $output = $virtuNewsletter->parseTpl($itemTpl, $phs);
 
 return $output;

@@ -73,7 +73,7 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
     public function prepareRow(xPDOObject $object) {
         $objectArray = $object->toArray();
         $objectArray['newsid'] = $objectArray['id'];
-        $objectArray['text'] = $objectArray['subject'];
+        $objectArray['text'] = $objectArray['subject'] . ' (' . $objectArray['id'] . ')';
         $objectArray['leaf'] = TRUE;
         $objectArray['scheduled_for'] = date('m/d/Y', $objectArray['scheduled_for']);
 

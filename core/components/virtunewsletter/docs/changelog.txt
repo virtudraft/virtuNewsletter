@@ -1,12 +1,23 @@
+virtuNewsletter 1.0.0-beta.4 (July 14, 2013)
+=================================================
+- bugfix usergroups sync
+- bugfix queue generator
+- set into queue when a subsriber is activated
+- added placeholder's prefix in System Settings for email's placeholders
+
+virtuNewsletter 1.0.0-beta.3 (July 12, 2013)
+=================================================
+- added options to remove the database when uninstalling
+
 virtuNewsletter 1.0.0-beta.2 (July 11, 2013)
-=================================
+=================================================
 - added snippets and plugin
 - added HTML parser to inline the CSS styles
 - improved the CMP
-- bugfixed manual sending to all
-- bugfixed inactive filter on generate queue
-- bugfixed table prefix option
+- bugfix manual sending to all
+- bugfix inactive filter on generate queue
+- bugfix table prefix option
 
 virtuNewsletter 1.0.0-beta.1 (July 8, 2013)
-=================================
+=================================================
 - initial release

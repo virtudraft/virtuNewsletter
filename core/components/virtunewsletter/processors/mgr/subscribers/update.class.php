@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -29,6 +30,20 @@ class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
     public $classKey = 'vnewsSubscribers';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.SubscribersUpdate';
+
+    /**
+     * Override in your derivative class to do functionality after save() is run
+     * @return boolean
+     */
+    public function afterSave() {
+        $isActive = $this->getProperty('is_active');
+        if ($isActive) {
+            $this->modx->virtunewsletter->addSubscriberQueues($this->getProperty('id'));
+        } else {
+            $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
+        }
+        return true;
+    }
 
 }
 

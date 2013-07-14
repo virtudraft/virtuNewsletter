@@ -36,6 +36,7 @@ array_walk($usergroups, create_function('&$v', '$v = trim($v);'));
  * Prepare
  */
 $usersArray = array();
+$userIds = array();
 foreach ($usergroups as $usergroup) {
     $usergroupObj = $this->modx->getObject('modUserGroup', array(
         'name' => $usergroup
@@ -52,6 +53,7 @@ foreach ($usergroups as $usergroup) {
             $userArray = $user->toArray();
             $profile = $user->getOne('Profile');
             $profileArray = $profile->toArray();
+            $userIds[] = $userArray['id'];
             $usersArray[] = array(
                 'user_id' => $userArray['id'],
                 'email' => $profileArray['email'],
@@ -62,11 +64,16 @@ foreach ($usergroups as $usergroup) {
     }
 }
 
+// remove all registered users that are NOT in the groups
+$this->modx->removeCollection('vnewsSubscribers', array(
+    'user_id:!=' => 0,
+    'AND:user_id:NOT IN' => $userIds,
+));
+
 /**
  * Generate users
  */
 if ($usersArray) {
-
     foreach ($usersArray as $user) {
         $subscriber = $this->modx->getObject('vnewsSubscribers', array(
             'email' => $user['email']
@@ -91,9 +98,11 @@ if ($usersArray) {
          * because vnewsCategoriesHasUsergroups
          */
         $c = $this->modx->newQuery('vnewsCategories');
-        $c->leftJoin('vnewsCategoriesHasUsergroups', 'vnewsCategoriesHasUsergroups', array(
+        $c->leftJoin('vnewsCategoriesHasUsergroups', 'vnewsCategoriesHasUsergroups', 'vnewsCategories.id = vnewsCategoriesHasUsergroups.category_id');
+        $c->where(array(
             'vnewsCategoriesHasUsergroups.usergroup_id:IN' => $user['usergroups']
         ));
+
         $categories = $this->modx->getCollection('vnewsCategories', $c);
         if ($categories) {
             foreach ($categories as $category) {
@@ -113,6 +122,8 @@ if ($usersArray) {
                 $subsHasCats->save();
             }
         }
+
+        $this->modx->virtunewsletter->addSubscriberQueues($subscriberId);
     }
 }
 

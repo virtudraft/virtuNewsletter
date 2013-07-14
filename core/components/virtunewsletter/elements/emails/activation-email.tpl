@@ -4,9 +4,9 @@
 
 <p>To complete this, please click this link to activate your account:
     <a href="[[~62?
-       &subid=`[[+virtuNewsletter.email.args.subid]]`
-       &h=`[[+virtuNewsletter.email.args.hash]]`
-       &act=`[[+virtuNewsletter.email.args.act]]`
+       &subid=`[[+virtuNewsletter.email.id]]`
+       &h=`[[+virtuNewsletter.email.hash]]`
+       &act=`[[+virtuNewsletter.email.act]]`
        &scheme=`full`]]"
        target="_blank">activate</a>.
 </p>

@@ -25,28 +25,32 @@
  */
 class VirtuNewsletter {
 
-    const version = '1.0.0-beta.2';
+    const VERSION = '1.0.0-beta.4';
 
     /**
      * modX object
      * @var object
      */
     public $modx;
+
     /**
      * $scriptProperties
      * @var array
      */
     public $config;
+
     /**
      * To hold error message
      * @var string
      */
     private $_error = '';
+
     /**
      * To hold output message
      * @var string
      */
     private $_output = '';
+
     /**
      * To hold placeholder array, flatten array with prefixable
      * @var array
@@ -64,7 +68,7 @@ class VirtuNewsletter {
         $basePath = $this->modx->getOption('virtunewsletter.core_path', $config, $this->modx->getOption('core_path') . 'components/virtunewsletter/');
         $assetsUrl = $this->modx->getOption('virtunewsletter.assets_url', $config, $this->modx->getOption('assets_url') . 'components/virtunewsletter/');
         $this->config = array_merge(array(
-            'version' => self::version,
+            'version' => self::VERSION,
             'basePath' => $basePath,
             'corePath' => $basePath,
             'modelPath' => $basePath . 'model/',
@@ -79,7 +83,7 @@ class VirtuNewsletter {
                 ), $config);
 
         $this->modx->lexicon->load('virtunewsletter:default');
-        $this->modx->addPackage('virtunewsletter', $this->config['modelPath'], modX::OPT_TABLE_PREFIX . 'virtunewsletter_');
+        $this->modx->addPackage('virtunewsletter', $this->config['modelPath'], $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_');
     }
 
     /**
@@ -345,7 +349,7 @@ class VirtuNewsletter {
         $outputReports = array();
         $currentOccurrenceTime = $newsletter->get('scheduled_for');
         $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
-        $subscribers = $this->getNewsletterSubscribers($newsId);
+        $subscribers = $this->newsletterHasSubscribers($newsId);
         if (!$subscribers) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
@@ -365,7 +369,7 @@ class VirtuNewsletter {
                 'status_logged_on' => $time,
                 'next_occurrence_time' => $nextOccurrenceTime,
             );
-            $report->fromArray($params, NULL, TRUE);
+            $report->fromArray($params, NULL, TRUE, TRUE);
             if ($report->save() === FALSE) {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -377,6 +381,77 @@ class VirtuNewsletter {
         }
 
         return $outputReports;
+    }
+
+    /**
+     * Get all newsletters of a subscriber
+     * @param   int     $subscriberId   subscriber's ID
+     * @return  mixed   false|subscribers array
+     */
+    public function subscriberHasNewsletters($subscriberId) {
+        $newslettersArray = array();
+
+        $c = $this->modx->newQuery('vnewsNewsletters');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
+        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsNewslettersHasCategories.category_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.category_id = vnewsCategories.id');
+        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsSubscribersHasCategories.subscriber_id');
+        $c->where(array(
+            'vnewsSubscribers.id' => $subscriberId
+        ));
+
+        $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
+        if ($newsletters) {
+            foreach ($newsletters as $newsletter) {
+                $newslettersArray[] = $newsletter->toArray();
+            }
+        }
+
+        return $newslettersArray;
+    }
+
+    /**
+     * Add this user to the newletters' queues
+     * @param   int     $subscriberId   subscriber's ID
+     * @return  boolean
+     */
+    public function addSubscriberQueues($subscriberId) {
+        $newsletters = $this->subscriberHasNewsletters($subscriberId);
+        if (!$newsletters) {
+            return FALSE;
+        }
+        foreach ($newsletters as $item) {
+            $newsletter = $this->modx->getObject('vnewsNewsletters', $item['id']);
+            if (!$newsletter) {
+                continue;
+            }
+            $newsId = $newsletter->get('id');
+            $currentOccurrenceTime = $newsletter->get('scheduled_for');
+            $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
+            $params = array(
+                'newsletter_id' => $newsId,
+                'subscriber_id' => $subscriberId,
+                'current_occurrence_time' => $currentOccurrenceTime,
+                'status' => 'queue',
+                'status_logged_on' => time(),
+                'next_occurrence_time' => $nextOccurrenceTime,
+            );
+            $newReport = $this->modx->newObject('vnewsReports');
+            $newReport->fromArray($params, NULL, TRUE, TRUE);
+            $newReport->save();
+        }
+        return TRUE;
+    }
+
+    /**
+     * Remove this user from all newletters' queues
+     * @param   int     $subscriberId   subscriber's ID
+     * @return  boolean
+     */
+    public function removeSubscriberQueues($subscriberId) {
+        return $this->modx->removeCollection('vnewsReports', array(
+            'subscriber_id' => $subscriberId
+        ));
     }
 
     /**
@@ -404,7 +479,7 @@ class VirtuNewsletter {
             $currentOccurrenceTime = $newsletter->get('scheduled_for');
             $newsletterId = $newsletter->get('id');
             $nextOccurrenceTime = $this->nextOccurrenceTime($newsletterId);
-            $subscribers = $this->getNewsletterSubscribers($newsletterId);
+            $subscribers = $this->newsletterHasSubscribers($newsletterId);
             if (!$subscribers) {
                 continue;
             }
@@ -442,47 +517,27 @@ class VirtuNewsletter {
     }
 
     /**
-     * Get all subscribers for a newsletter
+     * Get all subscribers of a newsletter
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|subscribers array
      */
-    public function getNewsletterSubscribers($newsId) {
+    public function newsletterHasSubscribers($newsId) {
         $subscribersArray = array();
 
-        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
-        if (!$newsletter) {
-            return FALSE;
-        }
+        $c = $this->modx->newQuery('vnewsSubscribers');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.subscriber_id = vnewsSubscribers.id');
+        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsSubscribersHasCategories.category_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.category_id = vnewsCategories.id');
+        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsNewslettersHasCategories.newsletter_id');
+        $c->where(array(
+            'vnewsSubscribers.is_active' => 1,
+            'vnewsNewsletters.id' => $newsId
+        ));
 
-        $c = $this->modx->newQuery('vnewsNewslettersHasCategories');
-        $c->distinct(TRUE);
-        $newsletterHasCategories = $newsletter->getMany('vnewsNewslettersHasCategories', $c);
-        if (!$newsletterHasCategories) {
-            return FALSE;
-        }
-
-        $categories = array();
-        foreach ($newsletterHasCategories as $newsHasCats) {
-            $categories[] = $newsHasCats->getOne('vnewsCategories');
-        }
-        if (!$categories) {
-            return FALSE;
-        }
-        foreach ($categories as $category) {
-            // some newsletters might not have category at the moment
-            if (empty($category)) {
-                continue;
-            }
-            $subscribersHasCategories = $category->getMany('vnewsSubscribersHasCategories');
-            if ($subscribersHasCategories) {
-                foreach ($subscribersHasCategories as $subsHasCats) {
-                    $subscribers = $subsHasCats->getOne('vnewsSubscribers', array(
-                        'is_active' => 1
-                    ));
-                    if ($subscribers) {
-                        $subscribersArray[] = $subscribers->toArray();
-                    }
-                }
+        $subscribers = $this->modx->getCollection('vnewsSubscribers', $c);
+        if ($subscribers) {
+            foreach ($subscribers as $subscriber) {
+                $subscribersArray[] = $subscriber->toArray();
             }
         }
 
@@ -605,6 +660,9 @@ class VirtuNewsletter {
             return FALSE;
         }
 
+        /**
+         * If defined in the input field, set user to the categories
+         */
         if (isset($fields[$this->config['categoryKey']])) {
             $category = $this->modx->getObjectGraph('vnewsCategories'
                     , array('vnewsSubscribersHasCategories' => array())
@@ -627,10 +685,8 @@ class VirtuNewsletter {
         $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_save');
         $this->setOutput($msg);
 
-        $confirmLinkArgs = $this->confirmationLinkArguments($params['email']);
-        $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'subscribe'));
         $phs = $newSubscriber->toArray();
-        $phs = array_merge($phs, array('args' => $confirmLinkArgs));
+        $phs = array_merge($phs, array('act' => 'subscribe'));
         $this->setPlaceholders($phs);
 
         return TRUE;
@@ -679,12 +735,14 @@ class VirtuNewsletter {
             case 'subscribe':
                 $subscriber->set('is_active', 1);
                 $subscriber->save();
+                $this->addSubscriberQueues($subscriber->get('id'));
                 $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_activated');
                 $this->setOutput($msg);
                 break;
             case 'unsubscribe':
                 $subscriber->set('is_active', 0);
                 $subscriber->save();
+                $this->removeSubscriberQueues($subscriber->get('id'));
                 $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_deactivated');
                 $this->setOutput($msg);
                 break;
@@ -904,10 +962,9 @@ class VirtuNewsletter {
 
         $confirmLinkArgs = $this->confirmationLinkArguments($subscriberArray['email']);
         $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
-        $this->setPlaceholders(array(
-            'subscriber' => $subscriberArray,
-            'unsubscribeLink' => $confirmLinkArgs
-        ));
+        $phs = array_merge($subscriberArray, $confirmLinkArgs);
+        $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
+        $this->setPlaceholders($phs, $systemEmailPrefix);
         $phs = $this->getPlaceholders();
         return $this->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email'], $phs);
     }
@@ -953,6 +1010,10 @@ class VirtuNewsletter {
         if (empty($emailFromName)) {
             $emailFromName = $this->modx->getOption('site_name');
         }
+        $message = str_replace('%5B%5B%2B', '[[+', $message);
+        $message = str_replace('%5D%5D', ']]', $message);
+        $message = $this->parseTplCode($message, $phs);
+        $message = $this->processElementTags($message);
         $message = $this->inlineCss($message);
         if ($this->modx->getOption('virtunewsletter.email_debug')) {
             $this->modx->setDebug();

@@ -1,10 +1,10 @@
 <?php
 
-$newsId = $scriptProperties['id'];
-$newsletter = $modx->getObject('vnewsNewsletters', $newsId);
+$modx->virtunewsletter->setPlaceholder('id', $scriptProperties['id']);
+$newsletter = $modx->getObject('vnewsNewsletters', $scriptProperties['id']);
 if (!$newsletter) {
     $modx->setDebug();
-    $modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
+    $modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $scriptProperties['id'], '', __METHOD__, __FILE__, __LINE__);
     $modx->setDebug(FALSE);
     return $this->failure();
 }
@@ -26,12 +26,13 @@ if ($newsletterArray['is_recurring']) {
     $newsletterArray['content'] = file_get_contents($url);
 }
 
+$systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
 $confirmLinkArgs = $modx->virtunewsletter->confirmationLinkArguments($subscriberArray['email']);
 if ($confirmLinkArgs) {
     $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
-    $modx->virtunewsletter->setPlaceholder('unsubscribeLink', $confirmLinkArgs);
+    $modx->virtunewsletter->setPlaceholders($confirmLinkArgs, $systemEmailPrefix);
 }
-$modx->virtunewsletter->setPlaceholder('subscriber', $subscriberArray);
+$modx->virtunewsletter->setPlaceholders($subscriberArray, $systemEmailPrefix);
 $phs = $modx->virtunewsletter->getPlaceholders();
 $output = $modx->virtunewsletter->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email'], $phs);
 return $this->success($output);

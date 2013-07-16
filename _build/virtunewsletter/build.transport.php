@@ -34,8 +34,6 @@ set_time_limit(0);
 /* define version */
 define('PKG_NAME', 'virtuNewsletter');
 define('PKG_NAME_LOWER', 'virtunewsletter');
-define('PKG_VERSION', '1.0.0');
-define('PKG_RELEASE', 'beta.1');
 
 /* override with your own defines here (see build.config.sample.php) */
 require_once dirname(__FILE__) . '/build.config.php';
@@ -62,6 +60,15 @@ $modx->initialize('mgr');
 $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
 echo '<pre>';
+
+$virtuNewsletter = $modx->getService('virtunewsletter', 'VirtuNewsletter', MODX_CORE_PATH . 'components/virtunewsletter/model/');
+
+if (!($virtuNewsletter instanceof VirtuNewsletter))
+    return '';
+$version = VirtuNewsletter::VERSION;
+$versions = @explode('-', $version);
+define('PKG_VERSION', $versions[0]);
+define('PKG_RELEASE', $versions[1]);
 
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
 $builder = new modPackageBuilder($modx);
@@ -135,6 +142,18 @@ if (is_array($snippets)) {
 }
 
 /**
+ * PLUGINS
+ */
+$modx->log(modX::LOG_LEVEL_INFO, 'Adding in plugins.');
+$plugins = include $sources['data'] . 'transport.plugins.php';
+if (is_array($plugins)) {
+	$category->addMany($plugins);
+    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in ' . count($plugins) . ' plugins done.');
+} else {
+	$modx->log(modX::LOG_LEVEL_FATAL, 'Adding plugins failed.');
+}
+
+/**
  * Apply category to the elements
  */
 $elementsAttribute = array(
@@ -148,6 +167,16 @@ $elementsAttribute = array(
             xPDOTransport::UPDATE_OBJECT => true,
             xPDOTransport::UNIQUE_KEY => 'name',
         ),
+		'Plugins' => array(
+			xPDOTransport::PRESERVE_KEYS => false,
+			xPDOTransport::UPDATE_OBJECT => true,
+			xPDOTransport::UNIQUE_KEY => 'name',
+		),
+		'PluginEvents' => array(
+			xPDOTransport::PRESERVE_KEYS => true,
+			xPDOTransport::UPDATE_OBJECT => false,
+			xPDOTransport::UNIQUE_KEY => array('pluginid', 'event'),
+		),
     )
 );
 
@@ -197,6 +226,9 @@ $builder->setPackageAttributes(array(
     'license' => file_get_contents($sources['docs'] . 'license.txt'),
     'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
     'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
+    'setup-options' => array(
+        'source' => $sources['build'] . 'setup.options.php'
+    )
 ));
 
 $builder->pack();

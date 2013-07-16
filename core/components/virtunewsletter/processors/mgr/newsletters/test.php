@@ -1,6 +1,7 @@
 <?php
 
-$modx->virtunewsletter->setPlaceholder('id', $scriptProperties['id']);
+$systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
+$modx->virtunewsletter->setPlaceholder('id', $scriptProperties['id'], $systemEmailPrefix);
 $newsletter = $modx->getObject('vnewsNewsletters', $scriptProperties['id']);
 if (!$newsletter) {
     $modx->setDebug();
@@ -26,7 +27,6 @@ if ($newsletterArray['is_recurring']) {
     $newsletterArray['content'] = file_get_contents($url);
 }
 
-$systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
 $confirmLinkArgs = $modx->virtunewsletter->getSubscriber(array('email' => $subscriberArray['email']));
 if ($confirmLinkArgs) {
     $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));

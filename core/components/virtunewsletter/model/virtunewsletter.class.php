@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.0.0-beta.4';
+    const VERSION = '1.0.0-beta.5';
 
     /**
      * modX object
@@ -712,6 +712,7 @@ class VirtuNewsletter {
         $linkArgs = array(
             'subid' => $subscriber->get('id'),
             'hash' => $subscriber->get('hash'),
+            'email' => $subscriber->get('email'),
         );
         return $linkArgs;
     }
@@ -869,7 +870,7 @@ class VirtuNewsletter {
      * Set internal placeholders
      * @param   array   $placeholders   placeholders in an associative array
      * @param   string  $prefix         add prefix if it's required
-     * @return  boolean
+     * @return  mixed   boolean|array of placeholders
      */
     public function setPlaceholders($placeholders, $prefix = '') {
         if (empty($placeholders)) {
@@ -878,7 +879,10 @@ class VirtuNewsletter {
         $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
         $placeholders = $this->trimArray($placeholders);
         $placeholders = $this->implodePhs($placeholders, rtrim($prefix, '.'));
+        // enclosed private scope
         $this->_placeholders = array_merge($this->_placeholders, $placeholders);
+        // return only for this scope
+        return $placeholders;
     }
 
     /**
@@ -906,6 +910,13 @@ class VirtuNewsletter {
      * @author  Josh Gulledge <jgulledge19@hotmail.com>
      */
     public function inlineCss($html) {
+        if (empty($html)) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'empty $html to create inline CSS', '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/Exception.php';
         require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/CssToInlineStyles.php';
 
         // embedded CSS:

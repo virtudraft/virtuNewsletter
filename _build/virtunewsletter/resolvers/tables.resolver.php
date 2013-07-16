@@ -28,6 +28,10 @@
 if ($modx = & $object->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
+            $php_ver_comp = version_compare(phpversion(), '5.3.0');
+            if ($php_ver_comp < 0) {
+                return '<h1>FATAL ERROR: Setup cannot continue.</h1><p>Wrong PHP version! You\'re using PHP version ' . phpversion() . ', and virtuNewsletter requires version 5.3.0 or higher.</p>';
+            }
             if ($modx->getDebug()) {
                 $modx->log(modX::LOG_LEVEL_WARN, 'resolver xPDOTransport::ACTION_INSTALL');
             }

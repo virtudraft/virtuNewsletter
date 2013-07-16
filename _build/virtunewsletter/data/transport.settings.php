@@ -62,6 +62,15 @@ $settings['virtunewsletter.email_limit']->fromArray(array(
     'area' => 'Email',
         ), '', true, true);
 
+$settings['virtunewsletter.email_prefix'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.email_prefix']->fromArray(array(
+    'key' => 'virtunewsletter.email_prefix',
+    'value' => 'virtuNewsletter.email.',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
 $settings['virtunewsletter.email_sender'] = $modx->newObject('modSystemSetting');
 $settings['virtunewsletter.email_sender']->fromArray(array(
     'key' => 'virtunewsletter.email_sender',

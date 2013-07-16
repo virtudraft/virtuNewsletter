@@ -28,10 +28,14 @@
 if ($modx = & $object->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
+            $php_ver_comp = version_compare(phpversion(), '5.3.0');
+            if ($php_ver_comp < 0) {
+                return '<h1>FATAL ERROR: Setup cannot continue.</h1><p>Wrong PHP version! You\'re using PHP version ' . phpversion() . ', and virtuNewsletter requires version 5.3.0 or higher.</p>';
+            }
             if ($modx->getDebug()) {
                 $modx->log(modX::LOG_LEVEL_WARN, 'validator xPDOTransport::ACTION_INSTALL');
                 $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
-                if ($modx->addPackage('virtunewsletter', $modelPath, 'modx_virtunewsletter_')) {
+                if ($modx->addPackage('virtunewsletter', $modelPath, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_')) {
                     $modx->log(modX::LOG_LEVEL_WARN, 'package was added in validator xPDOTransport::ACTION_INSTALL');
                 }
             }
@@ -42,19 +46,21 @@ if ($modx = & $object->xpdo) {
             if ($modx->getDebug()) {
                 $modx->log(modX::LOG_LEVEL_WARN, 'validator xPDOTransport::ACTION_UNINSTALL');
             }
-            $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
-            if ($modx->addPackage('virtunewsletter', $modelPath, 'modx_virtunewsletter_')) {
-                if ($modx->getDebug()) {
-                    $modx->log(modX::LOG_LEVEL_WARN, 'package was added in validator xPDOTransport::ACTION_UNINSTALL');
+            if (!empty($options['delete_data'])) {
+                $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
+                if ($modx->addPackage('virtunewsletter', $modelPath, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_')) {
+                    if ($modx->getDebug()) {
+                        $modx->log(modX::LOG_LEVEL_WARN, 'package was added in validator xPDOTransport::ACTION_UNINSTALL');
+                    }
+                    $manager = $modx->getManager();
+                    $manager->removeObjectContainer('vnewsCategories');
+                    $manager->removeObjectContainer('vnewsCategoriesHasUsergroups');
+                    $manager->removeObjectContainer('vnewsNewsletters');
+                    $manager->removeObjectContainer('vnewsNewslettersHasCategories');
+                    $manager->removeObjectContainer('vnewsReports');
+                    $manager->removeObjectContainer('vnewsSubscribers');
+                    $manager->removeObjectContainer('vnewsSubscribersHasCategories');
                 }
-                $manager = $modx->getManager();
-                $manager->removeObjectContainer('vnewsCategories');
-                $manager->removeObjectContainer('vnewsCategoriesHasUsergroups');
-                $manager->removeObjectContainer('vnewsNewsletters');
-                $manager->removeObjectContainer('vnewsNewslettersHasCategories');
-                $manager->removeObjectContainer('vnewsReports');
-                $manager->removeObjectContainer('vnewsSubscribers');
-                $manager->removeObjectContainer('vnewsSubscribersHasCategories');
             }
             break;
     }

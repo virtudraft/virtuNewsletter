@@ -59,9 +59,15 @@ $newsletter['content'] = str_replace('%5D%5D', ']]', $newsletter['content']);
 
 $subscriberEmail = isset($_GET['e']) ? $_GET['e'] : '';
 $subscriber = $virtuNewsletter->getSubscriber(array('email' => $subscriberEmail));
+$systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
+$subscriberPhs = $virtuNewsletter->setPlaceholders(array_merge($subscriber, array('id' => $newsId)), $systemEmailPrefix);
+$newsletter['content'] = $virtuNewsletter->parseTplCode($newsletter['content'], $subscriberPhs);
 
-$phs = $virtuNewsletter->setPlaceholders(array_merge($newsletter, $subscriber), $phsPrefix);
-$phs = $virtuNewsletter->getPlaceholders();
-$output = $virtuNewsletter->parseTpl($itemTpl, $phs);
+$phs = $virtuNewsletter->setPlaceholders($newsletter, $phsPrefix);
+if (!empty($toArray)) {
+    $output = '<pre>' . print_r($phs, 1) . '</pre>';
+} else {
+    $output = $virtuNewsletter->parseTpl($itemTpl, $phs);
+}
 
 return $output;

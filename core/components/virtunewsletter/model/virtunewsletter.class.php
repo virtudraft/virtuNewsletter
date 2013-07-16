@@ -25,7 +25,8 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.0.0-beta.5';
+    const VERSION = '1.0.0';
+    const RELEASE = 'beta-5';
 
     /**
      * modX object
@@ -68,7 +69,7 @@ class VirtuNewsletter {
         $basePath = $this->modx->getOption('virtunewsletter.core_path', $config, $this->modx->getOption('core_path') . 'components/virtunewsletter/');
         $assetsUrl = $this->modx->getOption('virtunewsletter.assets_url', $config, $this->modx->getOption('assets_url') . 'components/virtunewsletter/');
         $this->config = array_merge(array(
-            'version' => self::VERSION,
+            'version' => self::VERSION . '-' . self::RELEASE,
             'basePath' => $basePath,
             'corePath' => $basePath,
             'modelPath' => $basePath . 'model/',

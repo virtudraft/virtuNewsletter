@@ -65,10 +65,8 @@ $virtuNewsletter = $modx->getService('virtunewsletter', 'VirtuNewsletter', MODX_
 
 if (!($virtuNewsletter instanceof VirtuNewsletter))
     return '';
-$version = VirtuNewsletter::VERSION;
-$versions = @explode('-', $version);
-define('PKG_VERSION', $versions[0]);
-define('PKG_RELEASE', $versions[1]);
+define('PKG_VERSION', VirtuNewsletter::VERSION);
+define('PKG_RELEASE', VirtuNewsletter::RELEASE);
 
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
 $builder = new modPackageBuilder($modx);

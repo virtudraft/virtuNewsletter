@@ -32,4 +32,4 @@ if ($_GET['site_id'] !== $modx->site_id) {
 }
 
 $output = $modx->virtunewsletter->setQueues();
-return $this->success($output);
+return $this->success('', $output);

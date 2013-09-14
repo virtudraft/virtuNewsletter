@@ -53,3 +53,5 @@ $_lang['setting_virtunewsletter.email_debug'] = 'Email debug mode';
 $_lang['setting_virtunewsletter.email_debug_desc'] = 'Turn this on to dump the email\'s placeholders to MODX\'s error log without sending the email.';
 $_lang['setting_virtunewsletter.email_prefix'] = 'Placeholder\'s prefix in email';
 $_lang['setting_virtunewsletter.email_prefix_desc'] = 'Placeholder\'s prefix for the output\'s values in the email\'s body of the newsletter';
+$_lang['setting_virtunewsletter.use_csstoinlinestyles'] = 'Use CssToInlineStyles Class';
+$_lang['setting_virtunewsletter.use_csstoinlinestyles_desc'] = 'Use CssToInlineStyles Class to process automatic css classes insertion into the mail body. This does not work well in come character sets.';

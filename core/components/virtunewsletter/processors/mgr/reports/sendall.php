@@ -1,30 +1,53 @@
 <?php
 
 $c = $modx->newQuery('vnewsReports');
+date_default_timezone_set('UTC');
+$today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
 $c->where(array(
     'newsletter_id' => $scriptProperties['newsletter_id'],
-    'status' => 'queue'
+    'status' => 'queue',
+    'current_occurrence_time' => $today,
 ));
+
 //$limit = $modx->getOption('virtunewsletter.email_limit');
 //$c->limit($limit);
+
 $queues = $modx->getCollection('vnewsReports', $c);
+$outputReports = array();
 if ($queues) {
     foreach ($queues as $queue) {
         $sent = $modx->virtunewsletter->sendNewsletter($scriptProperties['newsletter_id'], $queue->get('subscriber_id'));
         if ($sent) {
             $queue->set('status_logged_on', time());
-            $nextOccurrenceTime = $queue->get('next_occurrence_time');
-            if (!empty($nextOccurrenceTime)) {
-                $queue->set('current_occurrence_time', $nextOccurrenceTime);
-                $nextOccurrenceTime = $modx->virtunewsletter->nextOccurrenceTime($scriptProperties['newsletter_id']);
-                $queue->set('next_occurrence_time', $nextOccurrenceTime);
-            } else {
-                $queue->set('status', 'sent');
-            }
+            $queue->set('status', 'sent');
             if ($queue->save() === FALSE) {
                 $modx->setDebug();
                 $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
                 $modx->setDebug(FALSE);
+            }
+
+            $nextOccurrenceTime = $queue->get('next_occurrence_time');
+            if (!empty($nextOccurrenceTime)) {
+                $currentOccurrenceTime = $nextOccurrenceTime;
+                $nextOccurrenceTime = $modx->virtunewsletter->nextOccurrenceTime($queue->get('newsletter_id'), $nextOccurrenceTime);
+
+                $report = $this->modx->newObject('vnewsReports');
+                $params = array(
+                    'subscriber_id' => $queue->get('subscriber_id'),
+                    'newsletter_id' => $queue->get('newsletter_id'),
+                    'current_occurrence_time' => $currentOccurrenceTime,
+                    'status' => 'queue',
+                    'status_logged_on' => time(),
+                    'next_occurrence_time' => $nextOccurrenceTime,
+                );
+                $report->fromArray($params, NULL, TRUE);
+                if ($report->save() === FALSE) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                } else {
+                    $outputReports[] = $report->toArray();
+                }
             }
         } else {
             $modx->setDebug();
@@ -34,4 +57,4 @@ if ($queues) {
     }
 }
 
-return $this->success();
+return $this->success('', $outputReports);

@@ -134,4 +134,13 @@ $settings['virtunewsletter.usergroups']->fromArray(array(
     'area' => 'Access',
         ), '', true, true);
 
+$settings['virtunewsletter.use_csstoinlinestyles'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.use_csstoinlinestyles']->fromArray(array(
+    'key' => 'virtunewsletter.use_csstoinlinestyles',
+    'value' => 0,
+    'xtype' => 'combo-boolean',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
 return $settings;

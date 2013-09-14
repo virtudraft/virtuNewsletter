@@ -27,7 +27,7 @@
  */
 class ReportsRemoveProcessor extends modObjectRemoveProcessor {
 
-    public $classKey = 'vnewsNewsletters';
+    public $classKey = 'vnewsReports';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.ReportsRemove';
 

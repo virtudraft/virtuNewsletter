@@ -1,4 +1,16 @@
-virtuNewsletter 1.0.0-beta.5 (July 16, 2013)
+virtuNewsletter 1.0.0-pl (September 13, 2013)
+=================================================
+- bugfix empty content
+- add chunks for cron's output to admin if it is enabled
+- add email's charset option matching with modx's system selection to the CssToInlineStyles
+
+virtuNewsletter 1.0.0-rc-1 (July 22, 2013)
+=================================================
+- modify how Reports section works
+- bugfix Reports's delete action
+- bugfix process and set processors' outputs.
+
+virtuNewsletter 1.0.0-beta-5 (July 16, 2013)
 =================================================
 - bugfix missing Exception class for TijsVerkoyen\CSSToInlineStyles
 - bugfix empty html to avoid this Exception

@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '1.0.0';
-    const RELEASE = 'beta-5';
+    const RELEASE = 'pl';
 
     /**
      * modX object
@@ -298,15 +298,18 @@ class VirtuNewsletter {
 
     /**
      * Calculate the next occurrence time of a newsletter if it is recurring
-     * @param   int     $newsId newsletter's ID
+     * @param   int     $newsId                 newsletter's ID
+     * @param   int     $currentOccurrenceTime  optional current occurence time to override
      * @return  mixed   false|null|UNIX date of the next occurrence
      */
-    public function nextOccurrenceTime($newsId) {
+    public function nextOccurrenceTime($newsId, $currentOccurrenceTime = '') {
         $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
         if (!$newsletter) {
             return FALSE;
         }
-        $currentOccurrenceTime = $newsletter->get('scheduled_for');
+        if (empty($currentOccurrenceTime)) {
+            $currentOccurrenceTime = $newsletter->get('scheduled_for');
+        }
         $isRecurring = $newsletter->get('is_recurring');
         if (!$isRecurring) {
             $nextOccurrenceTime = NULL;
@@ -548,13 +551,14 @@ class VirtuNewsletter {
     /**
      * Process queue
      * @param   boolean $todayOnly  strict to today's queue (default: false)
-     * @return void
+     * @return  array   reports' outputs in array
      */
-    public function processQueue($todayOnly = FALSE) {
+    public function processQueue($todayOnly = TRUE) {
         $c = $this->modx->newQuery('vnewsReports');
         $c->where(array(
             'status' => 'queue'
         ));
+//        $todayOnly = FALSE;
         if ($todayOnly) {
             date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
@@ -563,25 +567,53 @@ class VirtuNewsletter {
             ));
         }
         $limit = $this->modx->getOption('virtunewsletter.email_limit');
+        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
+        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+        $c->select(array(
+            'vnewsReports.*',
+            'vnewsNewsletters.subject',
+            'vnewsSubscribers.email',
+            'vnewsSubscribers.name',
+        ));
         $c->limit($limit);
         $queues = $this->modx->getCollection('vnewsReports', $c);
+        $outputReports = array();
         if ($queues) {
             foreach ($queues as $queue) {
                 $sent = $this->sendNewsletter($queue->get('newsletter_id'), $queue->get('subscriber_id'));
                 if ($sent) {
                     $queue->set('status_logged_on', time());
-                    $nextOccurrenceTime = $queue->get('next_occurrence_time');
-                    if (!empty($nextOccurrenceTime)) {
-                        $queue->set('current_occurrence_time', $nextOccurrenceTime);
-                        $nextOccurrenceTime = $this->nextOccurrenceTime($queue->get('newsletter_id'));
-                        $queue->set('next_occurrence_time', $nextOccurrenceTime);
-                    } else {
-                        $queue->set('status', 'sent');
-                    }
+                    $queue->set('status', 'sent');
                     if ($queue->save() === FALSE) {
                         $this->modx->setDebug();
                         $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
                         $this->modx->setDebug(FALSE);
+                    } else {
+                        $outputReports[] = $queue->toArray();
+                    }
+
+                    $nextOccurrenceTime = $queue->get('next_occurrence_time');
+                    if (!empty($nextOccurrenceTime)) {
+                        $currentOccurrenceTime = $nextOccurrenceTime;
+                        $nextOccurrenceTime = $this->nextOccurrenceTime($queue->get('newsletter_id'), $nextOccurrenceTime);
+
+                        $report = $this->modx->newObject('vnewsReports');
+                        $params = array(
+                            'subscriber_id' => $queue->get('subscriber_id'),
+                            'newsletter_id' => $queue->get('newsletter_id'),
+                            'current_occurrence_time' => $currentOccurrenceTime,
+                            'status' => 'queue',
+                            'status_logged_on' => time(),
+                            'next_occurrence_time' => $nextOccurrenceTime,
+                        );
+                        $report->fromArray($params, NULL, TRUE);
+                        if ($report->save() === FALSE) {
+                            $this->modx->setDebug();
+                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                            $this->modx->setDebug(FALSE);
+                        } else {
+                            $outputReports[] = $report->toArray();
+                        }
                     }
                 } else {
                     $this->modx->setDebug();
@@ -590,6 +622,7 @@ class VirtuNewsletter {
                 }
             }
         }
+        return $outputReports;
     }
 
     /**
@@ -930,12 +963,12 @@ class VirtuNewsletter {
         }
 
         $cssToInlineStyles = new TijsVerkoyen\CSSToInlineStyles\CSSToInlineStyles($html, $css_rules);
-
+        $cssToInlineStyles->setEncoding($this->modx->getOption('mail_charset',null,'UTF-8'));
         // the processed HTML
         $html = $cssToInlineStyles->convert();
 
         // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
-        $html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html) );
+        $html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace(array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html));
 
         return $html;
     }
@@ -973,6 +1006,12 @@ class VirtuNewsletter {
                 return FALSE;
             }
             $newsletterArray['content'] = file_get_contents($url);
+            if (empty($newsletterArray['content'])) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of:' . $url, '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                return FALSE;
+            }
         }
 
         $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
@@ -1029,7 +1068,9 @@ class VirtuNewsletter {
         $message = str_replace('%5D%5D', ']]', $message);
         $message = $this->parseTplCode($message, $phs);
         $message = $this->processElementTags($message);
-        $message = $this->inlineCss($message);
+        if ($this->modx->getOption('virtunewsletter.use_csstoinlinestyles') === 1) {
+            $message = $this->inlineCss($message);
+        }
         if ($this->modx->getOption('virtunewsletter.email_debug')) {
             $this->modx->setDebug();
             $debugOutput = array(

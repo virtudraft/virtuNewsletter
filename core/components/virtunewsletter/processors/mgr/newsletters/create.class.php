@@ -56,23 +56,11 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             $this->addFieldError('categories', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_categories'));
             return FALSE;
         }
-        $isRecurring = $this->getProperty('is_recurring');
-        if ($isRecurring) {
-            $this->setProperty('content', '');
-        } else {
-            $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
-            $url = $this->modx->makeUrl($resourceId, $ctx, '', 'full');
-            if (empty($url)) {
-                $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_url'));
-                return FALSE;
-            }
-            $content = file_get_contents($url);
-            if (empty($content)) {
-                $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_content'));
-                return FALSE;
-            }
-            $this->setProperty('content', $content);
-        }
+
+        $this->modx->resource = $this->modx->getObject('modResource', $resourceId);
+        $content = $this->modx->resource->process();
+        $this->setProperty('content', $content);
+
         $this->setProperty('created_on', time());
         $userId = $this->modx->user->get('id');
         $this->setProperty('created_by', $userId);

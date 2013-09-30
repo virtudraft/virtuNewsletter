@@ -46,16 +46,6 @@ if (!$newsletter) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId);
     return FALSE;
 }
-if ($newsletter['is_recurring']) {
-    $ctx = $modx->getObject('modResource', $newsletter['resource_id'])->get('context_key');
-    $url = $modx->makeUrl($newsletter['resource_id'], $ctx, '', 'full');
-    if (empty($url)) {
-        return FALSE;
-    }
-    $newsletter['content'] = file_get_contents($url);
-}
-$newsletter['content'] = str_replace('%5B%5B%2B', '[[+', $newsletter['content']);
-$newsletter['content'] = str_replace('%5D%5D', ']]', $newsletter['content']);
 
 $subscriberEmail = isset($_GET['e']) ? $_GET['e'] : '';
 $subscriber = $virtuNewsletter->getSubscriber(array('email' => $subscriberEmail));

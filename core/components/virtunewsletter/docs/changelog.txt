@@ -1,3 +1,19 @@
+virtuNewsletter 1.3.0-pl (September 30, 2013)
+=================================================
+- bugfix updating content
+- move the DOCTYPE str_replace to the sendMail() only, so it stays when seeing on web.
+
+virtuNewsletter 1.2.0-pl (September 27, 2013)
+=================================================
+- refactor content data
+- added setQueue() to the cron's gateway
+
+virtuNewsletter 1.1.0-pl (September 20, 2013)
+=================================================
+- bugfix empty subscriber's info on testing email
+- rename Save to Send on testing dialog box
+- refactor content data
+
 virtuNewsletter 1.0.0-pl (September 13, 2013)
 =================================================
 - bugfix empty content

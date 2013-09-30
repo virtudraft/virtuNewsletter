@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.0.0';
+    const VERSION = '1.3.0';
     const RELEASE = 'pl';
 
     /**
@@ -566,7 +566,6 @@ class VirtuNewsletter {
                 'current_occurrence_time' => $today,
             ));
         }
-        $limit = $this->modx->getOption('virtunewsletter.email_limit');
         $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
         $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
         $c->select(array(
@@ -575,6 +574,7 @@ class VirtuNewsletter {
             'vnewsSubscribers.email',
             'vnewsSubscribers.name',
         ));
+        $limit = $this->modx->getOption('virtunewsletter.email_limit');
         $c->limit($limit);
         $queues = $this->modx->getCollection('vnewsReports', $c);
         $outputReports = array();
@@ -743,12 +743,9 @@ class VirtuNewsletter {
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        $linkArgs = array(
-            'subid' => $subscriber->get('id'),
-            'hash' => $subscriber->get('hash'),
-            'email' => $subscriber->get('email'),
-        );
-        return $linkArgs;
+        $subscriberArray = $subscriber->toArray();
+        $subscriberArray['subid'] = $subscriberArray['id'];
+        return $subscriberArray;
     }
 
     /**
@@ -967,9 +964,6 @@ class VirtuNewsletter {
         // the processed HTML
         $html = $cssToInlineStyles->convert();
 
-        // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
-        $html = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace(array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html));
-
         return $html;
     }
 
@@ -996,22 +990,11 @@ class VirtuNewsletter {
             return FALSE;
         }
         $subscriberArray = $subscriber->toArray();
-        if ($newsletterArray['is_recurring']) {
-            $ctx = $this->modx->getObject('modResource', $newsletterArray['resource_id'])->get('context_key');
-            $url = $this->modx->makeUrl($newsletterArray['resource_id'], $ctx, '', 'full');
-            if (empty($url)) {
-                $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get URL for newsletter w/ resource_id:' . $newsletterArray['resource_id'], '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
-                return FALSE;
-            }
-            $newsletterArray['content'] = file_get_contents($url);
-            if (empty($newsletterArray['content'])) {
-                $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of:' . $url, '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
-                return FALSE;
-            }
+        if (empty($newsletterArray['content'])) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:' . print_r($subscriberArray, 1), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
         }
 
         $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
@@ -1020,6 +1003,7 @@ class VirtuNewsletter {
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $this->setPlaceholders($phs, $systemEmailPrefix);
         $phs = $this->getPlaceholders();
+
         return $this->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email'], $phs);
     }
 
@@ -1064,10 +1048,14 @@ class VirtuNewsletter {
         if (empty($emailFromName)) {
             $emailFromName = $this->modx->getOption('site_name');
         }
+
         $message = str_replace('%5B%5B%2B', '[[+', $message);
         $message = str_replace('%5D%5D', ']]', $message);
         $message = $this->parseTplCode($message, $phs);
         $message = $this->processElementTags($message);
+        // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
+        $message = preg_replace('/^<!DOCTYPE.+? >/', '', str_replace(array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $message));
+
         if ($this->modx->getOption('virtunewsletter.use_csstoinlinestyles') === 1) {
             $message = $this->inlineCss($message);
         }

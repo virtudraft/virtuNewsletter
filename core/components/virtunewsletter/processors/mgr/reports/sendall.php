@@ -1,16 +1,25 @@
 <?php
 
 $c = $modx->newQuery('vnewsReports');
-date_default_timezone_set('UTC');
-$today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+$c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
+$c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+$c->select(array(
+    'vnewsReports.*',
+    'vnewsNewsletters.subject',
+    'vnewsSubscribers.email',
+    'vnewsSubscribers.name',
+));
+
+//date_default_timezone_set('UTC');
+//$today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
 $c->where(array(
     'newsletter_id' => $scriptProperties['newsletter_id'],
     'status' => 'queue',
-    'current_occurrence_time' => $today,
+//    'current_occurrence_time' => $today,
 ));
 
-//$limit = $modx->getOption('virtunewsletter.email_limit');
-//$c->limit($limit);
+$limit = $modx->getOption('virtunewsletter.email_limit');
+$c->limit($limit);
 
 $queues = $modx->getCollection('vnewsReports', $c);
 $outputReports = array();
@@ -24,6 +33,8 @@ if ($queues) {
                 $modx->setDebug();
                 $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
                 $modx->setDebug(FALSE);
+            } else {
+                $outputReports[] = $modx->virtunewsletter->getPlaceholders();
             }
 
             $nextOccurrenceTime = $queue->get('next_occurrence_time');

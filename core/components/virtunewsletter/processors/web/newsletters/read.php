@@ -30,13 +30,4 @@ if (intval($newsId) < 1) {
 }
 
 $newsletter = $this->modx->virtunewsletter->getNewsletter($newsId);
-if ($newsletter['is_recurring']) {
-    $ctx = $this->modx->getObject('modResource', $newsletter['resource_id'])->get('context_key');
-    $url = $this->modx->makeUrl($newsletter['resource_id'], $ctx, '', 'full');
-    if (empty($url)) {
-        return FALSE;
-    }
-    return file_get_contents($url);
-} else {
-    return $newsletter['content'];
-}
+return $newsletter['content'];

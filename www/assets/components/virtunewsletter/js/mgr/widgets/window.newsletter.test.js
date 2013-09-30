@@ -5,6 +5,7 @@ VirtuNewsletter.window.NewsletterTest = function(config) {
         url: VirtuNewsletter.config.connectorUrl,
         autoHeight: true,
         preventRender: true,
+        saveBtnText: _('send'),
         fields: [
             {
                 xtype: 'hidden',

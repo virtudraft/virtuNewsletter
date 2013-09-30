@@ -64,23 +64,9 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             return FALSE;
         }
 
-        $isRecurring = $this->getProperty('is_recurring');
-        if ($isRecurring) {
-            $this->setProperty('content', '');
-        } else {
-            $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
-            $url = $this->modx->makeUrl($resourceId, $ctx, '', 'full');
-            if (empty($url)) {
-                $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_url'));
-                return FALSE;
-            }
-            $content = file_get_contents($url);
-            if (empty($content)) {
-                $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_content'));
-                return FALSE;
-            }
-            $this->setProperty('content', $content);
-        }
+        $this->modx->resource = $this->modx->getObject('modResource', $resourceId);
+        $content = $this->modx->resource->process();
+        $this->setProperty('content', $content);
 
         $schedule = $this->getProperty('scheduled_for');
         date_default_timezone_set('UTC');
@@ -89,31 +75,6 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         $this->setProperty('scheduled_for', $schedule);
 
         return true;
-    }
-
-    /**
-     * Override in your derivative class to do functionality before save() is run
-     * @return boolean
-     */
-    public function beforeSave() {
-        $resourceId = $this->getProperty('resource_id');
-        $oldContent = $this->object->get('content');
-        $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
-        $url = $this->modx->makeUrl($resourceId, $ctx, '', 'full');
-        if (empty($url)) {
-            $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_url'));
-            return FALSE;
-        }
-        $newContent = file_get_contents($url);
-        if (empty($newContent)) {
-            $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_empty_content'));
-            return FALSE;
-        }
-        if ($oldContent !== $newContent) {
-            $this->setProperty('content', $newContent);
-        }
-
-        return !$this->hasErrors();
     }
 
     /**

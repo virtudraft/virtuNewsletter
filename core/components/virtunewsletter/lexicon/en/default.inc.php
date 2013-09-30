@@ -54,4 +54,4 @@ $_lang['setting_virtunewsletter.email_debug_desc'] = 'Turn this on to dump the e
 $_lang['setting_virtunewsletter.email_prefix'] = 'Placeholder\'s prefix in email';
 $_lang['setting_virtunewsletter.email_prefix_desc'] = 'Placeholder\'s prefix for the output\'s values in the email\'s body of the newsletter';
 $_lang['setting_virtunewsletter.use_csstoinlinestyles'] = 'Use CssToInlineStyles Class';
-$_lang['setting_virtunewsletter.use_csstoinlinestyles_desc'] = 'Use CssToInlineStyles Class to process automatic css classes insertion into the mail body. This does not work well in come character sets.';
+$_lang['setting_virtunewsletter.use_csstoinlinestyles_desc'] = 'Use CssToInlineStyles Class to process automatic css classes insertion into the mail body. This does not work well in some character sets.';

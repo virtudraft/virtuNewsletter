@@ -31,6 +31,7 @@ if ($_GET['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
+$modx->virtunewsletter->setQueues(FALSE);
 $reports = $modx->virtunewsletter->processQueue();
 
 $outputType = isset($_GET['outputtype']) && $_GET['outputtype'] === 'json' ? 'json' : 'html';

@@ -41,8 +41,9 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
     public function prepareQueryBeforeCount(xPDOQuery $c) {
         $newsletterId = $this->getProperty('newsletter_id');
         if (!empty($newsletterId)) {
+            $ids = $this->_newsletterDescendants($newsletterId);
             $c->where(array(
-                'newsletter_id' => $newsletterId
+                'newsletter_id:IN' => $ids,
             ));
         }
         $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
@@ -54,6 +55,18 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
         return $c;
     }
 
+    private function _newsletterDescendants($newsletterId) {
+        $ids = array($newsletterId);
+        $collection = $this->modx->getCollection('vnewsNewsletters', array(
+            'parent_id' => $newsletterId
+        ));
+        if ($collection) {
+            foreach ($collection as $item) {
+                $ids[] = $item->get('id');
+            }
+        }
+        return $ids;
+    }
 }
 
 return 'ReportsGetListProcessor';

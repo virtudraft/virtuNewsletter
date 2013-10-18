@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.3.0';
+    const VERSION = '1.4.0';
     const RELEASE = 'pl';
 
     /**
@@ -268,7 +268,7 @@ class VirtuNewsletter {
     }
 
     /**
-     * Get a newsletter
+     * Get a newsletter, process recurring one as well
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|array
      */
@@ -282,15 +282,10 @@ class VirtuNewsletter {
         if ($newsletter) {
             $newsletterArray = $newsletter->toArray();
             if ($newsletterArray['is_recurring']) {
-                $ctx = $this->modx->getObject('modResource', $newsletterArray['resource_id'])->get('context_key');
-                $url = $this->modx->makeUrl($newsletterArray['resource_id'], $ctx, '', 'full');
-                if (empty($url)) {
-                    $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get URL for newsletter w/ resource_id:' . $newsletterArray['resource_id'], '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
-                    return FALSE;
+                $recurringNewsletter = $this->createNextRecurrence($newsletterArray['id']);
+                if ($recurringNewsletter) {
+                    $newsletterArray = $recurringNewsletter;
                 }
-                $newsletterArray['content'] = file_get_contents($url);
             }
         }
         return $newsletterArray;
@@ -344,34 +339,35 @@ class VirtuNewsletter {
      * @return  mixed   false|report array
      */
     public function setNewsletterQueue($newsId) {
-        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
-        if (!$newsletter) {
+        $newsletterArray = $this->getNewsletter($newsId);
+        if (empty($newsletterArray)) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
             return FALSE;
         }
         $time = time();
 
         $outputReports = array();
-        $currentOccurrenceTime = $newsletter->get('scheduled_for');
-        $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
-        $subscribers = $this->newsletterHasSubscribers($newsId);
+        $currentOccurrenceTime = $newsletterArray['scheduled_for'];
+        $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
         if (!$subscribers) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsletterArray['id'], '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        $this->modx->removeCollection('vnewsReports', array(
-            'newsletter_id' => $newsId,
-        ));
+//        $this->modx->removeCollection('vnewsReports', array(
+//            'newsletter_id' => $newsletterArray['id'],
+//        ));
         foreach ($subscribers as $subscriber) {
             $report = $this->modx->newObject('vnewsReports');
             $params = array(
                 'subscriber_id' => $subscriber['id'],
-                'newsletter_id' => $newsId,
+                'newsletter_id' => $newsletterArray['id'],
                 'current_occurrence_time' => $currentOccurrenceTime,
                 'status' => 'queue',
                 'status_logged_on' => $time,
-                'next_occurrence_time' => $nextOccurrenceTime,
             );
             $report->fromArray($params, NULL, TRUE, TRUE);
             if ($report->save() === FALSE) {
@@ -425,20 +421,19 @@ class VirtuNewsletter {
             return FALSE;
         }
         foreach ($newsletters as $item) {
-            $newsletter = $this->modx->getObject('vnewsNewsletters', $item['id']);
-            if (!$newsletter) {
+            $newsletterArray = $this->getNewsletter($item['id']);
+            if (empty($newsletterArray)) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $item['id'], '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
                 continue;
             }
-            $newsId = $newsletter->get('id');
-            $currentOccurrenceTime = $newsletter->get('scheduled_for');
-            $nextOccurrenceTime = $this->nextOccurrenceTime($newsId);
             $params = array(
-                'newsletter_id' => $newsId,
+                'newsletter_id' => $newsletterArray['id'],
                 'subscriber_id' => $subscriberId,
-                'current_occurrence_time' => $currentOccurrenceTime,
+                'current_occurrence_time' => $newsletterArray['scheduled_for'],
                 'status' => 'queue',
                 'status_logged_on' => time(),
-                'next_occurrence_time' => $nextOccurrenceTime,
             );
             $newReport = $this->modx->newObject('vnewsReports');
             $newReport->fromArray($params, NULL, TRUE, TRUE);
@@ -482,7 +477,6 @@ class VirtuNewsletter {
         foreach ($newsletters as $newsletter) {
             $currentOccurrenceTime = $newsletter->get('scheduled_for');
             $newsletterId = $newsletter->get('id');
-            $nextOccurrenceTime = $this->nextOccurrenceTime($newsletterId);
             $subscribers = $this->newsletterHasSubscribers($newsletterId);
             if (!$subscribers) {
                 continue;
@@ -504,7 +498,6 @@ class VirtuNewsletter {
                     'current_occurrence_time' => $currentOccurrenceTime,
                     'status' => 'queue',
                     'status_logged_on' => $time,
-                    'next_occurrence_time' => $nextOccurrenceTime,
                 );
                 $report->fromArray($params, NULL, TRUE);
                 if ($report->save() === FALSE) {
@@ -553,12 +546,14 @@ class VirtuNewsletter {
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   reports' outputs in array
      */
-    public function processQueue($todayOnly = TRUE) {
+    public function processQueue($todayOnly = FALSE) {
         $c = $this->modx->newQuery('vnewsReports');
+        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
         $c->where(array(
-            'status' => 'queue'
+            'vnewsReports.status' => 'queue',
+            'vnewsNewsletters.is_active' => 1,
         ));
-//        $todayOnly = FALSE;
+//        $todayOnly = TRUE;
         if ($todayOnly) {
             date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
@@ -566,23 +561,18 @@ class VirtuNewsletter {
                 'current_occurrence_time' => $today,
             ));
         }
-        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
-        $c->select(array(
-            'vnewsReports.*',
-            'vnewsNewsletters.subject',
-            'vnewsSubscribers.email',
-            'vnewsSubscribers.name',
-        ));
         $limit = $this->modx->getOption('virtunewsletter.email_limit');
-        $c->limit($limit);
+        if (!empty($limit)) {
+            $c->limit($limit);
+        }
         $queues = $this->modx->getCollection('vnewsReports', $c);
         $outputReports = array();
         if ($queues) {
+            $time = time();
             foreach ($queues as $queue) {
                 $sent = $this->sendNewsletter($queue->get('newsletter_id'), $queue->get('subscriber_id'));
                 if ($sent) {
-                    $queue->set('status_logged_on', time());
+                    $queue->set('status_logged_on', $time);
                     $queue->set('status', 'sent');
                     if ($queue->save() === FALSE) {
                         $this->modx->setDebug();
@@ -590,30 +580,6 @@ class VirtuNewsletter {
                         $this->modx->setDebug(FALSE);
                     } else {
                         $outputReports[] = $queue->toArray();
-                    }
-
-                    $nextOccurrenceTime = $queue->get('next_occurrence_time');
-                    if (!empty($nextOccurrenceTime)) {
-                        $currentOccurrenceTime = $nextOccurrenceTime;
-                        $nextOccurrenceTime = $this->nextOccurrenceTime($queue->get('newsletter_id'), $nextOccurrenceTime);
-
-                        $report = $this->modx->newObject('vnewsReports');
-                        $params = array(
-                            'subscriber_id' => $queue->get('subscriber_id'),
-                            'newsletter_id' => $queue->get('newsletter_id'),
-                            'current_occurrence_time' => $currentOccurrenceTime,
-                            'status' => 'queue',
-                            'status_logged_on' => time(),
-                            'next_occurrence_time' => $nextOccurrenceTime,
-                        );
-                        $report->fromArray($params, NULL, TRUE);
-                        if ($report->save() === FALSE) {
-                            $this->modx->setDebug();
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                            $this->modx->setDebug(FALSE);
-                        } else {
-                            $outputReports[] = $report->toArray();
-                        }
                     }
                 } else {
                     $this->modx->setDebug();
@@ -960,7 +926,7 @@ class VirtuNewsletter {
         }
 
         $cssToInlineStyles = new TijsVerkoyen\CSSToInlineStyles\CSSToInlineStyles($html, $css_rules);
-        $cssToInlineStyles->setEncoding($this->modx->getOption('mail_charset',null,'UTF-8'));
+        $cssToInlineStyles->setEncoding($this->modx->getOption('mail_charset', null, 'UTF-8'));
         // the processed HTML
         $html = $cssToInlineStyles->convert();
 
@@ -974,14 +940,13 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function sendNewsletter($newsId, $subscriberId) {
-        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
-        if (!$newsletter) {
+        $newsletterArray = $this->getNewsletter($newsId);
+        if (empty($newsletterArray)) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        $newsletterArray = $newsletter->toArray();
         $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
         if (!$subscriber) {
             $this->modx->setDebug();
@@ -1090,6 +1055,193 @@ class VirtuNewsletter {
         $this->modx->mail->reset();
 
         return TRUE;
+    }
+
+    /**
+     * Get the raw content of a resource.
+     * @see modRequest::getResource()
+     * @see modResponse::outputContent()
+     * @param   int     $resourceId ID of the resource
+     * @param   array   $options    options
+     * @return  string  content output
+     */
+    public function outputContent($resourceId, array $options = array()) {
+        $content = '';
+        if ($this->modx->getRequest()) {
+            $this->modx->resourceMethod = "id";
+            $this->modx->resourceIdentifier = $resourceId;
+            $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
+            $this->modx->context->set('key', $ctx);
+            $this->modx->resource = $this->modx->request->getResource($this->modx->resourceMethod, $this->modx->resourceIdentifier);
+            if ($this->modx->resource && $this->modx->getResponse()) {
+                if (!($this->modx->response->contentType = $this->modx->resource->getOne('ContentType'))) {
+                    if ($this->modx->getDebug() === true) {
+                        $this->modx->log(modX::LOG_LEVEL_DEBUG, "No valid content type for RESOURCE: " . print_r($this->modx->resource->toArray(), true));
+                    }
+                    $this->modx->log(modX::LOG_LEVEL_FATAL, "The requested resource has no valid content type specified.");
+                }
+
+                $this->modx->resource->_output = $this->modx->resource->process();
+                $this->modx->resource->_jscripts = $this->modx->jscripts;
+                $this->modx->resource->_sjscripts = $this->modx->sjscripts;
+                $this->modx->resource->_loadedjscripts = $this->modx->loadedjscripts;
+
+                /* FIXME: only do this for HTML content ? */
+                if (strpos($this->modx->response->contentType->get('mime_type'), 'text/html') !== false) {
+                    /* Insert Startup jscripts & CSS scripts into template - template must have a </head> tag */
+                    if (($js = $this->modx->getRegisteredClientStartupScripts()) && (strpos($this->modx->resource->_output, '</head>') !== false)) {
+                        /* change to just before closing </head> */
+                        $this->modx->resource->_output = preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->modx->resource->_output, 1);
+                    }
+
+                    /* Insert jscripts & html block into template - template must have a </body> tag */
+                    if ((strpos($this->modx->resource->_output, '</body>') !== false) && ($js = $this->modx->getRegisteredClientScripts())) {
+                        $this->modx->resource->_output = preg_replace("/(<\/body>)/i", $js . "\n\\1", $this->modx->resource->_output, 1);
+                    }
+                }
+
+                $this->modx->beforeRender();
+
+                /* invoke OnWebPagePrerender event */
+                if (!isset($options['noEvent']) || empty($options['noEvent'])) {
+                    $this->modx->invokeEvent('OnWebPagePrerender');
+                }
+
+                $content = $this->modx->resource->_output;
+            }
+        }
+
+        return $content;
+    }
+
+    /**
+     * Prepare email content by parsing MODX's tags but leave the email's placeholders stay intact
+     * @param   string  $content    raw content
+     * @return  string  parsed content
+     */
+    public function prepareEmailContent($content) {
+        // keeping the email's placeholders' tags
+        $columns = $this->modx->getSelectColumns('vnewsSubscribers');
+        $columns = str_replace('`', '', $columns);
+        $phsArray = @explode(',', $columns);
+        array_walk($phsArray, create_function('&$v', '$v = trim($v);'));
+        $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
+        $phsArray = array_merge($phsArray, array('act'));
+        $search = array();
+        $replace = array();
+        foreach ($phsArray as $phs) {
+            $search[] = '[[+' . $systemEmailPrefix . $phs;
+            $replace[] = '&#91;&#91;+' . $systemEmailPrefix . $phs;
+        }
+        $content = str_replace($search, $replace, $content);
+        // parsing what left
+        $content = $this->processElementTags($content);
+        // revert back the tags
+        $search = array();
+        $replace = array();
+        foreach ($phsArray as $phs) {
+            $search[] = '&#91;&#91;+' . $systemEmailPrefix . $phs;
+            $replace[] = '[[+' . $systemEmailPrefix . $phs;
+        }
+        $content = str_replace($search, $replace, $content);
+
+        return $content;
+    }
+
+    /**
+     * Create next occurence of recurring newsletter
+     * @param   int     $parentId   Newsletter's ID of the recurring parent
+     * @return  mixed   false | array
+     */
+    public function createNextRecurrence($parentId) {
+        $parentNewsletter = $this->modx->getObject('vnewsNewsletters', $parentId);
+        if (!$parentNewsletter) {
+            return FALSE;
+        }
+        $parentNewsletterArray = $parentNewsletter->toArray();
+        // remove all queue for self
+        $this->modx->removeCollection('vnewsReports', array(
+            'newsletter_id' => $parentNewsletterArray,
+        ));
+        $c = $this->modx->newQuery('vnewsNewsletters');
+        $time = time();
+        $nextOccurrenceTime = $this->nextOccurrenceTime($parentNewsletterArray['id']);
+        $c->where(array(
+            'parent_id' => $parentNewsletterArray['id'],
+            'scheduled_for:>=' => $time,
+            'scheduled_for:<=' => $nextOccurrenceTime,
+            'is_active' => 1
+        ));
+        $c->limit(1);
+        $c->sortby('scheduled_for', 'desc');
+        $recurringNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
+        if (!$recurringNewsletter) {
+            $recurringNewsletter = $this->modx->newObject('vnewsNewsletters');
+            $params = array(
+                'parent_id' => $parentNewsletterArray['id'],
+                'resource_id' => $parentNewsletterArray['resource_id'],
+                'subject' => $parentNewsletterArray['subject'],
+                'content' => $this->prepareEmailContent($parentNewsletterArray['content']),
+                'created_on' => $time,
+                'scheduled_for' => $nextOccurrenceTime,
+                'is_recurring' => 0,
+                'is_active' => 1,
+            );
+            $recurringNewsletter->fromArray($params);
+            if ($recurringNewsletter->save() === FALSE) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new recurring newsletter! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                return FALSE;
+            }
+            $categories = $parentNewsletter->getMany('vnewsNewslettersHasCategories');
+            $recurringNewsletterCategories = array();
+            foreach ($categories as $category) {
+                $addCategory = $this->modx->newObject('vnewsNewslettersHasCategories');
+                $catParams = array(
+                    'newsletter_id' => $recurringNewsletter->getPrimaryKey(),
+                    'category_id' => $category->get('category_id')
+                );
+                $addCategory->fromArray($catParams, NULL, TRUE, TRUE);
+                $recurringNewsletterCategories[] = $addCategory;
+            }
+            $recurringNewsletter->addMany($recurringNewsletterCategories);
+            if ($recurringNewsletter->save() === FALSE) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add categories for the new recurring newsletter! ', '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                return FALSE;
+            }
+        }
+        $newsletterArray = $recurringNewsletter->toArray();
+
+        return $newsletterArray;
+    }
+
+    /**
+     * Remove/delete all recurrences of ex-recurring newsletter
+     * @param   int     $parentId   Newsletter's ID of the recurring parent
+     * @return  mixed   false | array
+     */
+    public function removeAllRecurrences($parentId) {
+        $collection = $this->modx->getCollection('vnewsNewsletters', array(
+            'parent_id' => $parentId,
+        ));
+        if ($collection) {
+            $ids = array();
+            foreach ($collection as $item) {
+                $ids[] = $item->get('id');
+            }
+            $this->modx->removeCollection('vnewsNewslettersHasCategories', array(
+                'newsletter_id:IN' => $ids,
+            ));
+            $this->modx->removeCollection('vnewsReports', array(
+                'newsletter_id:IN' => $ids,
+            ));
+        }
+        return $this->modx->removeCollection('vnewsNewsletters', array(
+            'parent_id' => $parentId,
+        ));
     }
 
 }

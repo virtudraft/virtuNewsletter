@@ -53,6 +53,38 @@ $xpdo_meta_map['vnewsCategoriesHasUsergroups']= array (
         ),
       ),
     ),
+    'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx' => 
+    array (
+      'alias' => 'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'usergroup_id' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx1' => 
+    array (
+      'alias' => 'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx1',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'category_id' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
   ),
   'aggregates' => 
   array (

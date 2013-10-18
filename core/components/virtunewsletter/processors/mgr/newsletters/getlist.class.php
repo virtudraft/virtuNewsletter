@@ -32,6 +32,22 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'DESC';
 
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $parentId = $this->getProperty('parentId');
+        if (!empty($parentId)){
+            $c->where(array(
+                'parent_id' => $parentId
+            ));
+        }
+        return $c;
+    }
+
 }
 
 return 'NewslettersGetListProcessor';

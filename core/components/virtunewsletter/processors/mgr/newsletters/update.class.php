@@ -64,8 +64,26 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             return FALSE;
         }
 
-        $this->modx->resource = $this->modx->getObject('modResource', $resourceId);
-        $content = $this->modx->resource->process();
+        $content = $this->modx->virtunewsletter->outputContent($resourceId);
+
+        $isRecurring = $this->getProperty('is_recurring');
+        if (!$isRecurring) {
+            $content = $this->modx->virtunewsletter->prepareEmailContent($content);
+            $this->setProperty('recurrence_range', NULL);
+            $this->setProperty('recurrence_number', NULL);
+        } else {
+            $recurrenceNumber= $this->getProperty('recurrence_number');
+            if (empty($recurrenceNumber)) {
+                $this->addFieldError('recurrence_number', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                return FALSE;
+            }
+            $recurrenceRange = $this->getProperty('recurrence_range');
+            if (empty($recurrenceRange)) {
+                $this->addFieldError('recurrence_range', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                return FALSE;
+            }
+        }
+
         $this->setProperty('content', $content);
 
         $schedule = $this->getProperty('scheduled_for');
@@ -103,6 +121,14 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             $this->object->addMany($addCats);
             $this->object->save();
         }
+
+        $isRecurring = $this->getProperty('is_recurring');
+        if ($isRecurring) {
+            $this->modx->virtunewsletter->createNextRecurrence($newsId);
+        } else {
+            $this->modx->virtunewsletter->removeAllRecurrences($newsId);
+        }
+        $this->modx->virtunewsletter->setNewsletterQueue($newsId);
 
         return true;
     }

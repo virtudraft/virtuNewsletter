@@ -34,6 +34,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 xtype: 'textfield',
                                 fieldLabel: _('virtunewsletter.subject'),
                                 name: 'subject',
+                                allowBlank: false,
                                 anchor: '100%',
                                 value: config.node &&
                                         config.node.attributes &&
@@ -47,6 +48,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 xtype: 'numberfield',
                                 fieldLabel: _('virtunewsletter.resource_id'),
                                 name: 'resource_id',
+                                allowBlank: false,
                                 value: config.node &&
                                         config.node.attributes &&
                                         config.node.attributes.resource_id ? config.node.attributes.resource_id : ''
@@ -59,6 +61,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 xtype: 'datefield',
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
                                 name: 'scheduled_for',
+                                allowBlank: false,
                                 value: config.node &&
                                         config.node.attributes &&
                                         config.node.attributes.scheduled_for ? config.node.attributes.scheduled_for : ''
@@ -81,12 +84,28 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 listeners: {
                                     check: {
                                         fn: function(cb, checked) {
+                                            var recurrenceNumber = this.form.findField('recurrence_number');
+                                            var recurrenceRange = this.form.findField('recurrence_range');
                                             if (checked) {
-                                                this.form.findField('recurrence_number').enable();
-                                                this.form.findField('recurrence_range').enable();
+                                                recurrenceNumber.enable();
+                                                recurrenceNumber.allowBlank = false;
+                                                if (recurrenceNumber.value === '') {
+                                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                                }
+                                                recurrenceRange.enable();
+                                                recurrenceRange.allowBlank = false;
+                                                if (recurrenceRange.value === '') {
+                                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                                }
                                             } else {
-                                                this.form.findField('recurrence_number').disable();
-                                                this.form.findField('recurrence_range').disable();
+                                                recurrenceNumber.disable();
+                                                recurrenceNumber.allowBlank = true;
+                                                recurrenceNumber.value = '';
+                                                recurrenceNumber.clearInvalid();
+                                                recurrenceRange.disable();
+                                                recurrenceRange.allowBlank = true;
+                                                recurrenceRange.value = '';
+                                                recurrenceRange.clearInvalid();
                                             }
                                         },
                                         scope: this
@@ -113,12 +132,28 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 fn: function(obj) {
                                     // for initial loading
                                     var isRecurring = this.form.findField('is_recurring');
+                                    var recurrenceNumber = this.form.findField('recurrence_number');
+                                    var recurrenceRange = this.form.findField('recurrence_range');
                                     if (!isRecurring.checked) {
-                                        this.form.findField('recurrence_number').disable();
-                                        this.form.findField('recurrence_range').disable();
+                                        recurrenceNumber.disable();
+                                        recurrenceNumber.allowBlank = true;
+                                        recurrenceNumber.value = '';
+                                        recurrenceNumber.clearInvalid();
+                                        recurrenceRange.disable();
+                                        recurrenceRange.allowBlank = true;
+                                        recurrenceRange.value = '';
+                                        recurrenceRange.clearInvalid();
                                     } else {
-                                        this.form.findField('recurrence_number').enable();
-                                        this.form.findField('recurrence_range').enable();
+                                        recurrenceNumber.enable();
+                                        recurrenceNumber.allowBlank = false;
+                                        if (recurrenceNumber.value === '') {
+                                            recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                        }
+                                        recurrenceRange.enable();
+                                        recurrenceRange.allowBlank = false;
+                                        if (recurrenceRange.value === '') {
+                                            recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                        }
                                     }
                                 },
                                 scope: this
@@ -237,10 +272,15 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
             params: values,
             listeners: {
                 'success': {
-                    fn: function() {
+                    fn: function(response) {
+                        console.log('response', response);
                         var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
                         this.pageMask.hide();
-                        return newslettersTree.refreshNode(this.config.node.attributes.id);
+                        newslettersTree.refreshNode(this.config.node.attributes.id);
+                        var node = this.config.node;
+                        console.log('node', node);
+                        newslettersTree.newslettersPanel(node);
+                        return true;
                     },
                     scope: this
                 },

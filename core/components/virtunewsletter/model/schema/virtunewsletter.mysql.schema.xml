@@ -18,12 +18,19 @@
 			<column key="category_id" length="" collation="A" null="false" />
 			<column key="usergroup_id" length="" collation="A" null="false" />
 		</index>
+		<index alias="fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx" name="fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx" primary="false" unique="false" type="BTREE" >
+			<column key="usergroup_id" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx1" name="fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx1" primary="false" unique="false" type="BTREE" >
+			<column key="category_id" length="" collation="A" null="false" />
+		</index>
 
         <aggregate alias="vnewsCategories" class="vnewsCategories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
         <aggregate alias="vnewsUsergroups" class="vnewsUsergroups" local="usergroup_id" foreign="id" cardinality="one" owner="foreign" />
 
 	</object>
 	<object class="vnewsNewsletters" table="newsletters" extends="xPDOSimpleObject">
+		<field key="parent_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" index="index" />
 		<field key="resource_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="index" />
 		<field key="subject" dbtype="varchar" precision="255" phptype="string" null="false" />
 		<field key="content" dbtype="mediumtext" phptype="string" null="false" />
@@ -38,6 +45,9 @@
 		<index alias="resource_id" name="resource_id" primary="false" unique="false" type="BTREE" >
 			<column key="resource_id" length="" collation="A" null="false" />
 		</index>
+		<index alias="parent_id" name="parent_id" primary="false" unique="false" type="BTREE" >
+			<column key="parent_id" length="" collation="A" null="false" />
+		</index>
 
         <composite alias="vnewsNewslettersHasCategories" class="vnewsNewslettersHasCategories" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
         <composite alias="vnewsReports" class="vnewsReports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
@@ -51,6 +61,12 @@
 			<column key="newsletter_id" length="" collation="A" null="false" />
 			<column key="category_id" length="" collation="A" null="false" />
 		</index>
+		<index alias="fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx" name="fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx" primary="false" unique="false" type="BTREE" >
+			<column key="category_id" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx1" name="fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx1" primary="false" unique="false" type="BTREE" >
+			<column key="newsletter_id" length="" collation="A" null="false" />
+		</index>
 
         <aggregate alias="vnewsNewsletters" class="vnewsNewsletters" local="newsletter_id" foreign="id" cardinality="one" owner="foreign" />
         <aggregate alias="vnewsCategories" class="vnewsCategories" local="category_id" foreign="id" cardinality="one" owner="foreign" />
@@ -62,12 +78,17 @@
 		<field key="current_occurrence_time" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
 		<field key="status" dbtype="varchar" precision="10" phptype="string" null="false" />
 		<field key="status_logged_on" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
-		<field key="next_occurrence_time" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="true" />
 
 		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
 			<column key="newsletter_id" length="" collation="A" null="false" />
 			<column key="subscriber_id" length="" collation="A" null="false" />
 			<column key="current_occurrence_time" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx" name="fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx" primary="false" unique="false" type="BTREE" >
+			<column key="newsletter_id" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_reports_modx_virtunewsletter_subscr_idx" name="fk_modx_virtunewsletter_reports_modx_virtunewsletter_subscr_idx" primary="false" unique="false" type="BTREE" >
+			<column key="subscriber_id" length="" collation="A" null="false" />
 		</index>
 
         <aggregate alias="vnewsNewsletters" class="vnewsNewsletters" local="newsletter_id" foreign="id" cardinality="one" owner="foreign" />
@@ -81,7 +102,7 @@
 		<field key="is_active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="1" />
 		<field key="hash" dbtype="varchar" precision="255" phptype="string" null="false" />
 
-		<index alias="user_id" name="user_id" primary="false" unique="false" type="BTREE" >
+		<index alias="fk_modx_virtunewsletter_subscribers_modx_virtunewsletter_us_idx" name="fk_modx_virtunewsletter_subscribers_modx_virtunewsletter_us_idx" primary="false" unique="false" type="BTREE" >
 			<column key="user_id" length="" collation="A" null="false" />
 		</index>
 
@@ -98,6 +119,12 @@
 		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
 			<column key="subscriber_id" length="" collation="A" null="false" />
 			<column key="category_id" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx" name="fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx" primary="false" unique="false" type="BTREE" >
+			<column key="category_id" length="" collation="A" null="false" />
+		</index>
+		<index alias="fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx1" name="fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx1" primary="false" unique="false" type="BTREE" >
+			<column key="subscriber_id" length="" collation="A" null="false" />
 		</index>
 
         <aggregate alias="vnewsSubscribers" class="vnewsSubscribers" local="subscriber_id" foreign="id" cardinality="one" owner="foreign" />

@@ -62,6 +62,10 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
             ));
         }
 
+        $c->where(array(
+            'parent_id' => 0
+        ));
+        
         return $c;
     }
 

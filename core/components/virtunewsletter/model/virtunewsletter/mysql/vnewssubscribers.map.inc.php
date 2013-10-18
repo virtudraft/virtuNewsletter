@@ -57,9 +57,9 @@ $xpdo_meta_map['vnewsSubscribers']= array (
   ),
   'indexes' => 
   array (
-    'user_id' => 
+    'fk_modx_virtunewsletter_subscribers_modx_virtunewsletter_us_idx' => 
     array (
-      'alias' => 'user_id',
+      'alias' => 'fk_modx_virtunewsletter_subscribers_modx_virtunewsletter_us_idx',
       'primary' => false,
       'unique' => false,
       'type' => 'BTREE',

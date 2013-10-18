@@ -57,8 +57,24 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             return FALSE;
         }
 
-        $this->modx->resource = $this->modx->getObject('modResource', $resourceId);
-        $content = $this->modx->resource->process();
+        $content = $this->modx->virtunewsletter->outputContent($resourceId);
+
+        $isRecurring = $this->getProperty('is_recurring');
+        if (!$isRecurring) {
+            $content = $this->modx->virtunewsletter->prepareEmailContent($content);
+        } else {
+            $recurrenceNumber= $this->getProperty('recurrence_number');
+            if (empty($recurrenceNumber)) {
+                $this->addFieldError('recurrence_number', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                return FALSE;
+            }
+            $recurrenceRange = $this->getProperty('recurrence_range');
+            if (empty($recurrenceRange)) {
+                $this->addFieldError('recurrence_range', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                return FALSE;
+            }
+        }
+
         $this->setProperty('content', $content);
 
         $this->setProperty('created_on', time());
@@ -78,11 +94,11 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
      * @return boolean
      */
     public function afterSave() {
+        $newsId = $this->object->getPrimaryKey();
         $categories = $this->getProperty('categories');
         $categories = @explode(',', $categories);
         if ($categories) {
             $addCats = array();
-            $newsId = $this->object->getPrimaryKey();
             foreach ($categories as $category) {
                 $category = intval($category);
                 $newsHasCat = $this->modx->newObject('vnewsNewslettersHasCategories');
@@ -95,6 +111,12 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             $this->object->addMany($addCats);
             $this->object->save();
         }
+
+        $isRecurring = $this->getProperty('is_recurring');
+        if ($isRecurring) {
+            $this->modx->virtunewsletter->createNextRecurrence($newsId);
+        }
+        $this->modx->virtunewsletter->setNewsletterQueue($newsId);
 
         return true;
     }

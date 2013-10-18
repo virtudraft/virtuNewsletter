@@ -54,12 +54,28 @@ VirtuNewsletter.window.Schedule = function(config) {
                                 listeners: {
                                     check: {
                                         fn: function(cb, checked) {
+                                            var recurrenceNumber = this.fp.getForm().findField('recurrence_number');
+                                            var recurrenceRange = this.fp.getForm().findField('recurrence_range');
                                             if (checked) {
-                                                this.fp.getForm().findField('recurrence_number').enable();
-                                                this.fp.getForm().findField('recurrence_range').enable();
+                                                recurrenceNumber.enable();
+                                                recurrenceNumber.allowBlank = false;
+                                                if (recurrenceNumber.value === '') {
+                                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                                }
+                                                recurrenceRange.enable();
+                                                recurrenceRange.allowBlank = false;
+                                                if (recurrenceRange.value === '') {
+                                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                                }
                                             } else {
-                                                this.fp.getForm().findField('recurrence_number').disable();
-                                                this.fp.getForm().findField('recurrence_range').disable();
+                                                recurrenceNumber.disable();
+                                                recurrenceNumber.allowBlank = true;
+                                                recurrenceNumber.value = '';
+                                                recurrenceNumber.clearInvalid();
+                                                recurrenceRange.disable();
+                                                recurrenceRange.allowBlank = true;
+                                                recurrenceRange.value = '';
+                                                recurrenceRange.clearInvalid();
                                             }
                                         },
                                         scope: this
@@ -80,13 +96,28 @@ VirtuNewsletter.window.Schedule = function(config) {
                                 fn: function(obj) {
                                     // for initial loading
                                     var isRecurring = this.fp.getForm().findField('is_recurring');
-                                    console.log('isRecurring', isRecurring);
+                                    var recurrenceNumber = this.fp.getForm().findField('recurrence_number');
+                                    var recurrenceRange = this.fp.getForm().findField('recurrence_range');
                                     if (!isRecurring.checked) {
-                                        this.fp.getForm().findField('recurrence_number').disable();
-                                        this.fp.getForm().findField('recurrence_range').disable();
+                                        recurrenceNumber.disable();
+                                        recurrenceNumber.allowBlank = true;
+                                        recurrenceNumber.value = '';
+                                        recurrenceNumber.clearInvalid();
+                                        recurrenceRange.disable();
+                                        recurrenceRange.allowBlank = true;
+                                        recurrenceRange.value = '';
+                                        recurrenceRange.clearInvalid();
                                     } else {
-                                        this.fp.getForm().findField('recurrence_number').enable();
-                                        this.fp.getForm().findField('recurrence_range').enable();
+                                        recurrenceNumber.enable();
+                                        recurrenceNumber.allowBlank = false;
+                                        if (recurrenceNumber.value === '') {
+                                            recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                        }
+                                        recurrenceRange.enable();
+                                        recurrenceRange.allowBlank = false;
+                                        if (recurrenceRange.value === '') {
+                                            recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                        }
                                     }
                                 },
                                 scope: this

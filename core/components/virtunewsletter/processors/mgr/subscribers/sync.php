@@ -78,19 +78,24 @@ if ($usersArray) {
         $subscriber = $this->modx->getObject('vnewsSubscribers', array(
             'email' => $user['email']
         ));
-        if ($subscriber) {
-            continue;
+        if (!$subscriber) {
+            $subscriber = $this->modx->newObject('vnewsSubscribers');
         }
 
-        $subscriber = $this->modx->newObject('vnewsSubscribers');
-        $subscriber->fromArray(array(
+        $params = array(
             'user_id' => $user['user_id'],
             'email' => $user['email'],
             'name' => $user['name'],
             'is_active' => 1,
             'hash' => $this->modx->virtunewsletter->setHash($user['email'])
-        ));
-        $subscriber->save();
+        );
+        $subscriber->fromArray($params);
+        if ($subscriber->save() === FALSE) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            continue;
+        }
         $subscriberId = $subscriber->getPrimaryKey();
 
         /**
@@ -115,11 +120,18 @@ if ($usersArray) {
                     continue;
 
                 $subsHasCats = $this->modx->newObject('vnewsSubscribersHasCategories');
-                $subsHasCats->fromArray(array(
+                $params = array(
                     'subscriber_id' => $subscriberId,
                     'category_id' => $categoryId
-                        ), NULL, TRUE, TRUE);
+                );
+                $subsHasCats->fromArray($params, NULL, TRUE, TRUE);
                 $subsHasCats->save();
+                if ($subsHasCats->save() === FALSE) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    continue;
+                }
             }
         }
 

@@ -1,6 +1,27 @@
 VirtuNewsletter.panel.NewsletterContent = function(config) {
     config = config || {};
 
+    var tabItems = [
+        {
+            title: _('virtunewsletter.configurations'),
+            preventRender: true,
+            xtype: 'virtunewsletter-panel-newsletter-configuration',
+            node: config.node
+        }, {
+            title: _('virtunewsletter.reports'),
+            preventRender: true,
+            xtype: 'virtunewsletter-grid-reports',
+            node: config.node
+        }
+    ];
+    if (config.node.attributes.is_recurring) {
+        tabItems.push({
+            title: _('virtunewsletter.recurrences'),
+            preventRender: true,
+            xtype: 'virtunewsletter-grid-recurrences',
+            node: config.node
+        });
+    }
     Ext.apply(config, {
         border: false,
         baseCls: 'modx-formpanel',
@@ -12,19 +33,7 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
                 },
                 bodyStyle: 'padding:20px;',
                 border: true,
-                items: [
-                    {
-                        title: _('virtunewsletter.configurations'),
-                        preventRender: true,
-                        xtype: 'virtunewsletter-panel-newsletter-configuration',
-                        node: config.node
-                    }, {
-                        title: _('virtunewsletter.reports'),
-                        preventRender: true,
-                        xtype: 'virtunewsletter-grid-reports',
-                        node: config.node
-                    }
-                ]
+                items: tabItems
             }
         ]
     });

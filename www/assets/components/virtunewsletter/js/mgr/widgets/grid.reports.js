@@ -39,14 +39,14 @@ VirtuNewsletter.grid.Reports = function(config) {
                 dataIndex: 'status',
                 sortable: true
             }, {
-                header: _('virtunewsletter.date'),
+                header: _('virtunewsletter.created_on'),
                 dataIndex: 'status_logged_on',
                 sortable: true,
                 renderer: function(value) {
                     var date = Date.parseDate(value, config.dateFormat);
                     return date.format(config.displayFormat);
                 }
-            }, {
+            }/*, {
                 header: _('virtunewsletter.next_occurrence_time'),
                 dataIndex: 'next_occurrence_time',
                 sortable: true,
@@ -56,7 +56,7 @@ VirtuNewsletter.grid.Reports = function(config) {
                         return date.format(config.displayFormat);
                     }
                 }
-            }
+            }*/
         ],
         tbar: [
             {

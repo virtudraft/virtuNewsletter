@@ -6,6 +6,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
   'extends' => 'xPDOSimpleObject',
   'fields' => 
   array (
+    'parent_id' => 0,
     'resource_id' => NULL,
     'subject' => NULL,
     'content' => NULL,
@@ -19,6 +20,16 @@ $xpdo_meta_map['vnewsNewsletters']= array (
   ),
   'fieldMeta' => 
   array (
+    'parent_id' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
+      'index' => 'index',
+    ),
     'resource_id' => 
     array (
       'dbtype' => 'int',
@@ -110,6 +121,22 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'columns' => 
       array (
         'resource_id' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'parent_id' => 
+    array (
+      'alias' => 'parent_id',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'parent_id' => 
         array (
           'length' => '',
           'collation' => 'A',

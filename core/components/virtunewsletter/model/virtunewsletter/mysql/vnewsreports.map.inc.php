@@ -11,7 +11,6 @@ $xpdo_meta_map['vnewsReports']= array (
     'current_occurrence_time' => NULL,
     'status' => NULL,
     'status_logged_on' => NULL,
-    'next_occurrence_time' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -57,14 +56,6 @@ $xpdo_meta_map['vnewsReports']= array (
       'phptype' => 'integer',
       'null' => false,
     ),
-    'next_occurrence_time' => 
-    array (
-      'dbtype' => 'int',
-      'precision' => '10',
-      'attributes' => 'unsigned',
-      'phptype' => 'integer',
-      'null' => true,
-    ),
   ),
   'indexes' => 
   array (
@@ -89,6 +80,38 @@ $xpdo_meta_map['vnewsReports']= array (
           'null' => false,
         ),
         'current_occurrence_time' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx' => 
+    array (
+      'alias' => 'fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'newsletter_id' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'fk_modx_virtunewsletter_reports_modx_virtunewsletter_subscr_idx' => 
+    array (
+      'alias' => 'fk_modx_virtunewsletter_reports_modx_virtunewsletter_subscr_idx',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'subscriber_id' => 
         array (
           'length' => '',
           'collation' => 'A',

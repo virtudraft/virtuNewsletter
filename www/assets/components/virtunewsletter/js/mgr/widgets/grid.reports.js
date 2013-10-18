@@ -5,9 +5,9 @@ VirtuNewsletter.grid.Reports = function(config) {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/reports/getList',
-            newsletter_id: config.node.attributes.newsid
+            newsletter_id: config.record.newsid
         },
-        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'current_occurrence_time', 'status', 'status_logged_on', 'next_occurrence_time'],
+        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_logged_on'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -16,6 +16,11 @@ VirtuNewsletter.grid.Reports = function(config) {
         displayFormat: 'm/d/Y',
         columns: [
             {
+                header: _('virtunewsletter.news_id'),
+                dataIndex: 'newsletter_id',
+                sortable: true,
+                width: 40
+            }, {
                 header: _('virtunewsletter.name'),
                 dataIndex: 'name',
                 sortable: true,
@@ -24,16 +29,6 @@ VirtuNewsletter.grid.Reports = function(config) {
                 header: _('virtunewsletter.email'),
                 dataIndex: 'email',
                 sortable: true
-            }, {
-                header: _('virtunewsletter.current_occurrence_time'),
-                dataIndex: 'current_occurrence_time',
-                sortable: true,
-                renderer: function(value) {
-                    if (value) {
-                        var date = Date.parseDate(value, config.dateFormat);
-                        return date.format(config.displayFormat);
-                    }
-                }
             }, {
                 header: _('virtunewsletter.status'),
                 dataIndex: 'status',
@@ -46,17 +41,7 @@ VirtuNewsletter.grid.Reports = function(config) {
                     var date = Date.parseDate(value, config.dateFormat);
                     return date.format(config.displayFormat);
                 }
-            }/*, {
-                header: _('virtunewsletter.next_occurrence_time'),
-                dataIndex: 'next_occurrence_time',
-                sortable: true,
-                renderer: function(value) {
-                    if (value) {
-                        var date = Date.parseDate(value, config.dateFormat);
-                        return date.format(config.displayFormat);
-                    }
-                }
-            }*/
+            }
         ],
         tbar: [
             {
@@ -94,7 +79,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/createall',
-                newsletter_id: this.node.attributes.newsid
+                newsletter_id: this.record.newsid
             },
             listeners: {
                 'success': {
@@ -111,7 +96,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/removeall',
-                newsletter_id: this.node.attributes.newsid
+                newsletter_id: this.record.newsid
             },
             listeners: {
                 'success': {
@@ -146,7 +131,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/sendall',
-                newsletter_id: this.node.attributes.newsid
+                newsletter_id: this.record.newsid
             },
             listeners: {
                 'success': {

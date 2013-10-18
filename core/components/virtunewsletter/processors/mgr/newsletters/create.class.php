@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -63,7 +64,7 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         if (!$isRecurring) {
             $content = $this->modx->virtunewsletter->prepareEmailContent($content);
         } else {
-            $recurrenceNumber= $this->getProperty('recurrence_number');
+            $recurrenceNumber = $this->getProperty('recurrence_number');
             if (empty($recurrenceNumber)) {
                 $this->addFieldError('recurrence_number', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_recurrence_number'));
                 return FALSE;
@@ -116,11 +117,13 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         if ($isRecurring) {
             $this->modx->virtunewsletter->createNextRecurrence($newsId);
         }
-        $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+        $isActive = $this->getProperty('is_active');
+        if ($isActive) {
+            $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+        }
 
         return true;
     }
-
 
 }
 

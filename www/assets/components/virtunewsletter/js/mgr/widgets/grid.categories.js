@@ -8,10 +8,10 @@ VirtuNewsletter.grid.Categories = function(config) {
 
     if (!this.data) {
         var data = [];
-        if (config.node && config.node.attributes && config.node.attributes.categories) {
-            for (var i = 0, l = config.node.attributes.categories.length; i < l; i++) {
-                if (config.node.attributes.categories[i].category_id !== 0) {
-                    data.push([config.node.attributes.categories[i].category_id, config.node.attributes.categories[i].category]);
+        if (config.record && config.record.categories) {
+            for (var i = 0, l = config.record.categories.length; i < l; i++) {
+                if (config.record.categories[i].category_id !== 0) {
+                    data.push([config.record.categories[i].category_id, config.record.categories[i].category]);
                 }
             }
         }

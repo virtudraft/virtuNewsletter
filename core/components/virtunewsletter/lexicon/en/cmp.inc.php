@@ -25,6 +25,7 @@
  */
 $_lang['virtunewsletter'] = 'virtuNewsletter';
 $_lang['virtunewsletter_about'] = 'About';
+$_lang['virtunewsletter.dashboard'] = 'Dashboard';
 $_lang['virtunewsletter.newsletters'] = 'Newsletters';
 $_lang['virtunewsletter.newsletters_desc'] = 'Schedules, Archivals and Reports';
 $_lang['virtunewsletter.subscribers'] = 'Subscribers';
@@ -82,8 +83,6 @@ $_lang['virtunewsletter.sync_usergroups'] = 'Sync Usergroups';
 $_lang['virtunewsletter.sync_usergroups_confirm'] = 'Are you sure want to sync Usergroups? This could take a while.';
 $_lang['virtunewsletter.uncategorized'] = 'Uncategorized';
 $_lang['virtunewsletter.uncategorized_desc'] = 'Uncategorized newsletters';
-$_lang['virtunewsletter.current_occurrence_time'] = 'Current Occurrence';
-$_lang['virtunewsletter.next_occurrence_time'] = 'Next Occurrence';
 $_lang['virtunewsletter.subscriber_remove'] = 'Remove Subscriber';
 $_lang['virtunewsletter.create_all'] = 'Create All';
 $_lang['virtunewsletter.send'] = 'Send';
@@ -96,3 +95,10 @@ $_lang['virtunewsletter.recurrences'] = 'Recurrences';
 $_lang['virtunewsletter.parent_id'] = 'Parent\'s ID';
 $_lang['virtunewsletter.created_on'] = 'Created On';
 $_lang['virtunewsletter.action'] = 'Action';
+$_lang['virtunewsletter.news_id'] = 'News ID';
+$_lang['virtunewsletter.subscribers_total'] = 'Total Subscribers';
+$_lang['virtunewsletter.subscribers_active'] = 'Active Subscribers';
+$_lang['virtunewsletter.subscribers_nonmember'] = 'Non Member Subscribers';
+$_lang['virtunewsletter.subscribers_nonmember_active'] = 'Active Non Member Subscribers';
+$_lang['virtunewsletter.emails_queueing'] = 'Queueing Emails';
+$_lang['virtunewsletter.upcoming_schedules'] = 'Upcoming Schedules';

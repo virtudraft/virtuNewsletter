@@ -1,18 +1,16 @@
 VirtuNewsletter.grid.Recurrences = function(config) {
     config = config || {};
-    console.log('config', config);
 
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/newsletters/getList',
-            parentId: config.node.attributes.newsid
+            parentId: config.record.newsid
         },
         fields: ['id', 'parent_id', 'resource_id', 'subject', 'content', 'created_on', 'created_by', 'scheduled_for',
             'is_recurring', 'recurrence_range', 'recurrence_number', 'is_active'],
         paging: true,
         remoteSort: true,
-//        anchor: '97%',
         autoExpandColumn: 'subject',
         dateFormat: 'U',
         displayFormat: 'm/d/Y',
@@ -60,11 +58,19 @@ VirtuNewsletter.grid.Recurrences = function(config) {
                 width: 50,
                 items: [
                     {
-                        icon   : '../assets/components/virtunewsletter/img/magnifier.png',
+                        iconCls : 'virtunewsletter-icon-magnifier',
                         tooltip: _('virtunewsletter.view'),
                         handler: function(grid, rowIndex, colIndex) {
                             var rec = grid.getStore().getAt(rowIndex);
                             return this.viewContent(rec.get('id'));
+                        },
+                        scope: this
+                    }, {
+                        iconCls : 'virtunewsletter-icon-cancel',
+                        tooltip: _('virtunewsletter.remove'),
+                        handler: function(grid, rowIndex, colIndex) {
+                            var rec = grid.getStore().getAt(rowIndex);
+                            return this.removeNewsletter(rec.get('id'));
                         },
                         scope: this
                     }
@@ -79,6 +85,23 @@ Ext.extend(VirtuNewsletter.grid.Recurrences, MODx.grid.Grid, {
     viewContent: function(newsid) {
         var time = new Date().getTime();
         window.open(VirtuNewsletter.config.webConnectorUrl + '?action=web/newsletters/read&newsid=' + newsid + '&preventCache=' + time, '_blank');
+    },
+    removeNewsletter: function(newsid) {
+        MODx.msg.confirm({
+            title: _('virtunewsletter.remove'),
+            text: _('virtunewsletter.remove_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/newsletters/remove',
+                id: newsid
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
     }
 });
 Ext.reg('virtunewsletter-grid-recurrences', VirtuNewsletter.grid.Recurrences);

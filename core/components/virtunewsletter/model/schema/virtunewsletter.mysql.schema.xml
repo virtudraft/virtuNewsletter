@@ -75,14 +75,12 @@
 	<object class="vnewsReports" table="reports" extends="xPDOObject">
 		<field key="newsletter_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
 		<field key="subscriber_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
-		<field key="current_occurrence_time" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="pk" />
 		<field key="status" dbtype="varchar" precision="10" phptype="string" null="false" />
 		<field key="status_logged_on" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
 
 		<index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE" >
 			<column key="newsletter_id" length="" collation="A" null="false" />
 			<column key="subscriber_id" length="" collation="A" null="false" />
-			<column key="current_occurrence_time" length="" collation="A" null="false" />
 		</index>
 		<index alias="fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx" name="fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx" primary="false" unique="false" type="BTREE" >
 			<column key="newsletter_id" length="" collation="A" null="false" />

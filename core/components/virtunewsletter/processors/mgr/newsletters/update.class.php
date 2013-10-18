@@ -128,7 +128,12 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         } else {
             $this->modx->virtunewsletter->removeAllRecurrences($newsId);
         }
-        $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+        $isActive = $this->getProperty('is_active');
+        if ($isActive) {
+            $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+        } else {
+            $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
+        }
 
         return true;
     }

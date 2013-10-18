@@ -8,7 +8,6 @@ $xpdo_meta_map['vnewsReports']= array (
   array (
     'newsletter_id' => NULL,
     'subscriber_id' => NULL,
-    'current_occurrence_time' => NULL,
     'status' => NULL,
     'status_logged_on' => NULL,
   ),
@@ -24,15 +23,6 @@ $xpdo_meta_map['vnewsReports']= array (
       'index' => 'pk',
     ),
     'subscriber_id' => 
-    array (
-      'dbtype' => 'int',
-      'precision' => '10',
-      'attributes' => 'unsigned',
-      'phptype' => 'integer',
-      'null' => false,
-      'index' => 'pk',
-    ),
-    'current_occurrence_time' => 
     array (
       'dbtype' => 'int',
       'precision' => '10',
@@ -74,12 +64,6 @@ $xpdo_meta_map['vnewsReports']= array (
           'null' => false,
         ),
         'subscriber_id' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-        'current_occurrence_time' => 
         array (
           'length' => '',
           'collation' => 'A',

@@ -31,7 +31,7 @@ if ($_GET['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
-//$modx->virtunewsletter->setQueues(FALSE);
+$modx->virtunewsletter->setQueues();
 $reports = $modx->virtunewsletter->processQueue();
 
 $outputType = isset($_GET['outputtype']) && $_GET['outputtype'] === 'json' ? 'json' : 'html';
@@ -44,8 +44,8 @@ if ($outputType === 'json') {
         $phs = array(
             'newsletter_id' => $reports[0]['newsletter_id'],
             'subject' => $reports[0]['subject'],
-            'current_occurrence_time' => $reports[0]['current_occurrence_time'],
-            'next_occurrence_time' => $reports[0]['next_occurrence_time'],
+            'created_on' => $reports[0]['created_on'],
+            'scheduled_for' => $reports[0]['scheduled_for'],
             'count' => count($reports)
         );
         if ($getItems) {

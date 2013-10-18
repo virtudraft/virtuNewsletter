@@ -70,11 +70,12 @@ VirtuNewsletter.window.Schedule = function(config) {
                                             } else {
                                                 recurrenceNumber.disable();
                                                 recurrenceNumber.allowBlank = true;
+                                                recurrenceNumber.setValue('');
                                                 recurrenceNumber.value = '';
                                                 recurrenceNumber.clearInvalid();
                                                 recurrenceRange.disable();
                                                 recurrenceRange.allowBlank = true;
-                                                recurrenceRange.value = '';
+                                                recurrenceRange.setValue('');
                                                 recurrenceRange.clearInvalid();
                                             }
                                         },
@@ -101,11 +102,11 @@ VirtuNewsletter.window.Schedule = function(config) {
                                     if (!isRecurring.checked) {
                                         recurrenceNumber.disable();
                                         recurrenceNumber.allowBlank = true;
-                                        recurrenceNumber.value = '';
+                                        recurrenceNumber.setValue('');
                                         recurrenceNumber.clearInvalid();
                                         recurrenceRange.disable();
                                         recurrenceRange.allowBlank = true;
-                                        recurrenceRange.value = '';
+                                        recurrenceRange.setValue('');
                                         recurrenceRange.clearInvalid();
                                     } else {
                                         recurrenceNumber.enable();

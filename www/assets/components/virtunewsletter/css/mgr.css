@@ -1,3 +1,19 @@
 #modAB {
     display: none;
 }
+
+.virtunewsletter-icon-magnifier {
+    margin-top: 10px;
+    height: 16px;
+    width: 16px;
+    background : url('../img/magnifier.png') no-repeat !important;
+    margin-right: 5px;
+}
+
+.virtunewsletter-icon-cancel {
+    margin-top: 10px;
+    height: 16px;
+    width: 16px;
+    background : url('../img/cancel.png') no-repeat !important;
+    margin-right: 5px;
+}

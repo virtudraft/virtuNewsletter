@@ -24,13 +24,22 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-class NewslettersGetListProcessor extends modObjectGetListProcessor {
+class NewslettersGetTreeListProcessor extends modObjectGetListProcessor {
 
     public $classKey = 'vnewsNewsletters';
     public $languageTopics = array('virtunewsletter:cmp');
-    public $objectType = 'virtunewsletter.NewslettersGetList';
+    public $objectType = 'virtunewsletter.NewslettersGetTreeList';
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'DESC';
+
+    /**
+     * {@inheritDoc}
+     * @return boolean
+     */
+    public function initialize() {
+        $this->setProperty('limit', 0);
+        return parent::initialize();
+    }
 
     /**
      * Can be used to adjust the query prior to the COUNT statement
@@ -65,7 +74,7 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         $c->where(array(
             'parent_id' => 0
         ));
-        
+
         return $c;
     }
 
@@ -109,4 +118,4 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
 
 }
 
-return 'NewslettersGetListProcessor';
+return 'NewslettersGetTreeListProcessor';

@@ -9,9 +9,8 @@ VirtuNewsletter.panel.Category = function(config) {
                 xtype: 'hidden',
                 fieldLabel: _('id'),
                 name: 'id',
-                value: config.node &&
-                        config.node.attributes &&
-                        config.node.attributes.catid ? config.node.attributes.catid : 0
+                value: config.record &&
+                        config.record.catid ? config.record.catid : 0
             }, {
                 // will be used for the grid below
                 xtype: 'hidden',
@@ -32,9 +31,8 @@ VirtuNewsletter.panel.Category = function(config) {
                                 xtype: 'textfield',
                                 fieldLabel: _('virtunewsletter.category'),
                                 name: 'name',
-                                value: config.node &&
-                                        config.node.attributes &&
-                                        config.node.attributes.name ? config.node.attributes.name : ''
+                                value: config.record &&
+                                        config.record.name ? config.record.name : ''
                             }
                         ]
                     }, {
@@ -45,9 +43,8 @@ VirtuNewsletter.panel.Category = function(config) {
                                 xtype: 'textarea',
                                 fieldLabel: _('virtunewsletter.description'),
                                 name: 'description',
-                                value: config.node &&
-                                        config.node.attributes &&
-                                        config.node.attributes.description ? config.node.attributes.description : ''
+                                value: config.record &&
+                                        config.record.description ? config.record.description : ''
                             }
                         ]
                     }, {
@@ -56,7 +53,7 @@ VirtuNewsletter.panel.Category = function(config) {
                             {
                                 xtype: 'virtunewsletter-grid-usergroups',
                                 fieldLabel: _('virtunewsletter.usergroups'),
-                                node: config.node ? config.node : '',
+                                record: config.record ? config.record : '',
                                 anchor: '100%',
                                 tbar: [
                                     {

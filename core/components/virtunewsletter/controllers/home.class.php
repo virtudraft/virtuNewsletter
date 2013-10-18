@@ -54,6 +54,9 @@ class VirtuNewsletterHomeManagerController extends VirtuNewsletterManagerControl
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.newsletter.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.subscribers.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newsletters.js');
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardsubscribers.js');
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardnewsletters.js');
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboard.js');
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.home.js');
         $this->addLastJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/sections/index.js');
     }

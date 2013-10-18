@@ -31,16 +31,26 @@ VirtuNewsletter.panel.Home = function(config) {
                         },
                         items: [
                             {
-                                html: '<h2>' + _('virtunewsletter') + '</h2>',
+                                html: '<span style="margin-right: 10px; line-height: 39px;"><span style="font-weight: bold; font-size: 20px;">' + _('virtunewsletter') + '</span> ' + VirtuNewsletter.config.version + '</span>',
                                 border: false,
                                 cls: 'modx-page-header'
                             }, {
                                 xtype: 'buttongroup',
                                 border: false,
                                 bodyStyle: 'background-image: none;',
-                                columns: 2,
+                                columns: 3,
                                 items: [
                                     {
+                                        text: _('virtunewsletter.dashboard'),
+                                        listeners: {
+                                            'click': {
+                                                fn: function() {
+                                                    return this.openPage('dashboard');
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    }, {
                                         text: _('virtunewsletter.newsletters'),
                                         listeners: {
                                             'click': {
@@ -73,7 +83,7 @@ VirtuNewsletter.panel.Home = function(config) {
                 layout: 'fit',
                 items: [
                     {
-                        xtype: 'virtunewsletter-panel-newsletters'
+                        xtype: 'virtunewsletter-panel-dashboard'
                     }
                 ]
             }, {

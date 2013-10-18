@@ -137,9 +137,9 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                     } else {
                         node.expand();
                     }
-                    return this.categoriesPanel(node);
+                    return this.categoriesPanel(node.attributes);
                 } else {
-                    return this.newslettersPanel(node);
+                    return this.newslettersPanel(node.attributes);
                 }
             },
             render: function() {
@@ -290,7 +290,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
         };
         return categoriesTree.getLoader().load(categoriesTree.root);
     },
-    newslettersPanel: function(node) {
+    newslettersPanel: function(record) {
         var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         contentPanel.update({
@@ -299,7 +299,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
 
         contentPanel.add({
             xtype: 'virtunewsletter-panel-newsletter-content',
-            node: node,
+            record: record,
             preventRender: true,
             region: 'center',
             autoScroll: true
@@ -309,7 +309,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
 
         return container.doLayout();
     },
-    categoriesPanel: function(node) {
+    categoriesPanel: function(record) {
         var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
         contentPanel.removeAll();
         contentPanel.update({
@@ -318,7 +318,7 @@ Ext.extend(VirtuNewsletter.tree.Newsletters, MODx.tree.Tree, {
 
         contentPanel.add({
             xtype: 'virtunewsletter-panel-category',
-            node: node,
+            record: record,
             preventRender: true
         });
         var container = Ext.getCmp('modx-content');

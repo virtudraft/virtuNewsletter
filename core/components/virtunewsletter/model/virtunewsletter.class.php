@@ -270,20 +270,27 @@ class VirtuNewsletter {
     /**
      * Get a newsletter, process recurring one as well
      * @param   int     $newsId newsletter's ID
+     * @param   array   $where  optional conditional in array
      * @return  mixed   false|array
      */
-    public function getNewsletter($newsId) {
+    public function getNewsletter($newsId, array $where = array()) {
         if (intval($newsId) < 1) {
             return FALSE;
         }
-
-        $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
+        $c = $this->modx->newQuery('vnewsNewsletters');
+        $c->where(array(
+            'id' => $newsId
+        ));
+        if (!empty($where)) {
+            $c->where($where);
+        }
+        $newsletter = $this->modx->getObject('vnewsNewsletters', $c);
         $newsletterArray = array();
         if ($newsletter) {
             $newsletterArray = $newsletter->toArray();
             if ($newsletterArray['is_recurring']) {
                 $recurringNewsletter = $this->createNextRecurrence($newsletterArray['id']);
-                if ($recurringNewsletter) {
+                if (!empty($recurringNewsletter)) {
                     $newsletterArray = $recurringNewsletter;
                 }
             }
@@ -329,7 +336,9 @@ class VirtuNewsletter {
 
             $nextOccurrenceTime = $currentOccurrenceTime + $timeRange;
         }
-
+        if ($nextOccurrenceTime < time()) {
+            return $this->nextOccurrenceTime($newsId, $nextOccurrenceTime);
+        }
         return $nextOccurrenceTime;
     }
 
@@ -349,7 +358,6 @@ class VirtuNewsletter {
         $time = time();
 
         $outputReports = array();
-        $currentOccurrenceTime = $newsletterArray['scheduled_for'];
         $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
         if (!$subscribers) {
             $this->modx->setDebug();
@@ -357,15 +365,19 @@ class VirtuNewsletter {
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-//        $this->modx->removeCollection('vnewsReports', array(
-//            'newsletter_id' => $newsletterArray['id'],
-//        ));
+        
         foreach ($subscribers as $subscriber) {
+            $report = $this->modx->getObject('vnewsReports', array(
+                'subscriber_id' => $subscriber['id'],
+                'newsletter_id' => $newsletterArray['id'],
+            ));
+            if (!empty($report)) {
+                continue;
+            }
             $report = $this->modx->newObject('vnewsReports');
             $params = array(
                 'subscriber_id' => $subscriber['id'],
                 'newsletter_id' => $newsletterArray['id'],
-                'current_occurrence_time' => $currentOccurrenceTime,
                 'status' => 'queue',
                 'status_logged_on' => $time,
             );
@@ -431,7 +443,6 @@ class VirtuNewsletter {
             $params = array(
                 'newsletter_id' => $newsletterArray['id'],
                 'subscriber_id' => $subscriberId,
-                'current_occurrence_time' => $newsletterArray['scheduled_for'],
                 'status' => 'queue',
                 'status_logged_on' => time(),
             );
@@ -454,11 +465,34 @@ class VirtuNewsletter {
     }
 
     /**
+     * Remove all queues of this newsletter and it's descendants
+     * @param   int     $newsletterId       newsletter's ID
+     * @param   bollean $includeChildren    including all descendants?
+     * @return  boolean
+     */
+    public function removeNewsletterQueues($newsletterId, $includeChildren = false) {
+        $ids = array($newsletterId);
+        if ($includeChildren) {
+            $children = $this->modx->getCollection('vnewsNewsletters', array(
+                'parent_id' => $newsletterId
+            ));
+            if ($children) {
+                foreach ($children as $child) {
+                    $ids[] = $child->get('id');
+                }
+            }
+        }
+        return $this->modx->removeCollection('vnewsReports', array(
+                    'newsletter_id:IN' => $ids
+        ));
+    }
+
+    /**
      * Set all queues
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   report's array
      */
-    public function setQueues($todayOnly = TRUE) {
+    public function setQueues($todayOnly = false) {
         $c = $this->modx->newQuery('vnewsNewsletters');
         $c->where(array(
             'is_active' => 1,
@@ -468,24 +502,33 @@ class VirtuNewsletter {
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $c->where(array(
                 'scheduled_for' => $today,
-                    ), 'AND');
+            ));
         }
         $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
         $time = time();
 
         $outputReports = array();
         foreach ($newsletters as $newsletter) {
-            $currentOccurrenceTime = $newsletter->get('scheduled_for');
-            $newsletterId = $newsletter->get('id');
-            $subscribers = $this->newsletterHasSubscribers($newsletterId);
-            if (!$subscribers) {
+            $isRecurring = $newsletter->get('is_recurring');
+            if ($isRecurring) {
+                $newsletterArray = $this->getNewsletter($newsletter->get('id'));
+                if (empty($newsletterArray)) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsletter->get('id'), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    continue;
+                }
+            } else {
+                $newsletterArray = $newsletter->toArray();
+            }
+            $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
+            if (empty($subscribers)) {
                 continue;
             }
             foreach ($subscribers as $subscriber) {
                 $report = $this->modx->getObject('vnewsReports', array(
                     'subscriber_id' => $subscriber['id'],
-                    'newsletter_id' => $newsletterId,
-                    'current_occurrence_time' => $currentOccurrenceTime,
+                    'newsletter_id' => $newsletterArray['id'],
                 ));
                 if ($report) {
                     continue;
@@ -494,8 +537,7 @@ class VirtuNewsletter {
                 $report = $this->modx->newObject('vnewsReports');
                 $params = array(
                     'subscriber_id' => $subscriber['id'],
-                    'newsletter_id' => $newsletterId,
-                    'current_occurrence_time' => $currentOccurrenceTime,
+                    'newsletter_id' => $newsletterArray['id'],
                     'status' => 'queue',
                     'status_logged_on' => $time,
                 );
@@ -549,6 +591,13 @@ class VirtuNewsletter {
     public function processQueue($todayOnly = FALSE) {
         $c = $this->modx->newQuery('vnewsReports');
         $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
+        $c->select(array(
+            'vnewsReports.*',
+            'vnewsNewsletters.subject',
+            'vnewsNewsletters.created_on',
+            'vnewsNewsletters.scheduled_for',
+            'vnewsNewsletters.is_recurring',
+        ));
         $c->where(array(
             'vnewsReports.status' => 'queue',
             'vnewsNewsletters.is_active' => 1,
@@ -558,7 +607,7 @@ class VirtuNewsletter {
             date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $c->where(array(
-                'current_occurrence_time' => $today,
+                'scheduled_for' => $today,
             ));
         }
         $limit = $this->modx->getOption('virtunewsletter.email_limit');
@@ -1159,13 +1208,16 @@ class VirtuNewsletter {
             return FALSE;
         }
         $parentNewsletterArray = $parentNewsletter->toArray();
+        if (empty($parentNewsletterArray['is_recurring']) || empty($parentNewsletterArray['is_active'])) {
+            return FALSE;
+        }
         // remove all queue for self
         $this->modx->removeCollection('vnewsReports', array(
-            'newsletter_id' => $parentNewsletterArray,
+            'newsletter_id' => $parentNewsletterArray['id'],
         ));
         $c = $this->modx->newQuery('vnewsNewsletters');
-        $time = time();
         $nextOccurrenceTime = $this->nextOccurrenceTime($parentNewsletterArray['id']);
+        $time = time();
         $c->where(array(
             'parent_id' => $parentNewsletterArray['id'],
             'scheduled_for:>=' => $time,
@@ -1240,7 +1292,7 @@ class VirtuNewsletter {
             ));
         }
         return $this->modx->removeCollection('vnewsNewsletters', array(
-            'parent_id' => $parentId,
+                    'parent_id' => $parentId,
         ));
     }
 

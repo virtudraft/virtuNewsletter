@@ -6,20 +6,20 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
             title: _('virtunewsletter.configurations'),
             preventRender: true,
             xtype: 'virtunewsletter-panel-newsletter-configuration',
-            node: config.node
+            record: config.record
         }, {
             title: _('virtunewsletter.reports'),
             preventRender: true,
             xtype: 'virtunewsletter-grid-reports',
-            node: config.node
+            record: config.record
         }
     ];
-    if (config.node.attributes.is_recurring) {
+    if (config.record.is_recurring) {
         tabItems.push({
             title: _('virtunewsletter.recurrences'),
             preventRender: true,
             xtype: 'virtunewsletter-grid-recurrences',
-            node: config.node
+            record: config.record
         });
     }
     Ext.apply(config, {

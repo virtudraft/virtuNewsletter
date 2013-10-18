@@ -6,9 +6,9 @@ VirtuNewsletter.grid.Usergroups = function(config) {
         check.destroy();
     }
     var data = [];
-    if (config.node.attributes && config.node.attributes.usergroups) {
-        for (var i = 0, l = config.node.attributes.usergroups.length; i < l; i++) {
-            data.push([config.node.attributes.usergroups[i].usergroup_id, config.node.attributes.usergroups[i].usergroup]);
+    if (config.record && config.record.usergroups) {
+        for (var i = 0, l = config.record.usergroups.length; i < l; i++) {
+            data.push([config.record.usergroups[i].usergroup_id, config.record.usergroups[i].usergroup]);
         }
     }
 

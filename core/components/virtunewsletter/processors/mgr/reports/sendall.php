@@ -10,12 +10,10 @@ $c->select(array(
     'vnewsSubscribers.name',
 ));
 
-//date_default_timezone_set('UTC');
-//$today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+date_default_timezone_set('UTC');
 $c->where(array(
     'newsletter_id' => $scriptProperties['newsletter_id'],
     'status' => 'queue',
-//    'current_occurrence_time' => $today,
 ));
 
 $limit = $modx->getOption('virtunewsletter.email_limit');
@@ -35,30 +33,6 @@ if ($queues) {
                 $modx->setDebug(FALSE);
             } else {
                 $outputReports[] = $modx->virtunewsletter->getPlaceholders();
-            }
-
-            $nextOccurrenceTime = $queue->get('next_occurrence_time');
-            if (!empty($nextOccurrenceTime)) {
-                $currentOccurrenceTime = $nextOccurrenceTime;
-                $nextOccurrenceTime = $modx->virtunewsletter->nextOccurrenceTime($queue->get('newsletter_id'), $nextOccurrenceTime);
-
-                $report = $this->modx->newObject('vnewsReports');
-                $params = array(
-                    'subscriber_id' => $queue->get('subscriber_id'),
-                    'newsletter_id' => $queue->get('newsletter_id'),
-                    'current_occurrence_time' => $currentOccurrenceTime,
-                    'status' => 'queue',
-                    'status_logged_on' => time(),
-                    'next_occurrence_time' => $nextOccurrenceTime,
-                );
-                $report->fromArray($params, NULL, TRUE);
-                if ($report->save() === FALSE) {
-                    $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
-                } else {
-                    $outputReports[] = $report->toArray();
-                }
             }
         } else {
             $modx->setDebug();

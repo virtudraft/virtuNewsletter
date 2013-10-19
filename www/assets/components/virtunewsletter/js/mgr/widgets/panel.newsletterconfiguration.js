@@ -336,7 +336,7 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
     },
     viewContent: function() {
         var time = new Date().getTime();
-        window.open(VirtuNewsletter.config.webConnectorUrl + '?action=web/newsletters/read&newsid=' + this.node.attributes.newsid + '&preventCache=' + time, '_blank');
+        window.open(VirtuNewsletter.config.webConnectorUrl + '?action=web/newsletters/read&newsid=' + this.record.newsid + '&preventCache=' + time, '_blank');
     }
 });
 Ext.reg('virtunewsletter-panel-newsletter-configuration', VirtuNewsletter.panel.NewsletterConfiguration);

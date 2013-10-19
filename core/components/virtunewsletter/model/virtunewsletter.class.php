@@ -299,22 +299,25 @@ class VirtuNewsletter {
     }
 
     /**
-     * Calculate the next occurrence time of a newsletter if it is recurring
+     * Calculate the next recurrence time of a recurring newsletter
      * @param   int     $newsId                 newsletter's ID
-     * @param   int     $currentOccurrenceTime  optional current occurence time to override
+     * @param   int     $currentRecurrenceTime  optional current recurence time to override
      * @return  mixed   false|null|UNIX date of the next occurrence
      */
-    public function nextOccurrenceTime($newsId, $currentOccurrenceTime = '') {
+    public function nextRecurrenceTime($newsId, $currentRecurrenceTime = '') {
         $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
         if (!$newsletter) {
             return FALSE;
         }
-        if (empty($currentOccurrenceTime)) {
-            $currentOccurrenceTime = $newsletter->get('scheduled_for');
+        if (empty($currentRecurrenceTime)) {
+            $currentRecurrenceTime = $newsletter->get('scheduled_for');
+        }
+        if ($currentRecurrenceTime > time()) {
+            return $currentRecurrenceTime;
         }
         $isRecurring = $newsletter->get('is_recurring');
         if (!$isRecurring) {
-            $nextOccurrenceTime = NULL;
+            $nextRecurrenceTime = NULL;
         } else {
             $timeRange = 0;
             $recurrenceRange = $newsletter->get('recurrence_range');
@@ -324,22 +327,22 @@ class VirtuNewsletter {
                     $daysRange = ceil(7 / $recurrenceNumber);
                     $timeRange = $daysRange * 24 * 60 * 60;
                 } elseif ($recurrenceRange === 'monthly') {
-                    $numberOfDays = date('t', $currentOccurrenceTime);
+                    $numberOfDays = date('t', $currentRecurrenceTime);
                     $daysRange = ceil($numberOfDays / $recurrenceNumber);
                     $timeRange = $daysRange * 24 * 60 * 60;
                 } elseif ($recurrenceRange === 'yearly') {
-                    $numberOfDays = date('z', mktime(0, 0, 0, 12, 31, date('Y', $currentOccurrenceTime))) + 1;
+                    $numberOfDays = date('z', mktime(0, 0, 0, 12, 31, date('Y', $currentRecurrenceTime))) + 1;
                     $daysRange = ceil($numberOfDays / $recurrenceNumber);
                     $timeRange = $daysRange * 24 * 60 * 60;
                 }
             }
 
-            $nextOccurrenceTime = $currentOccurrenceTime + $timeRange;
+            $nextRecurrenceTime = $currentRecurrenceTime + $timeRange;
         }
-        if ($nextOccurrenceTime < time()) {
-            return $this->nextOccurrenceTime($newsId, $nextOccurrenceTime);
+        if ($nextRecurrenceTime < time()) {
+            return $this->nextRecurrenceTime($newsId, $nextRecurrenceTime);
         }
-        return $nextOccurrenceTime;
+        return $nextRecurrenceTime;
     }
 
     /**
@@ -365,7 +368,7 @@ class VirtuNewsletter {
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        
+
         foreach ($subscribers as $subscriber) {
             $report = $this->modx->getObject('vnewsReports', array(
                 'subscriber_id' => $subscriber['id'],
@@ -467,10 +470,11 @@ class VirtuNewsletter {
     /**
      * Remove all queues of this newsletter and it's descendants
      * @param   int     $newsletterId       newsletter's ID
-     * @param   bollean $includeChildren    including all descendants?
+     * @param   boolean $includeChildren    including all descendants? (default: false)
+     * @param   boolean $includeSent        including all sent queues? (default: false)
      * @return  boolean
      */
-    public function removeNewsletterQueues($newsletterId, $includeChildren = false) {
+    public function removeNewsletterQueues($newsletterId, $includeChildren = false, $includeSent = false) {
         $ids = array($newsletterId);
         if ($includeChildren) {
             $children = $this->modx->getCollection('vnewsNewsletters', array(
@@ -482,9 +486,17 @@ class VirtuNewsletter {
                 }
             }
         }
-        return $this->modx->removeCollection('vnewsReports', array(
-                    'newsletter_id:IN' => $ids
+
+        $c = $this->modx->newQuery('vnewsReports');
+        $c->where(array(
+            'newsletter_id:IN' => $ids
         ));
+        if (!$includeSent) {
+            $c->where(array(
+                'status:!=' => 'sent'
+            ));
+        }
+        return $this->modx->removeCollection('vnewsReports', $c);
     }
 
     /**
@@ -753,9 +765,12 @@ class VirtuNewsletter {
         }
         $subscriber = $this->modx->getObject('vnewsSubscribers', $c);
         if (!$subscriber) {
-            $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with criteria: ' . print_r($where, TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
+            $emailDebug = $this->modx->getOption('virtunewsletter.email_debug');
+            if ($emailDebug) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with criteria: ' . print_r($where, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+            }
             return FALSE;
         }
         $subscriberArray = $subscriber->toArray();
@@ -1216,28 +1231,46 @@ class VirtuNewsletter {
             'newsletter_id' => $parentNewsletterArray['id'],
         ));
         $c = $this->modx->newQuery('vnewsNewsletters');
-        $nextOccurrenceTime = $this->nextOccurrenceTime($parentNewsletterArray['id']);
+        $nextRecurrenceTime = $this->nextRecurrenceTime($parentNewsletterArray['id']);
         $time = time();
         $c->where(array(
             'parent_id' => $parentNewsletterArray['id'],
             'scheduled_for:>=' => $time,
-            'scheduled_for:<=' => $nextOccurrenceTime,
-            'is_active' => 1
+            'scheduled_for:<=' => $nextRecurrenceTime
         ));
         $c->limit(1);
         $c->sortby('scheduled_for', 'desc');
         $recurringNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
         if (!$recurringNewsletter) {
+            // checking the content latest recurrence.
+            // if its content is as same as the current one, skip this
+            $currentContent = $this->prepareEmailContent($parentNewsletterArray['content']);
+
+            $c = $this->modx->newQuery('vnewsNewsletters');
+            $c->where(array(
+                'parent_id' => $parentNewsletterArray['id'],
+            ));
+            $c->limit(1);
+            $c->sortby('scheduled_for', 'desc');
+            $latestNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
+            if ($latestNewsletter) {
+                $latestContent = $latestNewsletter->get('content');
+                if ($latestContent === $currentContent) {
+                    return FALSE;
+                }
+            }
+
             $recurringNewsletter = $this->modx->newObject('vnewsNewsletters');
             $params = array(
                 'parent_id' => $parentNewsletterArray['id'],
                 'resource_id' => $parentNewsletterArray['resource_id'],
-                'subject' => $parentNewsletterArray['subject'],
-                'content' => $this->prepareEmailContent($parentNewsletterArray['content']),
+                'subject' => $this->processElementTags($parentNewsletterArray['subject']),
+                'content' => $currentContent,
+                'created_by' => $parentNewsletterArray['created_by'],
                 'created_on' => $time,
-                'scheduled_for' => $nextOccurrenceTime,
+                'scheduled_for' => $nextRecurrenceTime,
                 'is_recurring' => 0,
-                'is_active' => 1,
+                'is_active' => $parentNewsletterArray['is_active'],
             );
             $recurringNewsletter->fromArray($params);
             if ($recurringNewsletter->save() === FALSE) {

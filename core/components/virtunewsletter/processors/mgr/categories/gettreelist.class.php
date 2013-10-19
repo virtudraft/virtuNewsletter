@@ -91,6 +91,8 @@ class CategoriesGetTreeListProcessor extends modObjectGetListProcessor {
                 $newsHasCatsArray[] = $newsHasCat->get('newsletter_id');
             }
         }
+
+        $leaf = true;
         if (!empty($newsHasCatsArray)) {
             $orphanNewsletters = $this->modx->getCollection('vnewsNewsletters', array(
                 'id:NOT IN' => $newsHasCatsArray
@@ -98,18 +100,18 @@ class CategoriesGetTreeListProcessor extends modObjectGetListProcessor {
 
             $hasChildren = $orphanNewsletters ? TRUE : FALSE;
             $leaf = $hasChildren ? FALSE : TRUE;
-            array_unshift($list, array(
-                'name' => $this->modx->lexicon('virtunewsletter.uncategorized'),
-                'description' => $this->modx->lexicon('virtunewsletter.uncategorized_desc'),
-                'catid' => 0,
-                'text' => $this->modx->lexicon('virtunewsletter.uncategorized'),
-                'leaf' => $leaf,
-                'usergroups' => array(
-                    'usergroup_id' => 0,
-                    'usergroup' => ''
-                ),
-            ));
         }
+        array_unshift($list, array(
+            'name' => $this->modx->lexicon('virtunewsletter.uncategorized'),
+            'description' => $this->modx->lexicon('virtunewsletter.uncategorized_desc'),
+            'catid' => 0,
+            'text' => $this->modx->lexicon('virtunewsletter.uncategorized'),
+            'leaf' => $leaf,
+            'usergroups' => array(
+                'usergroup_id' => 0,
+                'usergroup' => ''
+            ),
+        ));
 
         return $list;
     }

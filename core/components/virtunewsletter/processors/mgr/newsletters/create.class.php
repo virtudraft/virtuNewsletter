@@ -120,6 +120,14 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
             $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+        } else {
+            $children = $this->object->getMany('Children');
+            if ($children) {
+                foreach ($children as $child) {
+                    $child->set('is_active', 0);
+                    $child->save();
+                }
+            }
         }
 
         return true;

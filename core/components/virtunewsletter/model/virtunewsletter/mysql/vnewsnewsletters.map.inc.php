@@ -147,6 +147,14 @@ $xpdo_meta_map['vnewsNewsletters']= array (
   ),
   'composites' => 
   array (
+    'Parent' => 
+    array (
+      'class' => 'vnewsNewsletters',
+      'local' => 'parent_id',
+      'foreign' => 'id',
+      'cardinality' => 'one',
+      'owner' => 'foreign',
+    ),
     'vnewsNewslettersHasCategories' => 
     array (
       'class' => 'vnewsNewslettersHasCategories',
@@ -160,6 +168,17 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'class' => 'vnewsReports',
       'local' => 'id',
       'foreign' => 'newsletter_id',
+      'cardinality' => 'many',
+      'owner' => 'local',
+    ),
+  ),
+  'aggregates' => 
+  array (
+    'Children' => 
+    array (
+      'class' => 'vnewsNewsletters',
+      'local' => 'id',
+      'foreign' => 'parent_id',
       'cardinality' => 'many',
       'owner' => 'local',
     ),

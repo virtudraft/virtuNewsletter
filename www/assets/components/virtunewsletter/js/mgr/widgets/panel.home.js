@@ -31,7 +31,7 @@ VirtuNewsletter.panel.Home = function(config) {
                         },
                         items: [
                             {
-                                html: '<span style="margin-right: 10px; line-height: 39px;"><span style="font-weight: bold; font-size: 20px;">' + _('virtunewsletter') + '</span> ' + VirtuNewsletter.config.version + '</span>',
+                                html: '<span style="margin-right: 10px; line-height: 39px;"><span style="font-weight: bold; font-size: 16px;">' + _('virtunewsletter') + '</span> ' + VirtuNewsletter.config.version + '</span>',
                                 border: false,
                                 cls: 'modx-page-header'
                             }, {
@@ -137,3 +137,28 @@ Ext.extend(VirtuNewsletter.panel.Home, MODx.Panel, {
     }
 });
 Ext.reg('virtunewsletter-panel-home', VirtuNewsletter.panel.Home);
+
+
+/**
+ * @author goldsky
+ * For some reason, the original of this method doesn't work well for treePanel.
+ * treePanel comes as an object, not an array.
+ * This affects removeAll() in the openPage() method.
+ * @class Array
+ */
+Ext.apply(Array.prototype, {
+    /**
+     * Removes the specified object from the array.  If the object is not found nothing happens.
+     * @param {Object} o The object to remove
+     * @return {Array} this array
+     */
+    remove : function(o){
+        if (typeof(this) === 'array') {
+            var index = this.indexOf(o);
+            if(index != -1){
+                this.splice(index, 1);
+            }
+        }
+        return this;
+    }
+});

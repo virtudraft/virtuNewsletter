@@ -45,12 +45,15 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
     getNewsletters: function() {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl + '?action=mgr/dashboard/newsletters',
+            method: 'GET',
             listeners: {
                 'success': {
                     fn: function(response) {
                         if (response.success === true) {
                             var panel = Ext.getCmp('virtunewsletter-panel-dashboardnewsletter');
-                            panel.form.setValues(response.object);
+                            if (panel) {
+                                panel.form.setValues(response.object);
+                            }
                             // queueing ajax, because multiple requests are forbidden!
                             return this.getSubscribers();
                         }
@@ -69,12 +72,15 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
     getSubscribers: function() {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl + '?action=mgr/dashboard/subscribers',
+            method: 'GET',
             listeners: {
                 'success': {
                     fn: function(response) {
                         if (response.success === true) {
                             var panel = Ext.getCmp('virtunewsletter-panel-dashboardsubscribers');
-                            panel.form.setValues(response.object);
+                            if (panel) {
+                                panel.form.setValues(response.object);
+                            }
                         }
                     },
                     scope: this

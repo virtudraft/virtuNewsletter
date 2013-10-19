@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -29,6 +30,20 @@ class NewslettersRemoveProcessor extends modObjectRemoveProcessor {
     public $classKey = 'vnewsNewsletters';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.NewslettersRemove';
+
+    /**
+     * Can contain post-removal logic.
+     * @return bool
+     */
+    public function afterRemove() {
+        $children = $this->object->getMany('Children');
+        if ($children) {
+            foreach ($children as $child) {
+                $child->remove();
+            }
+        }
+        return true;
+    }
 
 }
 

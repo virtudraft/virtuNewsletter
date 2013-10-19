@@ -57,6 +57,8 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         autoScroll: true,
         enableDD: false,
         containerScroll: true,
+        preventRender: true,
+        autoDestroy: true,
         tbar: [
             {
                 tooltip: {
@@ -130,6 +132,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         ],
         listeners: {
             click: function(node) {
+                var record = node.attributes;
                 if (node.attributes.catid) {
                     if (node.expanded === true) {
                         // odd?
@@ -137,9 +140,9 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                     } else {
                         node.expand();
                     }
-                    return this.categoriesPanel(node.attributes);
+                    return this.categoriesPanel(record);
                 } else {
-                    return this.newslettersPanel(node.attributes);
+                    return this.newslettersPanel(record);
                 }
             },
             render: function() {

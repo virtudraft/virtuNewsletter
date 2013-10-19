@@ -3,6 +3,7 @@ virtuNewsletter 1.4.0-pl (October 19, 2013)
 - added dashboard
 - modified how to read the resource's content so it parses the TVs as well
 - modified recurrence's process
+- modified js variables
 
 virtuNewsletter 1.3.0-pl (September 30, 2013)
 =================================================

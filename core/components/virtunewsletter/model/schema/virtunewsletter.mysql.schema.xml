@@ -49,6 +49,10 @@
 			<column key="parent_id" length="" collation="A" null="false" />
 		</index>
 
+        <!-- self-join -->
+        <composite alias="Parent" class="vnewsNewsletters" local="parent_id" foreign="id" cardinality="one" owner="foreign" />
+        <aggregate alias="Children" class="vnewsNewsletters" local="id" foreign="parent_id" cardinality="many" owner="local" />
+
         <composite alias="vnewsNewslettersHasCategories" class="vnewsNewslettersHasCategories" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
         <composite alias="vnewsReports" class="vnewsReports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
 

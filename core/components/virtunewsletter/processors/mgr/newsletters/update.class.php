@@ -128,11 +128,20 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         } else {
             $this->modx->virtunewsletter->removeAllRecurrences($newsId);
         }
+        
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
             $this->modx->virtunewsletter->setNewsletterQueue($newsId);
         } else {
             $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
+        }
+
+        $children = $this->object->getMany('Children');
+        if ($children) {
+            foreach ($children as $child) {
+                $child->set('is_active', $isActive);
+                $child->save();
+            }
         }
 
         return true;

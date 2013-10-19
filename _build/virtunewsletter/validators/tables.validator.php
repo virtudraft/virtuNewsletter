@@ -62,6 +62,20 @@ if ($modx = & $object->xpdo) {
                     $manager->removeObjectContainer('vnewsSubscribersHasCategories');
                 }
             }
+
+            $extensionPackages = $modx->getObject('modSystemSetting', array(
+                'key' => 'extension_packages'
+            ));
+            if ($extensionPackages) {
+                $value = $extensionPackages->get('value');
+                $valueArray = json_decode($value, TRUE);
+                if (isset($valueArray['virtunewsletter'])) {
+                    unset($valueArray['virtunewsletter']);
+                    $value = json_encode($valueArray);
+                    $extensionPackages->set('value', $value);
+                    $extensionPackages->save();
+                }
+            }
             break;
     }
 }

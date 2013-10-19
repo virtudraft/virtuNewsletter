@@ -36,7 +36,7 @@ if ($modx = & $object->xpdo) {
                 $modx->log(modX::LOG_LEVEL_WARN, 'resolver xPDOTransport::ACTION_INSTALL');
             }
             $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
-            if ($modx->addPackage('virtunewsletter', $modelPath, 'modx_virtunewsletter_')) {
+            if ($modx->addPackage('virtunewsletter', $modelPath, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_')) {
                 if ($modx->getDebug()) {
                     $modx->log(modX::LOG_LEVEL_WARN, 'package was added in resolver xPDOTransport::ACTION_INSTALL');
                 }
@@ -51,12 +51,55 @@ if ($modx = & $object->xpdo) {
             }
             break;
         case xPDOTransport::ACTION_UPGRADE:
+            $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
+            if ($modx->addPackage('virtunewsletter', $modelPath, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_')) {
+                if ($modx->getDebug()) {
+                    $modx->log(modX::LOG_LEVEL_WARN, 'package was added in resolver xPDOTransport::ACTION_UPGRADE');
+                }
+                $manager = $modx->getManager();
+
+                $manager->addIndex('vnewsCategoriesHasUsergroups', 'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx');
+                $manager->addIndex('vnewsCategoriesHasUsergroups', 'fk_modx_virtunewsletter_categories_has_modx_virtunewsletter_idx1');
+
+                $manager->addField('vnewsNewsletters', 'parent_id', array('after' => 'id'));
+                $manager->addIndex('vnewsNewsletters', 'parent_id');
+
+                $manager->addIndex('vnewsNewslettersHasCategories', 'fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx');
+                $manager->addIndex('vnewsNewslettersHasCategories', 'fk_modx_virtunewsletter_newsletters_has_modx_virtunewslette_idx1');
+
+                // managing existing recurrences
+                $defaultVirtuNewsletterCorePath = $modx->getOption('core_path') . 'components/virtunewsletter/';
+                $virtuNewsletterCorePath = $modx->getOption('virtunewsletter.core_path', null, $defaultVirtuNewsletterCorePath);
+                $virtuNewsletter = $modx->getService('virtunewsletter', 'VirtuNewsletter', $virtuNewsletterCorePath . 'model/');
+                if ($virtuNewsletter instanceof VirtuNewsletter) {
+                    $newsletters = $modx->getCollection('vnewsNewsletters', array(
+                        'is_recurring' => 1,
+                        'is_active' => 1
+                    ));
+                    if ($newsletters) {
+                        foreach ($newsletters as $newsletter) {
+                            $virtuNewsletter->createNextRecurrence($newsletter->get('id'));
+                        }
+                    }
+                }
+
+                $manager->removeField('vnewsReports', 'current_occurrence_time');
+                $manager->removeField('vnewsReports', 'next_occurrence_time');
+                $manager->addIndex('vnewsReports', 'fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx');
+                $manager->addIndex('vnewsReports', 'fk_modx_virtunewsletter_reports_modx_virtunewsletter_subscr_idx');
+
+                $manager->removeIndex('vnewsSubscribers', 'user_id');
+                $manager->addIndex('vnewsSubscribers', 'fk_modx_virtunewsletter_subscribers_modx_virtunewsletter_us_idx');
+
+                $manager->addIndex('vnewsSubscribersHasCategories', 'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx');
+                $manager->addIndex('vnewsSubscribersHasCategories', 'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx1');
+            }
             break;
         case xPDOTransport::ACTION_UNINSTALL:
             if ($modx->getDebug()) {
                 $modx->log(modX::LOG_LEVEL_WARN, 'resolver xPDOTransport::ACTION_UNINSTALL');
                 $modelPath = $modx->getOption('core_path') . 'components/virtunewsletter/model/';
-                if ($modx->addPackage('virtunewsletter', $modelPath, 'modx_virtunewsletter_')) {
+                if ($modx->addPackage('virtunewsletter', $modelPath, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_')) {
                     $modx->log(modX::LOG_LEVEL_WARN, 'package was added in resolver xPDOTransport::ACTION_UNINSTALL');
                 }
             }

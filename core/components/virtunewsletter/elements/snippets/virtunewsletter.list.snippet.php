@@ -29,9 +29,9 @@ $activeOnly = $modx->getOption('activeOnly', $scriptProperties, 1);
 $readerPage = $modx->getOption('readerPage', $scriptProperties, $modx->getOption('virtunewsletter.readerpage'));
 
 $phsPrefix = $modx->getOption('phsPrefix', $scriptProperties, 'virtuNewsletter.list.');
-$tplItem = $modx->getOption('tplItem', $scriptProperties, 'virtunewsletter.list.item');
+$itemTpl = $modx->getOption('itemTpl', $scriptProperties, 'virtunewsletter.list.item');
 $itemSeparator = $modx->getOption('itemSeparator', $scriptProperties, "\n");
-$tplWrapper = $modx->getOption('tplWrapper', $scriptProperties, 'virtunewsletter.list.wrapper');
+$wrapperTpl = $modx->getOption('wrapperTpl', $scriptProperties, 'virtunewsletter.list.wrapper');
 
 $defaultVirtuNewsletterCorePath = $modx->getOption('core_path') . 'components/virtunewsletter/';
 $virtuNewsletterCorePath = $modx->getOption('virtunewsletter.core_path', null, $defaultVirtuNewsletterCorePath);
@@ -75,7 +75,7 @@ if ($newsletters) {
         if ($toArray) {
             $itemArray[] = $phs;
         } else {
-            $itemString = $virtuNewsletter->parseTpl($tplItem, $phs);
+            $itemString = $virtuNewsletter->parseTpl($itemTpl, $phs);
             $itemString = $virtuNewsletter->processElementTags($itemString);
             $itemArray[] = $itemString;
         }
@@ -91,7 +91,7 @@ if ($newsletters) {
         $wrapper = array(
             $phsPrefix . 'items' => $outputString
         );
-        $wrapperOutput = $virtuNewsletter->parseTpl($tplWrapper, $wrapper);
+        $wrapperOutput = $virtuNewsletter->parseTpl($wrapperTpl, $wrapper);
         $output = $virtuNewsletter->processElementTags($wrapperOutput);
     }
 }

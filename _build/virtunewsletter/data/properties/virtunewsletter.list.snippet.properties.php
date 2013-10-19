@@ -20,18 +20,37 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  *
+ * virtuNewsletter build script
+ *
  * @package virtunewsletter
- * @subpackage lexicon
+ * @subpackage build
  */
-$_lang['prop_emailKey_desc'] = 'Request\'s key of the email parameter (required)';
-$_lang['prop_nameKey_desc'] = 'Request\'s key of the name parameter (optional)';
-$_lang['prop_phsPrefix_desc'] = 'Placeholders prefix';
-$_lang['prop_emailFrom_desc'] = 'Email address of the sender';
-$_lang['prop_emailFromName_desc'] = 'Name of the sender';
-$_lang['prop_newsId_desc'] = 'ID of the newsletter';
-$_lang['prop_itemTpl_desc'] = 'Item template. @BINDINGs enabled';
-$_lang['prop_successMsg_desc'] = 'Custom success message';
-$_lang['prop_activeOnly_desc'] = 'For active status only';
-$_lang['prop_readerPage_desc'] = 'Resource to read the newsletter';
-$_lang['prop_itemSeparator_desc'] = 'Separator character between items';
-$_lang['prop_wrapperTpl_desc'] = 'Wrapper template. @BINDINGs enabled';
+
+if (!function_exists("fixJson")) {
+
+    function fixJson(array $array) {
+        $fixed = array();
+        foreach ($array as $k => $v) {
+            $fixed[] = array(
+                'name' => $v['name'],
+                'desc' => $v['desc'],
+                'type' => $v['xtype'],
+                'options' => empty($v['options']) ? '' : $v['options'],
+                'value' => $v['value'],
+                'lexicon' => $v['lexicon'],
+            );
+        }
+        return $fixed;
+    }
+
+}
+
+ob_start();
+include dirname(__FILE__) . '/default.virtunewsletter.list.snippet.properties.js';
+$json = ob_get_contents();
+ob_end_clean();
+
+$properties = $modx->fromJSON($json);
+$properties = fixJson($properties);
+
+return $properties;

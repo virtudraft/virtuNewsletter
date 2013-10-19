@@ -57,7 +57,7 @@ foreach ($usergroups as $usergroup) {
             $usersArray[] = array(
                 'user_id' => $userArray['id'],
                 'email' => $profileArray['email'],
-                'name' => $profileArray['fullname'],
+                'name' => !empty($profileArray['fullname']) ? $profileArray['fullname'] : $userArray['username'],
                 'usergroups' => $user->getUserGroups()
             );
         }
@@ -65,10 +65,10 @@ foreach ($usergroups as $usergroup) {
 }
 
 // remove all registered users that are NOT in the groups
-$this->modx->removeCollection('vnewsSubscribers', array(
-    'user_id:!=' => 0,
-    'AND:user_id:NOT IN' => $userIds,
-));
+//$this->modx->removeCollection('vnewsSubscribers', array(
+//    'user_id:!=' => 0,
+//    'AND:user_id:NOT IN' => $userIds,
+//));
 
 /**
  * Generate users
@@ -80,22 +80,22 @@ if ($usersArray) {
         ));
         if (!$subscriber) {
             $subscriber = $this->modx->newObject('vnewsSubscribers');
+            $params = array(
+                'user_id' => $user['user_id'],
+                'email' => $user['email'],
+                'name' => $user['name'],
+                'is_active' => 1,
+                'hash' => $this->modx->virtunewsletter->setHash($user['email'])
+            );
+            $subscriber->fromArray($params);
+            if ($subscriber->save() === FALSE) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                continue;
+            }
         }
 
-        $params = array(
-            'user_id' => $user['user_id'],
-            'email' => $user['email'],
-            'name' => $user['name'],
-            'is_active' => 1,
-            'hash' => $this->modx->virtunewsletter->setHash($user['email'])
-        );
-        $subscriber->fromArray($params);
-        if ($subscriber->save() === FALSE) {
-            $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            continue;
-        }
         $subscriberId = $subscriber->getPrimaryKey();
 
         /**

@@ -787,6 +787,7 @@ class VirtuNewsletter {
         $this->setOutput($msg);
 
         $phs = $newSubscriber->toArray();
+        $phs['subid'] = $phs['id']; // to avoid confusion on template
         $phs = array_merge($phs, array('act' => 'subscribe'));
         $this->setPlaceholders($phs);
 
@@ -1092,7 +1093,12 @@ class VirtuNewsletter {
 
         $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
         $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
-        $phs = array_merge($subscriberArray, $confirmLinkArgs, array('id' => $newsId));
+        $phs = array_merge($subscriberArray, $confirmLinkArgs, array(
+            // to avoid confusion on template
+            'id' => $newsId,
+            'newsid' => $newsId,
+            'subid' => $subscriberArray['id']
+        ));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $this->setPlaceholders($phs, $systemEmailPrefix);
         $content = $this->processEmailMessage($newsId);

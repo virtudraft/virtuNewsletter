@@ -1,3 +1,8 @@
+virtuNewsletter 1.5.0-pl (October 21, 2013)
+=================================================
+- disabled editing panel for Uncategorized category. It should not editable.
+- added CSV Export/Import feature to Subscribers section.
+
 virtuNewsletter 1.4.0-pl (October 19, 2013)
 =================================================
 - added dashboard
@@ -8,7 +13,7 @@ virtuNewsletter 1.4.0-pl (October 19, 2013)
 - added parent-child aggregate to newsletter's schema
 - initiated uncategorized category in CMP from the beginning
 - overrode Ext's Array.remove() method to work with openPage()
-- added virtuNewsletter.list snippet to list newsletters in the website
+- added virtuNewsletter.list snippet to list newsletters on the website
 
 virtuNewsletter 1.3.0-pl (September 30, 2013)
 =================================================

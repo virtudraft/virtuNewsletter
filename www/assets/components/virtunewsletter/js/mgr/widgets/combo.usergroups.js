@@ -5,11 +5,13 @@ VirtuNewsletter.combo.Usergroups = function(config) {
         baseParams: {
             action: 'mgr/usergroups/getComboList'
         },
+        pageSize: 10,
         fields: ['id', 'name'],
         name: 'usergroup_id',
         hiddenName: 'usergroup_id',
         displayField: 'name',
-        valueField: 'id'
+        valueField: 'id',
+        lazyRender: true
     });
     VirtuNewsletter.combo.Usergroups.superclass.constructor.call(this, config);
 };

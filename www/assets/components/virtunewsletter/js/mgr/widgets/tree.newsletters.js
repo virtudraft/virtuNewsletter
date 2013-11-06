@@ -64,7 +64,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 tooltip: {
                     text: _('virtunewsletter.expand_all')
                 },
-                icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/arrow_down.png',
+                icon: '../assets/components/virtunewsletter/img/arrow_down.png',
                 handler: function() {
                     var usersTreeCmp = Ext.getCmp('virtunewsletter-tree-newsletters');
                     return usersTreeCmp.expandAll();
@@ -73,7 +73,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 tooltip: {
                     text: _('virtunewsletter.collapse_all')
                 },
-                icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/arrow_up.png',
+                icon: '../assets/components/virtunewsletter/img/arrow_up.png',
                 handler: function() {
                     var usersTreeCmp = Ext.getCmp('virtunewsletter-tree-newsletters');
                     return usersTreeCmp.collapseAll();
@@ -82,13 +82,13 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 tooltip: {
                     text: _('virtunewsletter.refresh')
                 },
-                icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/refresh.png',
+                icon: '../assets/components/virtunewsletter/img/arrow_refresh.png',
                 handler: this.refreshTree
             }, {
                 tooltip: {
                     text: _('virtunewsletter.add_new_category')
                 },
-                icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/folder_add.png',
+                icon: '../assets/components/virtunewsletter/img/folder_add.png',
                 handler: function() {
                     var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                     contentPanel.removeAll();
@@ -110,7 +110,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
                 tooltip: {
                     text: _('virtunewsletter.add_new_schedule')
                 },
-                icon: MODx.config.manager_url + 'templates/default/images/restyle/icons/new-static-resource.png',
+                icon: '../assets/components/virtunewsletter/img/email_add.png',
                 handler: function() {
                     var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
                     contentPanel.removeAll();
@@ -133,7 +133,12 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         listeners: {
             click: function(node) {
                 var record = node.attributes;
-                if (node.attributes.catid) {
+                
+                if (node.attributes.catid === 0) {
+                    var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
+                    contentPanel.removeAll();
+                    return false;                    
+                } else if (node.attributes.catid) {
                     if (node.expanded === true) {
                         // odd?
                         node.collapse();

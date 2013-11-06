@@ -84,6 +84,7 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             }
         }
 
+        $content = str_replace(array('%5B%5B%2B', '%5D%5D'), array('[[+', ']]'), $content);
         $this->setProperty('content', $content);
 
         $schedule = $this->getProperty('scheduled_for');

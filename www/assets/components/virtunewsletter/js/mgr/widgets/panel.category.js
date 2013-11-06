@@ -58,8 +58,7 @@ VirtuNewsletter.panel.Category = function(config) {
                                 tbar: [
                                     {
                                         xtype: 'virtunewsletter-combo-usergroups',
-                                        anchor: '100%',
-                                        lazyRender: true
+                                        anchor: '100%'
                                     }, {
                                         text: _('virtunewsletter.add'),
                                         handler: function() {

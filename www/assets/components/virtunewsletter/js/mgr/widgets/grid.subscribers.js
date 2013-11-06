@@ -2,7 +2,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
     config = config || {};
 
     Ext.applyIf(config, {
-        id: 'virtunewsletter-grid-reports',
+        id: 'virtunewsletter-grid-subscribers',
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/subscribers/getList',
@@ -61,7 +61,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                             listeners: {
                                 'success': {
                                     fn: function() {
-                                        Ext.getCmp('virtunewsletter-grid-reports').refresh();
+                                        Ext.getCmp('virtunewsletter-grid-subscribers').refresh();
                                     }
                                 }
                             }
@@ -75,7 +75,37 @@ VirtuNewsletter.grid.Subscribers = function(config) {
         ],
         tbar: [
             {
+                xtype: 'textfield',
+                emptyText: _('virtunewsletter.search...'),
+                listeners: {
+                    'change': {fn: this.search, scope: this},
+                    'render': {fn: function(cmp) {
+                            new Ext.KeyMap(cmp.getEl(), {
+                                key: Ext.EventObject.ENTER,
+                                fn: function() {
+                                    this.fireEvent('change', this);
+                                    this.blur();
+                                    return true;
+                                },
+                                scope: cmp
+                            });
+                        },
+                        scope: this}
+                }
+            }, '->', {
+                text: _('virtunewsletter.import_csv'),
+                icon: '../assets/components/virtunewsletter/img/table_import.png',
+                handler: {
+                    xtype: 'virtunewsletter-window-importcsv',
+                    blankValues: true
+                }
+            }, {
+                text: _('virtunewsletter.export_csv'),
+                icon: '../assets/components/virtunewsletter/img/table_export.png',
+                handler: this.exportCsv
+            }, {
                 text: _('virtunewsletter.sync_usergroups'),
+                icon: '../assets/components/virtunewsletter/img/arrow_refresh.png',
                 scope: this,
                 handler: this.syncUsergroups
             }
@@ -84,6 +114,12 @@ VirtuNewsletter.grid.Subscribers = function(config) {
     VirtuNewsletter.grid.Subscribers.superclass.constructor.call(this, config);
 };
 Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
+    search: function(tf, nv, ov) {
+        var s = this.getStore();
+        s.baseParams.query = tf.getValue();
+        this.getBottomToolbar().changePage(1);
+        this.refresh();
+    },
     syncUsergroups: function() {
         MODx.msg.confirm({
             title: _('virtunewsletter.sync_usergroups'),
@@ -124,6 +160,22 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             listeners: {
                 'success': {
                     fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    },
+    exportCsv: function() {
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/subscribers/exportcsv'
+            },
+            listeners: {
+                'success': {
+                    fn: function(r) {
+                        location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                    },
                     scope: this
                 }
             }

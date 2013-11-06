@@ -76,6 +76,7 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             }
         }
 
+        $content = str_replace(array('%5B%5B%2B', '%5D%5D'), array('[[+', ']]'), $content);
         $this->setProperty('content', $content);
 
         $this->setProperty('created_on', time());

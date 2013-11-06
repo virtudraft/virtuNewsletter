@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -31,6 +32,23 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
     public $objectType = 'virtunewsletter.SubscribersGetList';
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'DESC';
+
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $query = $this->getProperty('query');
+        if (!empty($query)) {
+            $c->where(array(
+                'name:LIKE' => '%' . $query . '%',
+                'OR:email:LIKE' => '%' . $query . '%',
+            ));
+        }
+        return $c;
+    }
 
     /**
      * Prepare the row for iteration
@@ -60,9 +78,10 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
             }
             $objectArray['categories'] = @implode(',', $categories);
         }
-        
+
         return $objectArray;
     }
+
 }
 
 return 'SubscribersGetListProcessor';

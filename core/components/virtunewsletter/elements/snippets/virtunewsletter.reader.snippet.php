@@ -47,12 +47,26 @@ if (!$newsletter) {
     return FALSE;
 }
 
+$subscriberHash = isset($_GET['h']) ? $_GET['h'] : '';
 $subscriberEmail = isset($_GET['e']) ? $_GET['e'] : '';
-$subscriber = $virtuNewsletter->getSubscriber(array('email' => $subscriberEmail));
-$systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
-$subscriberPhs = $virtuNewsletter->setPlaceholders(array_merge($subscriber, array('id' => $newsId)), $systemEmailPrefix);
-$newsletter['content'] = str_replace(array('%5B%5B%2B', '%5D%5D'), array('[[+', ']]'), $newsletter['content']);
-$newsletter['content'] = $virtuNewsletter->parseTplCode($newsletter['content'], $subscriberPhs);
+if (!empty($subscriberHash)) {
+    $subscriber = $virtuNewsletter->getSubscriber(array('hash' => $subscriberHash));
+} elseif (!empty($subscriberEmail)) {
+    $subscriber = $virtuNewsletter->getSubscriber(array('email' => $subscriberEmail));
+}
+if (empty($subscriber)) {
+    $modx->sendUnauthorizedPage();
+} else {
+    $systemEmailPrefix = $modx->getOption('virtunewsletter.email_prefix');
+    $subscriberPhs = $virtuNewsletter->setPlaceholders(array_merge($subscriber, array(
+        // to avoid confusion on template
+        'id' => $newsId,
+        'newsid' => $newsId,
+        'subid' => $subscriber['id']
+            )), $systemEmailPrefix);
+    $newsletter['content'] = str_replace(array('%5B%5B%2B', '%5D%5D'), array('[[+', ']]'), $newsletter['content']);
+    $newsletter['content'] = $virtuNewsletter->parseTplCode($newsletter['content'], $subscriberPhs);
+}
 
 $phs = $virtuNewsletter->setPlaceholders($newsletter, $phsPrefix);
 if (!empty($toArray)) {

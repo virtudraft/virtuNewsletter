@@ -17,6 +17,15 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
         $sender = $this->getSender();
         $recipients = $this->getRecipients();
         $messageArray = $this->getMessage();
+        $newsletter = $this->getNewsletter();
+        $globalMergeVars = array();
+        foreach ($newsletter as $k => $v) {
+            $globalMergeVars[] = array(
+                'name' => $k,
+                'content' => $v
+            );
+        }
+
         $to = array();
         $mergeVars = array();
         foreach ($recipients as $recipient) {
@@ -36,15 +45,29 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
                         'name' => 'email',
                         'content' => $recipient['email']
                     ),
+                    array(
+                        'name' => 'subid',
+                        'content' => $recipient['id']
+                    ),
+                    array(
+                        'name' => 'hash',
+                        'content' => $recipient['hash']
+                    ),
                 )
             );
         }
 
+        // switch modx's tags to mandrill's symbols
+        $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
+        $mandrillTags = preg_replace_callback('/\[\[\+(' . $systemEmailPrefix . ')(\w+)\]\]/i', function($matches) {
+            return '*|' . strtoupper($matches[2]) . '|*';
+        }, $messageArray['message']);
+
         try {
             $mandrill = new Mandrill($apiKey);
             $message = array(
-                'html' => $messageArray['message'],
-                'text' => $messageArray['message'],
+                'html' => $mandrillTags,
+                'text' => strip_tags($mandrillTags),
                 'subject' => $messageArray['subject'],
                 'from_email' => $sender['email_sender'],
                 'from_name' => $sender['email_from_name'],
@@ -64,7 +87,7 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
                 'signing_domain' => null,
                 'return_path_domain' => null,
                 'merge' => true,
-                'global_merge_vars' => null,
+                'global_merge_vars' => $globalMergeVars,
                 'merge_vars' => $mergeVars,
                 'tags' => null,
                 'subaccount' => null,
@@ -79,7 +102,7 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
             $ip_pool = 'Main Pool';
             date_default_timezone_set('UTC');
             $send_at = date('Y-m-d H:i:s');
-            $result = $mandrill->messages->send($message, $async, $ip_pool/*, $send_at*/);
+            $result = $mandrill->messages->send($message, $async, $ip_pool/* , $send_at */);
 
             $this->modx->virtunewsletter->setOutput($result);
             //    print_r($result);

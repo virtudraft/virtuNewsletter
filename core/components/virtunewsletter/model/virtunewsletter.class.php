@@ -1229,10 +1229,11 @@ class VirtuNewsletter {
         foreach ($queuesArray as $queue) {
             $subscriber = $this->modx->getObject('vnewsSubscribers', $queue['subscriber_id']);
             if ($subscriber) {
-                $subscribersArray[] = $subscriber->toArray();
+                $subscriberArray = $subscriber->toArray();
+                $subscriberArray['subid'] = $subscriberArray['id'];
+                $subscribersArray[] = $subscriberArray;
             }
         }
-
 
         include_once $this->config['corePath'] . 'providers/emailprovider.class.php';
         $classFile = $this->config['corePath'] . 'providers/' . strtolower($name) . '.class.php';
@@ -1262,10 +1263,12 @@ class VirtuNewsletter {
             'email_bcc_address' => $this->modx->getOption('virtunewsletter.email_bcc_address'),
         ));
         $object->setRecipients($subscribersArray);
-        $message = $this->processEmailMessage($newsId);
+        // to avoid confusion on template
+        $newsletterArray['newsid'] = $newsletterArray['id'];
+        $object->setNewsletter($newsletterArray);
         $object->setMessage(array(
             'subject' => $newsletterArray['subject'],
-            'message' => $message,
+            'message' => $newsletterArray['content'],
         ));
         return $object->send();
     }
@@ -1339,7 +1342,7 @@ class VirtuNewsletter {
         $phsArray = @explode(',', $columns);
         array_walk($phsArray, create_function('&$v', '$v = trim($v);'));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
-        $phsArray = array_merge($phsArray, array('act'));
+        $phsArray = array_merge($phsArray, array('newsid', 'subid', 'act'));
         $search = array();
         $replace = array();
         foreach ($phsArray as $phs) {

@@ -29,6 +29,6 @@ if ($confirmLinkArgs) {
     $modx->virtunewsletter->setPlaceholders($confirmLinkArgs, $systemEmailPrefix);
 }
 $modx->virtunewsletter->setPlaceholders(array_merge($subscriberArray, array('id' => $newsletterArray['id'])), $systemEmailPrefix);
-$phs = $modx->virtunewsletter->getPlaceholders();
-$output = $modx->virtunewsletter->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email'], $phs);
+
+$output = $modx->virtunewsletter->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email']);
 return $this->success($output);

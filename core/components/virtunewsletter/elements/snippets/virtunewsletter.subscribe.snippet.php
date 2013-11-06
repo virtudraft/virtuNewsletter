@@ -69,7 +69,7 @@ if ($result === FALSE) {
         $message = $resource->get('content');
         $message = $virtuNewsletter->parseTpl('@CODE:' . $message, $phs);
         $message = $virtuNewsletter->processElementTags($message);
-        $virtuNewsletter->sendMail($subject, $message, $emailTo, $phs, $emailFrom, $emailFromName);
+        $virtuNewsletter->sendMail($subject, $message, $emailTo, $emailFrom, $emailFromName);
     }
     unset($_POST); // destroy submission.
 } else {

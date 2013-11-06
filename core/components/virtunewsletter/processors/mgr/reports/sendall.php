@@ -22,22 +22,57 @@ $c->limit($limit);
 $queues = $modx->getCollection('vnewsReports', $c);
 $outputReports = array();
 if ($queues) {
-    foreach ($queues as $queue) {
-        $sent = $modx->virtunewsletter->sendNewsletter($scriptProperties['newsletter_id'], $queue->get('subscriber_id'));
-        if ($sent) {
-            $queue->set('status_logged_on', time());
-            $queue->set('status', 'sent');
-            if ($queue->save() === FALSE) {
-                $modx->setDebug();
-                $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
-                $modx->setDebug(FALSE);
-            } else {
-                $outputReports[] = $modx->virtunewsletter->getPlaceholders();
-            }
+    $emailProvider = $modx->getOption('virtunewsletter.email_provider');
+    if (!empty($emailProvider)) {
+        $queuesArray = array();
+        foreach ($queues as $queue) {
+            $queuesArray[] = $queue->toArray();
+        }
+        $result = $modx->virtunewsletter->sendToEmailProvider($emailProvider, $scriptProperties['newsletter_id'], $queuesArray);
+        if (!$result) {
+            $error = $modx->virtunewsletter->getError();
+            return $this->failure($error);
         } else {
-            $modx->setDebug();
-            $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $modx->setDebug(FALSE);
+            $output = $modx->virtunewsletter->getOutput();
+            foreach ($output as $item) {
+                if (isset($item['email']) && isset($item['status'])) {
+                    $c = $modx->newQuery('vnewsReports');
+                    $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+                    $c->where(array(
+                        'vnewsSubscribers.email' => $item['email']
+                    ));
+                    $itemQueue = $modx->getObject('vnewsReports', $c);
+                    if ($itemQueue) {
+                        $itemQueue->set('status_logged_on', time());
+                        $itemQueue->set('status', $item['status']);
+                        if ($itemQueue->save() === FALSE) {
+                            $modx->setDebug();
+                            $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                            $modx->setDebug(FALSE);
+                        }
+                    }
+                }
+            }
+            $outputReports = $output;
+        }
+    } else {
+        foreach ($queues as $queue) {
+            $sent = $modx->virtunewsletter->sendNewsletter($scriptProperties['newsletter_id'], $queue->get('subscriber_id'));
+            if ($sent) {
+                $queue->set('status_logged_on', time());
+                $queue->set('status', 'sent');
+                if ($queue->save() === FALSE) {
+                    $modx->setDebug();
+                    $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $modx->setDebug(FALSE);
+                } else {
+                    $outputReports[] = $modx->virtunewsletter->getPlaceholders();
+                }
+            } else {
+                $modx->setDebug();
+                $modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $modx->setDebug(FALSE);
+            }
         }
     }
 }

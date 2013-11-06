@@ -194,7 +194,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
         ],
         tbar: [
             '->', {
-                text: _('virtunewsletter.save'),
+                text: _('virtunewsletter.recache'),
                 handler: this.updateNewsletter,
                 scope: this
             }, {

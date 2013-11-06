@@ -142,6 +142,51 @@ $settings['virtunewsletter.use_csstoinlinestyles']->fromArray(array(
     'area' => 'Email',
         ), '', true, true);
 
+$settings['virtunewsletter.email_provider'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.email_provider']->fromArray(array(
+    'key' => 'virtunewsletter.email_provider',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.mandrill.api_key'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.mandrill.api_key']->fromArray(array(
+    'key' => 'virtunewsletter.mandrill.api_key',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.email_from_name'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.email_from_name']->fromArray(array(
+    'key' => 'virtunewsletter.email_from_name',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.email_reply_to'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.email_reply_to']->fromArray(array(
+    'key' => 'virtunewsletter.email_reply_to',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.email_bcc_address'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.email_bcc_address']->fromArray(array(
+    'key' => 'virtunewsletter.email_bcc_address',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
 $extensionPackages = $modx->getObject('modSystemSetting', array(
     'key' => 'extension_packages'
         ));
@@ -153,6 +198,7 @@ if ($extensionPackages) {
             'path' => '[[++core_path]]components/virtunewsletter/model/'
         );
         $value = json_encode($valueArray);
+        $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
         $settings['extension_packages']->set('value', $value);
     }
 } else {
@@ -162,6 +208,7 @@ if ($extensionPackages) {
         )
     );
     $value = json_encode($valueArray);
+    $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
     $settings['extension_packages'] = $modx->newObject('modSystemSetting');
     $settings['extension_packages']->fromArray(array(
         'key' => 'extension_packages',

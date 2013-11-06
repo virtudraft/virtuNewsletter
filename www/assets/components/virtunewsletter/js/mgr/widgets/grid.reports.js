@@ -135,7 +135,9 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: this.refresh,
+                    fn: function(){
+                        this.refresh();
+                    },
                     scope: this
                 }
             }

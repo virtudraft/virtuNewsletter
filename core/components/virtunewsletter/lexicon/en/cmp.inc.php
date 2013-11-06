@@ -54,6 +54,7 @@ $_lang['virtunewsletter.subject'] = 'Subject';
 $_lang['virtunewsletter.category'] = 'Category';
 $_lang['virtunewsletter.description'] = 'Description';
 $_lang['virtunewsletter.save'] = 'Save';
+$_lang['virtunewsletter.recache'] = 'Re-cache';
 $_lang['virtunewsletter.expand_all'] = 'Expand All';
 $_lang['virtunewsletter.collapse_all'] = 'Collapse All';
 $_lang['virtunewsletter.name'] = 'Name';
@@ -87,8 +88,13 @@ $_lang['virtunewsletter.uncategorized_desc'] = 'Uncategorized newsletters';
 $_lang['virtunewsletter.subscriber_remove'] = 'Remove Subscriber';
 $_lang['virtunewsletter.create_all'] = 'Create All';
 $_lang['virtunewsletter.send'] = 'Send';
-$_lang['virtunewsletter.send_now'] = 'Send Now!';
-$_lang['virtunewsletter.send_now_confirm'] = 'Some web hosting has limitation to the amount of mass emails, usually 50. More than that will be blocked by system. You need to consult your webhost about this limitation. Are you sure want to send these now?';
+$_lang['virtunewsletter.send_now'] = 'Send Now ?';
+$_lang['virtunewsletter.send_now_confirm'] = 'Some web hosting has limitation to the amount of mass emails, usually 50. <br>'
+        . 'More than that will be blocked by system. <br>'
+        . 'You need to consult your webhost about this limitation. <br>'
+        . 'If you\'re using external email provider, you need to wait for the incoming respond to get the sending status. <br>'
+        . 'The table will be refreshed automatically. <br>'
+        . 'Are you sure want to send these now?';
 $_lang['virtunewsletter.queue_generate'] = 'Generate Queue';
 $_lang['virtunewsletter.create_all_confirm'] = 'Are you sure want to create all?';
 $_lang['virtunewsletter.test'] = 'Test';

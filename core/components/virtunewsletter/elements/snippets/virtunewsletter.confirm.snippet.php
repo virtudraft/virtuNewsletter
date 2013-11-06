@@ -80,7 +80,7 @@ if ($result === FALSE) {
         $message = $resource->get('content');
         $message = $virtuNewsletter->parseTpl('@CODE:' . $message, $phs);
         $message = $virtuNewsletter->processElementTags($message);
-        $virtuNewsletter->sendMail($subject, $message, $phs[$scriptProperties['phsPrefix'] . 'emailTo'], $phs, $emailFrom, $emailFromName);
+        $virtuNewsletter->sendMail($subject, $message, $phs[$scriptProperties['phsPrefix'] . 'emailTo'], $emailFrom, $emailFromName);
     }
 } else {
     $output = $modx->lexicon('virtunewsletter.confirm_err_proc');

@@ -67,6 +67,20 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
         }
         return $ids;
     }
+
+    /**
+     * Prepare the row for iteration
+     * @param xPDOObject $object
+     * @return array
+     */
+    public function prepareRow(xPDOObject $object) {
+        $objectArray = parent::prepareRow($object);
+        $status = $this->modx->lexicon('virtunewsletter.' . $objectArray['status']);
+        if ($status) {
+            $objectArray['status'] = $status;
+        }
+        return $objectArray;
+    }
 }
 
 return 'ReportsGetListProcessor';

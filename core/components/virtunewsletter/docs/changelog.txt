@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- [#22] Not mandatory schledule date for new newsletter
 - [#23] added some lexicon strings
 
 virtuNewsletter 1.6.0-beta-1 (November 6, 2013)

@@ -36,8 +36,7 @@ VirtuNewsletter.window.Schedule = function(config) {
                             {
                                 xtype: 'datefield',
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
-                                name: 'scheduled_for',
-                                allowBlank: false
+                                name: 'scheduled_for'
                             }
                         ]
                     }, {

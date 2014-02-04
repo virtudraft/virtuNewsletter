@@ -46,11 +46,7 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
             $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id'));
             return FALSE;
         }
-        $scheduledFor = $this->getProperty('scheduled_for');
-        if (empty($scheduledFor)) {
-            $this->addFieldError('scheduled_for', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_scheduled_for'));
-            return FALSE;
-        }
+
         $categories = $this->getProperty('categories');
         $categories = @explode(',', $categories);
         if (empty($categories) || (isset($categories[0]) && empty($categories[0]))) {

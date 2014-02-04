@@ -74,7 +74,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'precision' => '10',
       'attributes' => 'unsigned',
       'phptype' => 'integer',
-      'null' => false,
+      'null' => true,
     ),
     'is_recurring' => 
     array (

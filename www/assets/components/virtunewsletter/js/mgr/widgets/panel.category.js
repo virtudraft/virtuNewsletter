@@ -66,7 +66,7 @@ VirtuNewsletter.panel.Category = function(config) {
                                             var combo = topToolbar.items.items[0];
                                             var comboValue = combo.getValue();
                                             var text = combo.lastSelectionText;
-                                            if (comboValue) {
+                                            if (comboValue && this.data.in_array([comboValue, text]) === false) {
                                                 this.data.push([comboValue, text]);
                                                 this.getStore().loadData(this.data);
                                                 this.getView().refresh();

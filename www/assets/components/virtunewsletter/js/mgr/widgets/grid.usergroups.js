@@ -55,6 +55,7 @@ Ext.extend(VirtuNewsletter.grid.Usergroups, MODx.grid.LocalGrid, {
             }
             newData.push(this.data[i]);
         }
+        this.data = newData;
         this.getStore().loadData(newData);
         this.getView().refresh();
     }

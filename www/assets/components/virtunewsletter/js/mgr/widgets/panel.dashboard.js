@@ -14,12 +14,46 @@ VirtuNewsletter.panel.Dashboard = function(config) {
                 title: _('virtunewsletter.newsletters'),
                 xtype: 'virtunewsletter-panel-dashboardnewsletter',
                 columnWidth: .5,
-                bodyStyle: 'padding: 10px'
+                bodyStyle: 'padding: 10px',
+                listeners: {
+                    'afterlayout': {
+                        fn: function(cmp) {
+                            var formDom = cmp.getForm().getEl().dom,
+                                _this = this;
+                            if (!_this.dashboardNewsletterMask){
+                                _this.dashboardNewsletterMask = new Ext.LoadMask(formDom, {
+                                    msg: _('virtunewsletter.please_wait')
+                                });
+                            }
+                            cmp.on('afterlayout', function(){
+                                _this.dashboardNewsletterMask.show();
+                            });
+                        },
+                        scope: this
+                    }
+                }
             }, {
                 title: _('virtunewsletter.subscribers'),
                 xtype: 'virtunewsletter-panel-dashboardsubscribers',
                 columnWidth: .5,
-                bodyStyle: 'padding: 10px'
+                bodyStyle: 'padding: 10px',
+                listeners: {
+                    'afterlayout': {
+                        fn: function(cmp) {
+                            var formDom = cmp.getForm().getEl().dom,
+                                _this = this;
+                            if (!_this.dashboardSubscribersMask){
+                                _this.dashboardSubscribersMask = new Ext.LoadMask(formDom, {
+                                    msg: _('virtunewsletter.please_wait')
+                                });
+                            }
+                            cmp.on('afterlayout', function(){
+                                _this.dashboardSubscribersMask.show();
+                            });
+                        },
+                        scope: this
+                    }
+                }
             }
         ],
         listeners: {
@@ -43,6 +77,7 @@ VirtuNewsletter.panel.Dashboard = function(config) {
 };
 Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
     getNewsletters: function() {
+        var _this = this;
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl + '?action=mgr/dashboard/newsletters',
             method: 'GET',
@@ -53,6 +88,10 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
                             var panel = Ext.getCmp('virtunewsletter-panel-dashboardnewsletter');
                             if (panel) {
                                 panel.form.setValues(response.object);
+                            }
+                            if (_this.dashboardNewsletterMask) {
+                                _this.dashboardNewsletterMask.hide();
+                                _this.dashboardNewsletterMask.disable();
                             }
                             // queueing ajax, because multiple requests are forbidden!
                             return this.getSubscribers();
@@ -70,6 +109,7 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
         });
     },
     getSubscribers: function() {
+        var _this = this;
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl + '?action=mgr/dashboard/subscribers',
             method: 'GET',
@@ -80,6 +120,10 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
                             var panel = Ext.getCmp('virtunewsletter-panel-dashboardsubscribers');
                             if (panel) {
                                 panel.form.setValues(response.object);
+                            }
+                            if (_this.dashboardSubscribersMask) {
+                                _this.dashboardSubscribersMask.hide();
+                                _this.dashboardSubscribersMask.disable();
                             }
                         }
                     },

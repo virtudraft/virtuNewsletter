@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- [#15] On usergroup Sync avoid email duplication
 - [#24] fix JS's store bug when applying usergroup
 - add loadMask on dashboard panels
 - [#22] Not mandatory schledule date for new newsletter

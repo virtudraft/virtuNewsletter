@@ -33,7 +33,7 @@ $usergroups = @explode(',', $usergroups);
 array_walk($usergroups, create_function('&$v', '$v = trim($v);'));
 
 /**
- * Prepare
+ * Collect names from registered user in MODX's database
  */
 $usersArray = array();
 $userIds = array();
@@ -94,6 +94,15 @@ if ($usersArray) {
                 $this->modx->setDebug(FALSE);
                 continue;
             }
+        } else {
+            $subscriber->set('user_id', $user['user_id']);
+            $subscriber->set('name', $user['name']);
+            if ($subscriber->save() === FALSE) {
+                $this->modx->setDebug();
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update existing subscriber! ' . print_r($user, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(FALSE);
+                continue;
+            }
         }
 
         $subscriberId = $subscriber->getPrimaryKey();
@@ -128,7 +137,7 @@ if ($usersArray) {
                 $subsHasCats->save();
                 if ($subsHasCats->save() === FALSE) {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to connect subscriber to category! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
                     $this->modx->setDebug(FALSE);
                     continue;
                 }

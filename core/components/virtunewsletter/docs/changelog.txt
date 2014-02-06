@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- [#13] add email validation
 - [#15] On usergroup Sync avoid email duplication
 - [#24] fix JS's store bug when applying usergroup
 - add loadMask on dashboard panels

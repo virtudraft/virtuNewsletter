@@ -26,6 +26,8 @@
 $_lang['virtunewsletter'] = 'virtuNewsletter';
 $_lang['virtunewsletter_desc'] = 'Newsletter Manager';
 $_lang['virtunewsletter.subscriber_exists'] = 'Subscriber with email [[+email]] exists.';
+$_lang['virtunewsletter.subscriber_err_ns'] = 'Unspecified email address.';
+$_lang['virtunewsletter.subscriber_err_invalid_email'] = 'Invalid email address.';
 $_lang['virtunewsletter.subscriber_err_save'] = 'There was an unexpected result to subscribe you. Please try again.';
 $_lang['virtunewsletter.subscriber_suc_save'] = 'Thank you. You are now registered as our subscriber. Please check your mailbox to activate the subscription.';
 $_lang['virtunewsletter.subscriber_err_proc'] = 'There was an error to process your subscription. Please try again.';

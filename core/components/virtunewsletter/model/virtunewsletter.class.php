@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '1.6.0';
-    const RELEASE = 'beta-1';
+    const RELEASE = 'beta2';
 
     /**
      * modX object
@@ -698,19 +698,23 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function subscribe($fields) {
-        if (!isset($fields[$this->config['emailKey']])) {
-            $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
-                'email' => $fields[$this->config['emailKey']]
-            ));
+        if (!isset($fields[$this->config['emailKey']]) || empty($fields[$this->config['emailKey']])) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_ns');
+            $this->setError($msg);
+            return FALSE;
+        }
+        $email = trim($fields[$this->config['emailKey']]);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_invalid_email');
             $this->setError($msg);
             return FALSE;
         }
         $registeredSubscriber = $this->modx->getObject('vnewsSubscribers', array(
-            'email' => $fields[$this->config['emailKey']]
+            'email' => $email
         ));
         if ($registeredSubscriber) {
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
-                'email' => $fields[$this->config['emailKey']]
+                'email' => $email
             ));
             $this->setError($msg);
             return FALSE;
@@ -727,7 +731,7 @@ class VirtuNewsletter {
         $c = $this->modx->newQuery('vnewsUsers');
         $c->leftJoin('modUserProfile', 'modUserProfile', 'vnewsUsers.id = modUserProfile.internalKey');
         $c->where(array(
-            'modUserProfile.email' => $fields[$this->config['emailKey']]
+            'modUserProfile.email' => $email
         ));
         $user = $this->modx->getObject('vnewsUsers', $c);
         $name = '';
@@ -745,10 +749,10 @@ class VirtuNewsletter {
 
         $params = array(
             'user_id' => $userId,
-            'email' => $fields[$this->config['emailKey']],
+            'email' => $email,
             'name' => $name,
             'is_active' => 0, // wait to confirm
-            'hash' => $this->setHash($fields[$this->config['emailKey']])
+            'hash' => $this->setHash($email)
         );
 
         $newSubscriber->fromArray($params);

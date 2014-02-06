@@ -768,22 +768,13 @@ class VirtuNewsletter {
         /**
          * If defined in the input field, set user to the categories
          */
-        if (isset($fields[$this->config['categoryKey']])) {
-            $category = $this->modx->getObjectGraph('vnewsCategories'
-                    , array('vnewsSubscribersHasCategories' => array())
-                    , array(
-                'name' => $fields[$this->config['categoryKey']]
-            ));
-            if ($category) {
-                $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
-                $addManyParams = array(
-                    'subscriber_id' => $newSubscriber->getPrimaryKey(),
-                    'category_id' => $category->get('id')
-                );
-                $subscribersHasCategories->fromArray($addManyParams, '', TRUE, TRUE);
-                $addMany = array($subscribersHasCategories);
-                $newSubscriber->addMany($addMany);
-                $newSubscriber->save();
+        if (isset($fields[$this->config['categoryKey']]) && !empty($fields[$this->config['categoryKey']])) {
+            if (is_array($fields[$this->config['categoryKey']])) {
+                foreach ($fields[$this->config['categoryKey']] as $category) {
+                    $this->addSubscriberToCategory($newSubscriber->getPrimaryKey(), $category);
+                }
+            } else {
+                $this->addSubscriberToCategory($newSubscriber->getPrimaryKey(), $fields[$this->config['categoryKey']]);
             }
         }
 
@@ -796,6 +787,63 @@ class VirtuNewsletter {
         $this->setPlaceholders($phs);
 
         return TRUE;
+    }
+
+    /**
+     * Add subscriber to category
+     * @param   int     $subscriberId   Subscriber's ID
+     * @param   string  $category       Category's Name
+     */
+    public function addSubscriberToCategory($subscriberId, $category) {
+        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
+                , array('vnewsSubscribersHasCategories' => array())
+                , array(
+            'name' => $category
+        ));
+        if (!$categoryObj) {
+            return FALSE;
+        }
+
+        $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
+        $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
+        $addManyParams = array(
+            'subscriber_id' => $subscriber->getPrimaryKey(),
+            'category_id' => $categoryObj->get('id')
+        );
+        $subscribersHasCategories->fromArray($addManyParams, '', TRUE, TRUE);
+        $addMany = array($subscribersHasCategories);
+        $subscriber->addMany($addMany);
+        if ($subscriber->save() === FALSE) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! ' . print_r($addManyParams, TRUE), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    /**
+     * Remove subscriber from category
+     * @param   int     $subscriberId   Subscriber's ID
+     * @param   string  $category       Category's Name
+     */
+    public function removeSubscriberFromCategory($subscriberId, $category) {
+        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
+                , array('vnewsSubscribersHasCategories' => array())
+                , array(
+            'name' => $category
+        ));
+        if (!$categoryObj) {
+            return FALSE;
+        }
+        $subscribersHasCategories = $this->modx->getObject('vnewsSubscribersHasCategories', array(
+            'subscriber_id' => $subscriberId,
+            'category_id' => $categoryObj->get('id')
+        ));
+        if (!$subscribersHasCategories) {
+            return FALSE;
+        }
+        return $subscribersHasCategories->remove();
     }
 
     /**

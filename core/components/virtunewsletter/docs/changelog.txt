@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- [#25] Select resource with email body from modx tree instead of enter id
 - [#11] Add category options when subscribing
 - [#13] add email validation
 - [#15] On usergroup Sync avoid email duplication

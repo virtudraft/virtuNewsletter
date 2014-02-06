@@ -45,12 +45,19 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                         columnWidth: .5,
                         items: [
                             {
-                                xtype: 'numberfield',
+                                xtype: 'modx-field-parent-change',
+                                anchor: '100%',
                                 fieldLabel: _('virtunewsletter.resource_id'),
-                                name: 'resource_id',
-                                allowBlank: false,
+                                name: 'resource_id2',
                                 value: config.record &&
-                                        config.record.resource_id ? config.record.resource_id : ''
+                                        config.record.resource_id ? config.record.resource_id : '',
+                                allowBlank: false
+                            }, {
+                                xtype: 'hidden',
+                                name: 'resource_id',
+                                value: config.record &&
+                                        config.record.resource_id ? config.record.resource_id : '',
+                                id: 'modx-resource-parent-hidden'
                             }
                         ]
                     }, {

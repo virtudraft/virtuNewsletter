@@ -1,6 +1,9 @@
 VirtuNewsletter.grid.Subscribers = function(config) {
     config = config || {};
 
+    var checkBoxSelMod = new Ext.grid.CheckboxSelectionModel({
+        checkOnly: false
+    });
     Ext.applyIf(config, {
         id: 'virtunewsletter-grid-subscribers',
         url: VirtuNewsletter.config.connectorUrl,
@@ -14,7 +17,9 @@ VirtuNewsletter.grid.Subscribers = function(config) {
         anchor: '97%',
         autoExpandColumn: 'email',
         preventRender: true,
+        sm: checkBoxSelMod,
         columns: [
+            checkBoxSelMod,
             {
                 header: _('id'),
                 dataIndex: 'id',
@@ -75,6 +80,17 @@ VirtuNewsletter.grid.Subscribers = function(config) {
         ],
         tbar: [
             {
+                text: _('actions'),
+                menu: {
+                    xtype: 'menu',
+                    plain: true,
+                    items: {
+                        text: _('delete'),
+                        handler: this.batchDelete,
+                        scope: this
+                    }
+                }
+            }, {
                 xtype: 'textfield',
                 emptyText: _('virtunewsletter.search...'),
                 listeners: {
@@ -175,6 +191,34 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                 'success': {
                     fn: function(r) {
                         location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                    },
+                    scope: this
+                }
+            }
+        });
+    },
+    batchDelete: function(btn, e) {
+        var selected = this.getSelectionModel().getSelections();
+        if (selected.length <= 0)
+            return false;
+
+        cs = [];
+        Ext.each(selected, function(item,idx){
+            cs.push(item.id);
+        });
+        var ids = cs.join();
+        MODx.msg.confirm({
+            title: _('delete'),
+            text: _('virtunewsletter.subscribers_delete_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/subscribers/batchdelete',
+                ids: ids
+            },
+            listeners: {
+                'success': {
+                    fn: function() {
+                        return this.refresh();
                     },
                     scope: this
                 }

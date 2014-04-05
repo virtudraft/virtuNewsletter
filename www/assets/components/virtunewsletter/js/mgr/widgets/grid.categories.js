@@ -1,6 +1,6 @@
 VirtuNewsletter.grid.Categories = function(config) {
     config = config || {};
-
+    
     var check = Ext.getCmp('virtunewsletter-grid-categories');
     if (check) {
         check.destroy();
@@ -16,25 +16,45 @@ VirtuNewsletter.grid.Categories = function(config) {
             }
         }
     }
-
+    
     Ext.applyIf(config, {
         id: 'virtunewsletter-grid-categories',
         autoHeight: true,
         data: data,
         fields: ['category_id', 'category'],
         preventRender: true,
-        anchor: '97%',
+        margins: 15,
         autoExpandColumn: 'category',
         columns: [
             {
                 header: _('id'),
                 dataIndex: 'category_id',
-                width: 20,
-                sortable: true
+                width: 40,
+                sortable: true,
+                hidden: true
             }, {
                 header: _('virtunewsletter.name'),
                 dataIndex: 'category',
                 sortable: true
+            }, {
+                header: _('actions'),
+                xtype: 'actioncolumn',
+                dataIndex: 'category_id',
+                width: 80,
+                fixed: true,
+                sortable: false,
+                items: [
+                    {
+                        iconCls: 'virtunewsletter-icon-delete virtunewsletter-icon-actioncolumn-img',
+                        toolTip: _('virtunewsletter.remove'),
+                        altText: _('virtunewsletter.remove'),
+                        handler: function(grid, row, col) {
+                            var rec = this.store.getAt(row);
+                            this.removeCategory(rec.data.category_id);
+                        },
+                        scope: this
+                    }
+                ]
             }
         ]
     });
@@ -46,16 +66,18 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.LocalGrid, {
         var menu = [
             {
                 text: _('virtunewsletter.remove'),
-                handler: this.removeCategories
+                handler: function(btn, e) {
+                        this.removeCategory(this.menu.record.category_id);
+                }
             }
         ];
 
         return menu;
     },
-    removeCategories: function(btn, e) {
+    removeCategory: function(id) {
         var newData = [];
         for (var i = 0, l = this.data.length; i < l; i++) {
-            if (this.data[i][0] === this.menu.record.category_id) {
+            if (this.data[i][0] === id) {
                 continue;
             }
             newData.push(this.data[i]);

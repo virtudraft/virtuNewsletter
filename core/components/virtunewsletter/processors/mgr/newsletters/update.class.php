@@ -104,7 +104,8 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
 
         $categories = $this->getProperty('categories');
         $categories = @explode(',', $categories);
-        if ($categories) {
+        if (!empty($categories)) {
+            // categories to newsletter
             $addCats = array();
             foreach ($categories as $category) {
                 $category = intval($category);
@@ -117,6 +118,7 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             }
             $this->object->addMany($addCats);
             $this->object->save();
+            
         }
 
         $isRecurring = $this->getProperty('is_recurring');
@@ -129,16 +131,17 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
             $this->modx->virtunewsletter->setNewsletterQueue($newsId);
+            
+            $children = $this->object->getMany('Children');
+            if ($children) {
+                foreach ($children as $child) {
+                    $child->set('is_active', $isActive);
+                    $child->save();
+                }
+            }
+
         } else {
             $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
-        }
-
-        $children = $this->object->getMany('Children');
-        if ($children) {
-            foreach ($children as $child) {
-                $child->set('is_active', $isActive);
-                $child->save();
-            }
         }
 
         return true;

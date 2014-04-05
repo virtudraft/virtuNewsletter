@@ -38,6 +38,7 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
         $name = $this->getProperty('name');
         if (empty($name)) {
             $this->addFieldError('name', $this->modx->lexicon('virtunewsletter.category_err_ns_name'));
+            return FALSE;
         }
         return parent::initialize();
     }

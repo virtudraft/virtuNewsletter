@@ -1,5 +1,7 @@
 virtuNewsletter
 =================================================
+- refactor intermediate classes
+- [#12] Add option to change the category for Subscriber
 - [#14] Add bulk delete of the Subscribers
 - [#25] Select resource with email body from modx tree instead of enter id
 - [#11] Add category options when subscribing

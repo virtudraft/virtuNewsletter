@@ -291,9 +291,10 @@ class VirtuNewsletter {
             $newsletterArray = $newsletter->toArray();
             if ($newsletterArray['is_recurring']) {
                 $recurringNewsletter = $this->createNextRecurrence($newsletterArray['id']);
-                if (!empty($recurringNewsletter)) {
-                    $newsletterArray = $recurringNewsletter;
+                if (empty($recurringNewsletter)) {
+                    return false;
                 }
+                $newsletterArray = $recurringNewsletter;
             }
         }
         return $newsletterArray;
@@ -362,7 +363,7 @@ class VirtuNewsletter {
         $time = time();
 
         $outputReports = array();
-        $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
+        $subscribers = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
         if (!$subscribers) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsletterArray['id'], '', __METHOD__, __FILE__, __LINE__);
@@ -400,6 +401,7 @@ class VirtuNewsletter {
     }
 
     /**
+     * @deprecated since version 1.6.0-beta2
      * Get all newsletters of a subscriber
      * @param   int     $subscriberId   subscriber's ID
      * @return  mixed   false|subscribers array
@@ -432,7 +434,7 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function addSubscriberQueues($subscriberId) {
-        $newsletters = $this->subscriberHasNewsletters($subscriberId);
+        $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters();
         if (!$newsletters) {
             return FALSE;
         }
@@ -527,14 +529,14 @@ class VirtuNewsletter {
                 $newsletterArray = $this->getNewsletter($newsletter->get('id'));
                 if (empty($newsletterArray)) {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsletter->get('id'), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, $this->getError(), '', __METHOD__, __FILE__, __LINE__);
                     $this->modx->setDebug(FALSE);
                     continue;
                 }
             } else {
                 $newsletterArray = $newsletter->toArray();
             }
-            $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
+            $subscribers = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
             if (empty($subscribers)) {
                 continue;
             }
@@ -569,6 +571,8 @@ class VirtuNewsletter {
     }
 
     /**
+     * @deprecated since version 1.6.0-beta2
+     * @see vnewsNewsletters::getSubscribers()
      * Get all subscribers of a newsletter
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|subscribers array
@@ -601,7 +605,7 @@ class VirtuNewsletter {
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   reports' outputs in array
      */
-    public function processQueue($todayOnly = FALSE) {
+    public function processQueue($todayOnly = FALSE, $limit = 0) {
         $c = $this->modx->newQuery('vnewsReports');
         $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
         $c->select(array(
@@ -623,7 +627,7 @@ class VirtuNewsletter {
                 'scheduled_for' => $today,
             ));
         }
-        $limit = $this->modx->getOption('virtunewsletter.email_limit');
+        $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
         if (!empty($limit)) {
             $c->limit($limit);
         }
@@ -1157,6 +1161,12 @@ class VirtuNewsletter {
         return $this->sendMail($newsletterArray['subject'], $content, $subscriberArray['email']);
     }
 
+    /**
+     * Process content for email body
+     * @param   int $newsId News' ID
+     * @return  boolean
+     * @todo    need to parse System Setting's and Context Setting's tags,
+     */
     public function processEmailMessage($newsId) {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
@@ -1446,7 +1456,7 @@ class VirtuNewsletter {
         $c->sortby('scheduled_for', 'desc');
         $recurringNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
         if (!$recurringNewsletter) {
-            // checking the content latest recurrence.
+            // checking the content of the latest recurrence.
             // if its content is as same as the current one, skip this
             $currentContent = $this->prepareEmailContent($parentNewsletterArray['content']);
 
@@ -1460,6 +1470,7 @@ class VirtuNewsletter {
             if ($latestNewsletter) {
                 $latestContent = $latestNewsletter->get('content');
                 if ($latestContent === $currentContent) {
+                    $this->setError('$latestContent === $currentContent');
                     return FALSE;
                 }
             }

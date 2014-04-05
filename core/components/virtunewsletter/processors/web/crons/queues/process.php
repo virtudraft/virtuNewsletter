@@ -31,14 +31,17 @@ if ($_GET['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
-$modx->virtunewsletter->setQueues();
-$reports = $modx->virtunewsletter->processQueue();
+$todayOnly = isset($_GET['today_only']) && ($_GET['today_only'] == 1) ? true : false;
+$limit = isset($_GET['limit']) && is_numeric($_GET['limit']) ? intval($_GET['limit']) : 0;
 
-$outputType = isset($_GET['outputtype']) && $_GET['outputtype'] === 'json' ? 'json' : 'html';
+$modx->virtunewsletter->setQueues($todayOnly);
+$reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
+
+$outputType = isset($_GET['output_type']) && $_GET['output_type'] === 'json' ? 'json' : 'html';
 if ($outputType === 'json') {
     return $this->success('', $reports);
 } else {
-    $getItems = isset($_GET['getitems']) && $_GET['getitems'] === 1 ? 1 : 0;
+    $getItems = isset($_GET['get_items']) && $_GET['get_items'] === 1 ? 1 : 0;
     $output = '';
     if (!empty($reports)) {
         $phs = array(
@@ -54,6 +57,8 @@ if ($outputType === 'json') {
                 $itemArray[] = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
             }
             $phs['items'] = @implode('', $itemArray);
+        } else {
+            $phs['items'] = '';
         }
         $output = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
     }

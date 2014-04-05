@@ -11,7 +11,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             action: 'mgr/subscribers/getList',
             newsletter_id: config.newsletter_id
         },
-        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'categories', 'is_active'],
+        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'categories_text', 'categories', 'is_active'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -41,7 +41,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 sortable: true
             }, {
                 header: _('virtunewsletter.categories'),
-                dataIndex: 'categories',
+                dataIndex: 'categories_text',
                 sortable: true
             }, {
                 header: _('virtunewsletter.usergroups'),
@@ -52,7 +52,8 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 header: _('virtunewsletter.active'),
                 dataIndex: 'is_active',
                 sortable: true,
-                width: 30,
+                width: 70,
+                fixed: true,
                 processEvent: function(name, e, grid, rowIndex, colIndex) {
                     if (name === 'mousedown') {
                         var record = grid.store.getAt(rowIndex);
@@ -84,11 +85,17 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 menu: {
                     xtype: 'menu',
                     plain: true,
-                    items: {
-                        text: _('delete'),
-                        handler: this.batchDelete,
-                        scope: this
-                    }
+                    items: [
+                        {
+                            text: _('delete'),
+                            handler: this.batchDelete,
+                            scope: this
+                        }, {
+                            text: _('virtunewsletter.category_update'),
+                            handler: this.batchCategory,
+                            scope: this
+                        }
+                    ]
                 }
             }, {
                 xtype: 'textfield',
@@ -159,6 +166,9 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             {
                 text: _('virtunewsletter.remove'),
                 handler: this.removeSubscriber
+            }, {
+                text: _('virtunewsletter.category_update'),
+                handler: this.updateCategory
             }
         ];
 
@@ -197,16 +207,22 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             }
         });
     },
-    batchDelete: function(btn, e) {
+    getSelectedAsList: function() {
         var selected = this.getSelectionModel().getSelections();
         if (selected.length <= 0)
             return false;
 
-        cs = [];
-        Ext.each(selected, function(item,idx){
+        var cs = [];
+        Ext.each(selected, function(item, idx) {
             cs.push(item.id);
         });
-        var ids = cs.join();
+        return cs.join();
+    },
+    batchDelete: function(btn, e) {
+        var ids = this.getSelectedAsList();
+        if (!ids) {
+            return false;
+        }
         MODx.msg.confirm({
             title: _('delete'),
             text: _('virtunewsletter.subscribers_delete_confirm'),
@@ -224,6 +240,41 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                 }
             }
         });
+    },
+    batchCategory: function(btn, e) {
+        var ids = this.getSelectedAsList();
+        if (!ids) {
+            return false;
+        }
+        if (!this.batchCategoryWindow) {
+            this.batchCategoryWindow = new VirtuNewsletter.window.UpdateCategory({
+                title: _('virtunewsletter.category_update'),
+                baseParams: {
+                    action: 'mgr/subscribers/batchcategory',
+                    ids: ids
+                }
+            });
+        }
+        this.batchCategoryWindow.reset();
+        this.batchCategoryWindow.show();
+        this.batchCategoryWindow.on('success', this.refresh, this);
+    },
+    updateCategory: function() {
+        if (!this.updateCategoryWindow) {
+            this.updateCategoryWindow = new VirtuNewsletter.window.UpdateCategory({
+                title: _('virtunewsletter.category_update'),
+                baseParams: {
+                    action: 'mgr/subscribers/updatecategory',
+                    subscriberId: this.menu.record.id
+                },
+                record: {
+                    categories: this.menu.record.categories
+                }
+            });
+        }
+        this.updateCategoryWindow.reset();
+        this.updateCategoryWindow.show();
+        this.updateCategoryWindow.on('success', this.refresh, this);
     }
 });
 Ext.reg('virtunewsletter-grid-subscribers', VirtuNewsletter.grid.Subscribers);

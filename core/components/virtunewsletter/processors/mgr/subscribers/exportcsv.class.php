@@ -76,8 +76,7 @@ class SubscribersExportCsvProcessor extends modProcessor {
         $out = fopen($this->modx->virtunewsletter->config['corePath'] . 'exports/' . $f, 'w');
         $columns = $this->modx->getSelectColumns('vnewsSubscribers');
         $columns = str_replace('`', '', $columns);
-        $columnsArray = @explode(',', $columns);
-        array_walk($columnsArray, create_function('&$v', '$v=trim($v);'));
+        $columnsArray = array_map('trim', @explode(',', $columns));
         fputcsv($out, $columnsArray);
         $collections = $this->modx->getCollection('vnewsSubscribers');
         if ($collections) {

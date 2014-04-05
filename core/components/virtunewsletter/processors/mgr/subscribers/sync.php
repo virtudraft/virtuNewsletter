@@ -29,8 +29,7 @@ if (empty($usergroups)) {
     return $this->failure('Missing the "virtunewsletter.usergroups" in the System Settings!');
 }
 
-$usergroups = @explode(',', $usergroups);
-array_walk($usergroups, create_function('&$v', '$v = trim($v);'));
+$usergroups = array_map('trim', @explode(',', $usergroups));
 
 /**
  * Collect names from registered user in MODX's database

@@ -1401,8 +1401,7 @@ class VirtuNewsletter {
         // keeping the email's placeholders' tags
         $columns = $this->modx->getSelectColumns('vnewsSubscribers');
         $columns = str_replace('`', '', $columns);
-        $phsArray = @explode(',', $columns);
-        array_walk($phsArray, create_function('&$v', '$v = trim($v);'));
+        $phsArray = array_map('trim', @explode(',', $columns));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $phsArray = array_merge($phsArray, array('newsid', 'subid', 'act'));
         $search = array();

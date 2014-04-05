@@ -16,12 +16,37 @@ class vnewsSubscribers extends xPDOSimpleObject {
         return $output;
     }
     
-    public function getUsergroups() {
+    public function getCategoryNames() {
+        $output = array();
+        $many = $this->getMany('vnewsSubscribersHasCategories');
+        if ($many) {
+            foreach ($many as $item) {
+                $cat = $item->getOne('vnewsCategories');
+                if ($cat) {
+                    $output[] = $cat->get('name');
+                }
+            }
+            $output = array_unique($output);
+        }
+        return $output;
+    }
+    
+    public function getUserGroups() {
         $output = array();
         $userId = $this->get('user_id');
         $user = $this->xpdo->getObject('modUser', $userId);
         if ($user) {
             $output = $user->getUserGroups();
+        }
+        return $output;
+    }
+    
+    public function getUserGroupNames() {
+        $output = array();
+        $userId = $this->get('user_id');
+        $user = $this->xpdo->getObject('modUser', $userId);
+        if ($user) {
+            $output = $user->getUserGroupNames();
         }
         return $output;
     }

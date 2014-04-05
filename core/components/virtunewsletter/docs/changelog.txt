@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- [#18] add Category and Usergroup to CSV export
 - refactor intermediate classes
 - add batch action for subscriber's category(ies)
 - [#12] Add option to change the category for Subscriber

@@ -1114,8 +1114,9 @@ class VirtuNewsletter {
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/Exception.php';
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/CssToInlineStyles.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Specificity.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Exception.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/CssToInlineStyles.php';
 
         // embedded CSS:
         preg_match_all('|<style(.*)>(.*)</style>|isU', $html, $css);

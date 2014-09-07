@@ -1,5 +1,6 @@
 virtuNewsletter 1.6.0-beta2 (September 8, 2014)
 =================================================
+- update vendors
 - [#28] Automatically Re-Cache Newsletter
 - adjust cron's report
 - adjust arguments for CLI calls

@@ -12,9 +12,33 @@ $c->select(array(
 
 date_default_timezone_set('UTC');
 $c->where(array(
-    'newsletter_id' => $scriptProperties['newsletter_id'],
     'status' => 'queue',
 ));
+$newsletter = $modx->getObject('vnewsNewsletters', $scriptProperties['newsletter_id']);
+if (!$newsletter) {
+    return $this->failure('Missing the newsletter');
+}
+$isRecurring = $newsletter->get('is_recurring');
+if ($isRecurring) {
+    $children = $modx->getCollection('vnewsNewsletters', array(
+        'parent_id' => $scriptProperties['newsletter_id']
+    ));
+    $childrenIds = array();
+    if ($children) {
+        foreach ($children as $child) {
+            $childrenIds[] = $child->get('id');
+        }
+    }
+    if (!empty($childrenIds)) {
+        $c->where(array(
+            'newsletter_id:IN' => $childrenIds,
+        ));
+    }
+} else {
+    $c->where(array(
+        'newsletter_id' => $scriptProperties['newsletter_id'],
+    ));
+}
 
 $limit = $modx->getOption('virtunewsletter.email_limit');
 $c->limit($limit);

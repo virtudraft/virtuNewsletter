@@ -103,7 +103,10 @@ switch ($eventName) {
         if ($newsletter) {
             $content = $virtuNewsletter->outputContent($resourceId);
             $isRecurring = $newsletter->get('is_recurring');
-            if (!$isRecurring) {
+            if ($isRecurring) {
+                $recurringNewsletter = $virtuNewsletter->createNextRecurrence($newsletter->get('id'));
+                $content = $virtuNewsletter->prepareEmailContent($recurringNewsletter['content']);
+            } else {
                 $content = $virtuNewsletter->prepareEmailContent($content);
             }
             $content = str_replace(array('%5B%5B%2B', '%5D%5D'), array('[[+', ']]'), $content);

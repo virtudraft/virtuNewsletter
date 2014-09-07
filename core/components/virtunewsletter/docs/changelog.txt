@@ -1,5 +1,6 @@
 virtuNewsletter 1.6.0-beta2 (September 8, 2014)
 =================================================
+- fix content of recurring newsletter on auto re-cache on doc saving
 - [#30] Fix sendall processor for the recurring newsletter
 - update vendors
 - [#28] Automatically Re-Cache Newsletter

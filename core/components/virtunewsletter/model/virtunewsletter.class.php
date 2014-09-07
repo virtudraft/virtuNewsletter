@@ -1484,7 +1484,7 @@ class VirtuNewsletter {
             $c->sortby('scheduled_for', 'desc');
             $latestNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
             if ($latestNewsletter) {
-                $latestContent = $latestNewsletter->get('content');
+                $latestContent = $this->prepareEmailContent($latestNewsletter->get('content'));
                 if ($latestContent === $currentContent) {
                     $this->setError('$latestContent === $currentContent');
                     return FALSE;

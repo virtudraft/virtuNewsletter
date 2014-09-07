@@ -1,5 +1,7 @@
 virtuNewsletter
 =================================================
+- fix clone validation on recurring newsletter
+- processElementTags in cron's processor
 - refactor templating system for un/registering processes
 - [#18] add Category and Usergroup to CSV export
 - refactor intermediate classes

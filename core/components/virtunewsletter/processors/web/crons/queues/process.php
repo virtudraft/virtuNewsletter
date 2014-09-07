@@ -54,13 +54,15 @@ if ($outputType === 'json') {
         if ($getItems) {
             $itemArray = array();
             foreach ($reports as $report) {
-                $itemArray[] = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
+                $parseTpl = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
+                $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
             }
             $phs['items'] = @implode('', $itemArray);
         } else {
             $phs['items'] = '';
         }
         $output = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
+        $output = $modx->virtunewsletter->processElementTags($output);
     }
     return $output;
 }

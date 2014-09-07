@@ -657,7 +657,7 @@ class VirtuNewsletter {
     }
 
     /**
-     * Set all queues
+     * Set all queues of the subscribers' reports
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   report's array
      */

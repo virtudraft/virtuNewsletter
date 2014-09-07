@@ -24,24 +24,24 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-if (!isset($_GET['site_id'])) {
+if (!isset($_REQUEST['site_id'])) {
     die('Missing authentification!');
 }
-if ($_GET['site_id'] !== $modx->site_id) {
+if ($_REQUEST['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
-$todayOnly = isset($_GET['today_only']) && ($_GET['today_only'] == 1) ? true : false;
-$limit = isset($_GET['limit']) && is_numeric($_GET['limit']) ? intval($_GET['limit']) : 0;
+$todayOnly = isset($_REQUEST['today_only']) && ($_REQUEST['today_only'] == 1) ? true : false;
+$limit = isset($_REQUEST['limit']) && is_numeric($_REQUEST['limit']) ? intval($_REQUEST['limit']) : 0;
 
 $modx->virtunewsletter->setQueues($todayOnly);
 $reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
 
-$outputType = isset($_GET['output_type']) && $_GET['output_type'] === 'json' ? 'json' : 'html';
+$outputType = isset($_REQUEST['output_type']) && $_REQUEST['output_type'] === 'json' ? 'json' : 'html';
 if ($outputType === 'json') {
     return $this->success('', $reports);
 } else {
-    $getItems = isset($_GET['get_items']) && $_GET['get_items'] === 1 ? 1 : 0;
+    $getItems = isset($_REQUEST['get_items']) && $_REQUEST['get_items'] === 1 ? 1 : 0;
     $output = '';
     if (!empty($reports)) {
         $phs = array(

@@ -24,10 +24,10 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-if (!isset($_GET['site_id'])) {
+if (!isset($_REQUEST['site_id'])) {
     die('Missing authentification!');
 }
-if ($_GET['site_id'] !== $modx->site_id) {
+if ($_REQUEST['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 

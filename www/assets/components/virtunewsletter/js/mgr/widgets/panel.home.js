@@ -109,7 +109,7 @@ VirtuNewsletter.panel.Home = function(config) {
                 listeners: {
                     afterrender: function() {
                         Ext.get('virtunewsletter_about').on('click', function() {
-                            var msg = '&copy; 2013, ';
+                            var msg = '&copy; 2013-2014, ';
                             msg += '<a href="http://www.virtudraft.com" target="_blank">';
                             msg += 'www.virtudraft.com';
                             msg += '</a><br/>';

@@ -1,5 +1,8 @@
-virtuNewsletter
+virtuNewsletter 1.6.0-beta2 (September 8, 2014)
 =================================================
+- [#28] Automatically Re-Cache Newsletter
+- adjust cron's report
+- adjust arguments for CLI calls
 - fix clone validation on recurring newsletter
 - processElementTags in cron's processor
 - refactor templating system for un/registering processes

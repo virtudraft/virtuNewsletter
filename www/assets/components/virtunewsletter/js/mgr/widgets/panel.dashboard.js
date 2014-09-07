@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.Dashboard = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-dashboard',
         baseCls: 'modx-formpanel',
         bodyStyle: 'min-height: 500px; overflow-y: scroll;',

@@ -9,9 +9,13 @@ abstract class VirtuNewsletterManagerController extends modExtraManagerControlle
 
     public function initialize() {
         $this->virtunewsletter = new VirtuNewsletter($this->modx);
-
-        $this->addCss($this->virtunewsletter->config['cssUrl'] . 'mgr.css');
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/virtunewsletter.js');
+        $version = str_replace(' ', '', $this->virtunewsletter->config['version']);
+        $isCssCompressed = $this->modx->getOption('compress_css');
+        $withVersion = $isCssCompressed? '' : '?v=' . $version;
+        $this->addCss($this->virtunewsletter->config['cssUrl'] . 'mgr.css' . $withVersion);
+        $isJsCompressed = $this->modx->getOption('compress_js');
+        $withVersion = $isJsCompressed? '' : '?v=' . $version;
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/virtunewsletter.js' . $withVersion);
         $this->addHtml('<script type="text/javascript">
         Ext.onReady(function() {
             VirtuNewsletter.config = ' . $this->modx->toJSON($this->virtunewsletter->config) . ';

@@ -3,7 +3,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
 
     Ext.QuickTips.init();
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         baseCls: 'modx-formpanel',
         layout: 'anchor',
         border: false,

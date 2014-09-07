@@ -20,26 +20,38 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
-
 /**
  * @package virtunewsletter
  * @subpackage processor
  */
-class SubscribersRemoveProcessor extends modObjectRemoveProcessor {
+class TemplateUpdateProcessor extends modObjectUpdateProcessor {
 
-    public $classKey = 'vnewsSubscribers';
+    public $classKey = 'vnewsTemplates';
     public $languageTopics = array('virtunewsletter:cmp');
-    public $objectType = 'virtunewsletter.SubscribersRemove';
+    public $objectType = 'virtunewsletter.TemplateUpdate';
 
-    /**
-     * Can contain post-removal logic.
-     * @return bool
-     */
-    public function afterRemove() {
-        $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
+    public function initialize() {
+        $c = $this->modx->newQuery($this->classKey);
+        $name = $this->getProperty('name', false);
+        if (!empty($name)) {
+            $c->where(array(
+                'name' => $name,
+            ));
+        }
+        $cultureKey = $this->getProperty('culture_key', false);
+        if (!empty($cultureKey)) {
+            $c->where(array(
+                'culture_key' => $cultureKey,
+            ));
+        }
+        $this->object = $this->modx->getObject($this->classKey, $c);
+        if (empty($this->object)) {
+            $this->object = $this->modx->newObject($this->classKey);
+        }
+
         return true;
     }
 
 }
 
-return 'SubscribersRemoveProcessor';
+return 'TemplateUpdateProcessor';

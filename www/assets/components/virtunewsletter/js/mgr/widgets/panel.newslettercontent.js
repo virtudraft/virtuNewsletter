@@ -22,7 +22,7 @@ VirtuNewsletter.panel.NewsletterContent = function(config) {
             record: config.record
         });
     }
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         border: false,
         baseCls: 'modx-formpanel',
         items: [

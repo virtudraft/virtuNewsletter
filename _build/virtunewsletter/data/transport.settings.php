@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -186,37 +186,5 @@ $settings['virtunewsletter.email_bcc_address']->fromArray(array(
     'namespace' => 'virtunewsletter',
     'area' => 'Email',
         ), '', true, true);
-
-$extensionPackages = $modx->getObject('modSystemSetting', array(
-    'key' => 'extension_packages'
-        ));
-if ($extensionPackages) {
-    $value = $extensionPackages->get('value');
-    $valueArray = json_decode($value, TRUE);
-    if (!isset($valueArray['virtunewsletter'])) {
-        $valueArray['virtunewsletter'] = array(
-            'path' => '[[++core_path]]components/virtunewsletter/model/'
-        );
-        $value = json_encode($valueArray);
-        $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
-        $settings['extension_packages']->set('value', $value);
-    }
-} else {
-    $valueArray = array(
-        'virtunewsletter' => array(
-            'path' => '[[++core_path]]components/virtunewsletter/model/'
-        )
-    );
-    $value = json_encode($valueArray);
-    $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
-    $settings['extension_packages'] = $modx->newObject('modSystemSetting');
-    $settings['extension_packages']->fromArray(array(
-        'key' => 'extension_packages',
-        'value' => $value,
-        'xtype' => 'textfield',
-        'namespace' => 'core',
-        'area' => 'system',
-            ), '', true, true);
-}
 
 return $settings;

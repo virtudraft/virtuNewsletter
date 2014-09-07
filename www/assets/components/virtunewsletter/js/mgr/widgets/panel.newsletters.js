@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.Newsletters = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-newsletters',
         border: false,
         baseCls: 'modx-formpanel',
@@ -14,10 +14,10 @@ VirtuNewsletter.panel.Newsletters = function(config) {
             {
                 id: 'virtunewsletter-panel-newsletters-center',
                 region: 'center',
-                bodyStyle: 'overflow-y: auto;'
+                bodyStyle: 'overflow-y: auto; background-color: transparent;'
             }, {
                 region: 'west',
-                bodyStyle: 'padding: 5px; overflow-y: auto;',
+                bodyStyle: 'padding: 5px; overflow-y: auto; background-color: transparent;',
                 collapsible: 'mini',
                 split: true,
                 margins: '0 0 0 0',
@@ -25,7 +25,8 @@ VirtuNewsletter.panel.Newsletters = function(config) {
                 width: 300,
                 items: [
                     {
-                        xtype: 'virtunewsletter-tree-newsletters'
+                        xtype: 'virtunewsletter-tree-newsletters',
+                        bodyStyle: 'background-color: transparent;'
                     }
                 ]
             }

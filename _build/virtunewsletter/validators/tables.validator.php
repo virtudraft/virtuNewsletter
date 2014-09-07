@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -39,6 +39,8 @@ if ($modx = & $object->xpdo) {
                     $modx->log(modX::LOG_LEVEL_WARN, 'package was added in validator xPDOTransport::ACTION_INSTALL');
                 }
             }
+            $tablePrefix = $modx->getOption('virtunewsletter.table_prefix', null, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_');
+            $modx->addExtensionPackage('virtunewsletter', '[[++core_path]]components/virtunewsletter/model/', array('tablePrefix' => $tablePrefix));
             break;
         case xPDOTransport::ACTION_UPGRADE:
             break;
@@ -63,19 +65,8 @@ if ($modx = & $object->xpdo) {
                 }
             }
 
-            $extensionPackages = $modx->getObject('modSystemSetting', array(
-                'key' => 'extension_packages'
-            ));
-            if ($extensionPackages) {
-                $value = $extensionPackages->get('value');
-                $valueArray = json_decode($value, TRUE);
-                if (isset($valueArray['virtunewsletter'])) {
-                    unset($valueArray['virtunewsletter']);
-                    $value = json_encode($valueArray);
-                    $extensionPackages->set('value', $value);
-                    $extensionPackages->save();
-                }
-            }
+            $tablePrefix = $modx->getOption('virtunewsletter.table_prefix', null, $modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_');
+            $modx->removeExtensionPackage('virtunewsletter');
             break;
     }
 }

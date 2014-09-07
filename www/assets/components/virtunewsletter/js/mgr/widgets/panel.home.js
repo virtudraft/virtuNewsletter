@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.Home = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-home',
         baseCls: 'modx-formpanel',
         layout: 'border',
@@ -12,7 +12,7 @@ VirtuNewsletter.panel.Home = function(config) {
             border: false,
             autoHeight: true
         },
-        bodyStyle: 'min-height: 500px;',
+        bodyStyle: 'min-height: 500px; background-color: transparent;',
         preventRender: false,
         items: [
             {
@@ -22,23 +22,26 @@ VirtuNewsletter.panel.Home = function(config) {
                     border: false,
                     autoHeight: true
                 },
+                bodyStyle: 'background-color: transparent;',
                 items: [
                     {
                         layout: 'hbox',
                         border: false,
                         defaults: {
-                            border: false
+                            border: false,
+                            bodyStyle: 'background-color: transparent;'
                         },
+                        bodyStyle: 'background-color: transparent;',
                         items: [
                             {
                                 html: '<span style="margin-right: 10px; line-height: 39px;"><span style="font-weight: bold; font-size: 16px;">' + _('virtunewsletter') + '</span> ' + VirtuNewsletter.config.version + '</span>',
                                 border: false,
                                 cls: 'modx-page-header'
                             }, {
-                                xtype: 'buttongroup',
+                                xtype: 'toolbar',
                                 border: false,
-                                bodyStyle: 'background-image: none;',
                                 columns: 3,
+                                bodyStyle: 'background: none; background-color: transparent; border:none; ',
                                 items: [
                                     {
                                         text: _('virtunewsletter.dashboard'),
@@ -70,6 +73,16 @@ VirtuNewsletter.panel.Home = function(config) {
                                                 scope: this
                                             }
                                         }
+                                    }, {
+                                        text: _('virtunewsletter.templates'),
+                                        listeners: {
+                                            'click': {
+                                                fn: function() {
+                                                    return this.openPage('templates');
+                                                },
+                                                scope: this
+                                            }
+                                        }
                                     }
                                 ]
                             }
@@ -81,6 +94,7 @@ VirtuNewsletter.panel.Home = function(config) {
                 id: 'virtunewsletter-panel-home-center',
                 padding: 0,
                 layout: 'fit',
+                bodyStyle: 'background-color: transparent;',
                 items: [
                     {
                         xtype: 'virtunewsletter-panel-dashboard'
@@ -91,7 +105,7 @@ VirtuNewsletter.panel.Home = function(config) {
                 id: 'virtunewsletter-panel-home-south',
                 html: '<a href="javascript:void(0);" style="color: #bbbbbb;" id="virtunewsletter_about">' + _('virtunewsletter_about') + '</a>',
                 border: false,
-                bodyStyle: 'font-size: 10px; margin: 5px;',
+                bodyStyle: 'font-size: 10px; margin: 5px; background-color: transparent',
                 listeners: {
                     afterrender: function() {
                         Ext.get('virtunewsletter_about').on('click', function() {
@@ -155,7 +169,7 @@ Ext.apply(Array.prototype, {
     remove : function(o){
         if (typeof(this) === 'array') {
             var index = this.indexOf(o);
-            if(index != -1){
+            if(index !== -1){
                 this.splice(index, 1);
             }
         }

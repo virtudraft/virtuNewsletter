@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.Subscribers = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-subscribers',
         border: false,
         baseCls: 'modx-formpanel',

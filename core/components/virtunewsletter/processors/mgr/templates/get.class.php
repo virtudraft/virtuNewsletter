@@ -25,48 +25,49 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-class NewslettersGetProcessor extends modObjectGetProcessor {
+class TemplateGetProcessor extends modObjectGetProcessor {
 
     /** @var string $objectType The object "type", this will be used in various lexicon error strings */
-    public $objectType = 'virtunewsletter.NewslettersGet';
+    public $objectType = 'virtunewsletter.TemplateGet';
 
     /** @var string $classKey The class key of the Object to iterate */
-    public $classKey = 'vnewsNewsletters';
+    public $classKey = 'vnewsTemplates';
 
     /** @var array $languageTopics An array of language topics to load */
     public $languageTopics = array('virtunewsletter:cmp');
 
     /**
-     * Return the response
-     * @return array
+     * {@inheritDoc}
+     * @return boolean
      */
-    public function cleanup() {
-        $objectArray = $this->object->toArray();
-
-        $categories = $this->object->getMany('vnewsNewslettersHasCategories');
-        $categoriesArray = array();
-        if ($categories) {
-            foreach ($categories as $category) {
-                $categoryId = $category->get('category_id');
-                $categoryObj = $this->modx->getObject('vnewsCategories', $categoryId);
-                if ($categoryObj) {
-                    $categoriesArray[] = array(
-                        'category_id' => $categoryId,
-                        'category' => $categoryObj->get('name')
-                    );
-                }
-            }
-        } else {
-            $categoriesArray[] = array(
-                'category_id' => 0,
-                'category' => 'uncategorized'
-            );
+    public function initialize() {
+        $c = $this->modx->newQuery($this->classKey);
+        $primaryKey = $this->getProperty($this->primaryKeyField, false);
+        if (!empty($primaryKey)) {
+            $c->where(array(
+                $this->primaryKeyField => $primaryKey
+            ));
         }
-        $objectArray['categories'] = $categoriesArray;
+        $cultureKey = $this->getProperty('culture_key');
+        if (!empty($cultureKey)) {
+            $c->where(array(
+                'culture_key' => $cultureKey
+            ));
+        }
+        $name = $this->getProperty('name');
+        if (!empty($name)) {
+            $c->where(array(
+                'name' => $name
+            ));
+        }
+        $this->object = $this->modx->getObject($this->classKey, $c);
+        if (empty($this->object)) {
+            return $this->modx->lexicon($this->objectType . '_err_nfs', array($this->primaryKeyField => $primaryKey));
+        }
 
-        return $this->success('', $objectArray);
+        return true;
     }
 
 }
 
-return 'NewslettersGetProcessor';
+return 'TemplateGetProcessor';

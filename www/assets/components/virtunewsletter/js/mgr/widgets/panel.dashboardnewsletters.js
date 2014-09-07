@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.DashboardNewsletters = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-dashboardnewsletter',
         collapsible: false,
         bodyStyle: 'padding: 10px;',

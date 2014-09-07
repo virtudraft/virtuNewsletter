@@ -1,0 +1,7 @@
+id,user_id,email,name,is_active,categories,usergroups
+1,11,i@example.com,i,1,Student,Members
+2,2,goldsky@example.com,goldsky,1,Student,Members
+3,9,g@example.com,g,1,Student,Members
+10,3,a@example.com,a,0,"Student, Teacher","Members, Gold"
+11,7,e@example.com,e,1,Student,Members
+12,5,c@example.com,c,1,Student,Members

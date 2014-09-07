@@ -1,7 +1,7 @@
 VirtuNewsletter.panel.Category = function(config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         baseCls: 'modx-formpanel',
         layout: 'anchor',
         items: [

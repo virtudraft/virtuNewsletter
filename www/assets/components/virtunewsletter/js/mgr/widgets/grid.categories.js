@@ -46,7 +46,7 @@ VirtuNewsletter.grid.Categories = function(config) {
                 items: [
                     {
                         iconCls: 'virtunewsletter-icon-delete virtunewsletter-icon-actioncolumn-img',
-                        toolTip: _('virtunewsletter.remove'),
+                        tooltip: _('virtunewsletter.remove'),
                         altText: _('virtunewsletter.remove'),
                         handler: function(grid, row, col) {
                             var rec = this.store.getAt(row);

@@ -6,6 +6,7 @@ $xpdo_meta_map = array (
     0 => 'vnewsCategories',
     1 => 'vnewsNewsletters',
     2 => 'vnewsSubscribers',
+    3 => 'vnewsTemplates',
   ),
   'xPDOObject' => 
   array (

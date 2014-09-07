@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -134,3 +134,11 @@ $_lang['virtunewsletter.weekly'] = 'Weekly';
 $_lang['virtunewsletter.monthly'] = 'Monthly';
 $_lang['virtunewsletter.yearly'] = 'Yearly';
 $_lang['virtunewsletter.subscribers_delete_confirm'] = 'Are you sure you want to delete these subscribers? This is irreversible.';
+$_lang['virtunewsletter.templates'] = 'Templates';
+$_lang['virtunewsletter.templates_desc'] = 'Email Templates for un/registering processes.';
+$_lang['virtunewsletter.subscribing'] = 'Subscribing';
+$_lang['virtunewsletter.subscribed'] = 'Subscribed';
+$_lang['virtunewsletter.unsubscribing'] = 'Unsubscribing';
+$_lang['virtunewsletter.unsubscribed'] = 'Unsubscribed';
+
+$_lang['virtunewsletter.TemplateGet_err_nfs'] = 'Could not find the specified template, try to create a new one.';

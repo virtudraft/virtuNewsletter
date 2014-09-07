@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -64,23 +64,52 @@ if ($result === FALSE) {
     }
     $phs = $virtuNewsletter->getPlaceholders();
     if ($_GET['act'] === 'subscribe') {
-        $resourceId = $modx->getOption('virtunewsletter.subscribe_succeeded_tpl');
+        $template = $modx->getObject('vnewsTemplates', array(
+            'name' => 'subscribed',
+            'culture_key' => $modx->cultureKey
+        ));
+        if (!$template) {
+            // fallback < 1.6.0-beta2
+            $resourceId = $modx->getOption('virtunewsletter.subscribe_succeeded_tpl');
+        }
+    } elseif ($_GET['act'] === 'unsubscribing') {
+        $template = $modx->getObject('vnewsTemplates', array(
+            'name' => 'unsubscribing',
+            'culture_key' => $modx->cultureKey
+        ));
+        if (!$template) {
+            $resourceId = $modx->getOption('virtunewsletter.unsubscribe_confirmation_tpl');
+        }
     } elseif ($_GET['act'] === 'unsubscribe') {
-        $resourceId = $modx->getOption('virtunewsletter.unsubscribe_succeeded_tpl');
-    } else {
-        $resourceId = 0;
+        $template = $modx->getObject('vnewsTemplates', array(
+            'name' => 'unsubscribed',
+            'culture_key' => $modx->cultureKey
+        ));
+        if (!$template) {
+            $resourceId = $modx->getOption('virtunewsletter.unsubscribe_succeeded_tpl');
+        }
     }
-    $resource = $modx->getObject('modResource', $resourceId);
-    if (!$resource) {
-        $modx->setDebug();
-        $modx->log(modX::LOG_LEVEL_ERROR, 'Missing resource tpl for confirmation report : ' . $resourceId, '', __METHOD__, __FILE__, __LINE__);
-        $modx->setDebug(FALSE);
-    } else {
-        $subject = $virtuNewsletter->processElementTags($resource->get('pagetitle'));
-        $message = $resource->get('content');
+    
+    if ($template) {
+        $subject = $virtuNewsletter->processElementTags($template->get('subject'));
+        $message = $template->get('content');
         $message = $virtuNewsletter->parseTpl('@CODE:' . $message, $phs);
         $message = $virtuNewsletter->processElementTags($message);
         $virtuNewsletter->sendMail($subject, $message, $phs[$scriptProperties['phsPrefix'] . 'emailTo'], $emailFrom, $emailFromName);
+    } else {
+        // fallback < 1.6.0-beta2
+        $resource = $modx->getObject('modResource', $resourceId);
+        if (!$resource) {
+            $modx->setDebug();
+            $modx->log(modX::LOG_LEVEL_ERROR, 'Missing resource tpl for confirmation report : ');
+            $modx->setDebug(FALSE);
+        } else {
+            $subject = $virtuNewsletter->processElementTags($resource->get('pagetitle'));
+            $message = $resource->get('content');
+            $message = $virtuNewsletter->parseTpl('@CODE:' . $message, $phs);
+            $message = $virtuNewsletter->processElementTags($message);
+            $virtuNewsletter->sendMail($subject, $message, $phs[$scriptProperties['phsPrefix'] . 'emailTo'], $emailFrom, $emailFromName);
+        }
     }
 } else {
     $output = $modx->lexicon('virtunewsletter.confirm_err_proc');

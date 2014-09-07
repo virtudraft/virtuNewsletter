@@ -41,7 +41,7 @@ VirtuNewsletter.tree.Newsletters = function(config) {
         }
     });
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-tree-newsletters',
         xtype: 'treepanel',
         loader: newslettersTree,

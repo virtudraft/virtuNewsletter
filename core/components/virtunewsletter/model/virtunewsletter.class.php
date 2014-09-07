@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -57,6 +57,11 @@ class VirtuNewsletter {
      * @var array
      */
     private $_placeholders = array();
+    /**
+     * store the chunk's HTML to property to save memory of loop rendering
+     * @var array
+     */
+    private $_chunks = array();
 
     /**
      * constructor
@@ -106,6 +111,147 @@ class VirtuNewsletter {
     }
 
     /**
+     * Set string error for boolean returned methods
+     * @return  void
+     */
+    public function setError($msg) {
+        $this->_error = $msg;
+    }
+
+    /**
+     * Get string error for boolean returned methods
+     * @return  string  output
+     */
+    public function getError() {
+        return $this->_error;
+    }
+
+    /**
+     * Set string output for boolean returned methods
+     * @return  void
+     */
+    public function setOutput($msg) {
+        $this->_output = $msg;
+    }
+
+    /**
+     * Get string output for boolean returned methods
+     * @return  string  output
+     */
+    public function getOutput() {
+        return $this->_output;
+    }
+
+    /**
+     * Set internal placeholder
+     * @param   string  $key    key
+     * @param   string  $value  value
+     * @param   string  $prefix add prefix if it's required
+     */
+    public function setPlaceholder($key, $value, $prefix = '') {
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $this->_placeholders[$prefix . $key] = $this->trimString($value);
+    }
+
+    /**
+     * Get an internal placeholder
+     * @param   string  $key    key
+     * @return  string  value
+     */
+    public function getPlaceholder($key) {
+        return $this->_placeholders[$key];
+    }
+
+    /**
+     * Set internal placeholders
+     * @param   array   $placeholders   placeholders in an associative array
+     * @param   string  $prefix         add prefix if it's required
+     * @param   boolean $merge          define whether the output will be merge to global properties or not
+     * @param   string  $delimiter      define placeholder's delimiter
+     * @return  mixed   boolean|array of placeholders
+     */
+    public function setPlaceholders($placeholders, $prefix = '', $merge = true, $delimiter = '.') {
+        if (empty($placeholders)) {
+            return FALSE;
+        }
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $placeholders = $this->trimArray($placeholders);
+        $placeholders = $this->implodePhs($placeholders, rtrim($prefix, $delimiter));
+        // enclosed private scope
+        if ($merge) {
+            $this->_placeholders = array_merge($this->_placeholders, $placeholders);
+        }
+        // return only for this scope
+        return $placeholders;
+    }
+
+    /**
+     * Get internal placeholders in an associative array
+     * @return array
+     */
+    public function getPlaceholders() {
+        return $this->_placeholders;
+    }
+
+    /**
+     * Merge multi dimensional associative arrays with separator
+     * @param   array   $array      raw associative array
+     * @param   string  $keyName    parent key of this array
+     * @param   string  $separator  separator between the merged keys
+     * @param   array   $holder     to hold temporary array results
+     * @return  array   one level array
+     */
+    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
+        $phs = !empty($holder) ? $holder : array();
+        foreach ($array as $k => $v) {
+            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
+            if (is_array($v)) {
+                $phs = $this->implodePhs($v, $key, $separator, $phs);
+            } else {
+                $phs[$key] = $v;
+            }
+        }
+        return $phs;
+    }
+
+    /**
+     * Trim string value
+     * @param   string  $string     source text
+     * @param   string  $charlist   defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  string  trimmed text
+     */
+    public function trimString($string, $charlist = null) {
+        if (empty($string) && !is_numeric($string)) {
+            return '';
+        }
+        $string = htmlentities($string);
+        // blame TinyMCE!
+        $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
+        $string = trim($string, $charlist);
+        $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
+        $string = html_entity_decode($string);
+        return $string;
+    }
+
+    /**
+     * Trim array values
+     * @param   array   $array          array contents
+     * @param   string  $charlist       [default: null] defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  array   trimmed array
+     */
+    public function trimArray($input, $charlist = null) {
+        if (is_array($input)) {
+            $output = array_map(array($this, 'trimArray'), $input);
+        } else {
+            $output = $this->trimString($input, $charlist);
+        }
+
+        return $output;
+    }
+
+    /**
      * Parsing template
      * @param   string  $tpl    @BINDINGs options
      * @param   array   $phs    placeholders
@@ -114,11 +260,17 @@ class VirtuNewsletter {
      */
     public function parseTpl($tpl, array $phs = array()) {
         $output = '';
+        
+        if (isset($this->_chunks[$tpl]) && !empty($this->_chunks[$tpl])) {
+            return $this->parseTplCode($this->_chunks[$tpl], $phs);
+        }
+
         if (preg_match('/^(@CODE|@INLINE)/i', $tpl)) {
             $tplString = preg_replace('/^(@CODE|@INLINE)/i', '', $tpl);
             // tricks @CODE: / @INLINE:
             $tplString = ltrim($tplString, ':');
             $tplString = trim($tplString);
+            $this->_chunks[$tpl] = $tplString;
             $output = $this->parseTplCode($tplString, $phs);
         } elseif (preg_match('/^@FILE/i', $tpl)) {
             $tplFile = preg_replace('/^@FILE/i', '', $tpl);
@@ -150,11 +302,12 @@ class VirtuNewsletter {
                     return 'Chunk: ' . $tplChunk . ' is not found, neither the file ' . $output;
                 }
             } else {
-//                $output = $this->modx->getChunk($tpl, $phs);
+//                $output = $this->modx->getChunk($tplChunk, $phs);
                 /**
                  * @link    http://forums.modx.com/thread/74071/help-with-getchunk-and-modx-speed-please?page=4#dis-post-464137
                  */
-                $chunk = $this->modx->getParser()->getElement('modChunk', $tpl);
+                $chunk = $this->modx->getParser()->getElement('modChunk', $tplChunk);
+                $this->_chunks[$tpl] = $chunk->get('content');
                 $chunk->setCacheable(false);
                 $chunk->_processed = false;
                 $output = $chunk->process($phs);
@@ -191,6 +344,7 @@ class VirtuNewsletter {
             throw new Exception('File: ' . $file . ' is not found.');
         }
         $o = file_get_contents($file);
+        $this->_chunks[$file] = $o;
         $chunk = $this->modx->newObject('modChunk');
 
         // just to create a name for the modChunk object.
@@ -944,143 +1098,6 @@ class VirtuNewsletter {
      */
     public function setHash($email) {
         return str_rot13(base64_encode(hash('sha512', time() . $email)));
-    }
-
-    /**
-     * Set string error for boolean returned methods
-     * @return  void
-     */
-    public function setError($msg) {
-        $this->_error = $msg;
-    }
-
-    /**
-     * Get string error for boolean returned methods
-     * @return  string  output
-     */
-    public function getError() {
-        return $this->_error;
-    }
-
-    /**
-     * Set string output for boolean returned methods
-     * @return  void
-     */
-    public function setOutput($msg) {
-        $this->_output = $msg;
-    }
-
-    /**
-     * Get string output for boolean returned methods
-     * @return  string  output
-     */
-    public function getOutput() {
-        return $this->_output;
-    }
-
-    /**
-     * Trim array values
-     * @param   array   $array          array contents
-     * @param   string  $charlist       [default: null] defined characters to be trimmed
-     * @link http://php.net/manual/en/function.trim.php
-     * @return  array   trimmed array
-     */
-    public function trimArray($input, $charlist = null) {
-        if (is_array($input)) {
-            $output = array_map(array($this, 'trimArray'), $input);
-        } else {
-            $output = $this->trimString($input, $charlist);
-        }
-
-        return $output;
-    }
-
-    /**
-     * Trim string value
-     * @param   string  $string     source text
-     * @param   string  $charlist   defined characters to be trimmed
-     * @link http://php.net/manual/en/function.trim.php
-     * @return  string  trimmed text
-     */
-    public function trimString($string, $charlist = null) {
-        if (empty($string)) {
-            return '';
-        }
-        $string = htmlentities($string);
-        // blame TinyMCE!
-        $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
-        $string = trim($string, $charlist);
-        $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
-        $string = html_entity_decode($string);
-        return $string;
-    }
-
-    /**
-     * Merge multi dimensional associative arrays with separator
-     * @param   array   $array      raw associative array
-     * @param   string  $keyName    parent key of this array
-     * @param   string  $separator  separator between the merged keys
-     * @param   array   $holder     to hold temporary array results
-     * @return  array   one level array
-     */
-    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
-        $phs = !empty($holder) ? $holder : array();
-        foreach ($array as $k => $v) {
-            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
-            if (is_array($v)) {
-                $phs = $this->implodePhs($v, $key, $separator, $phs);
-            } else {
-                $phs[$key] = $v;
-            }
-        }
-        return $phs;
-    }
-
-    /**
-     * Set internal placeholder
-     * @param   string  $key    key
-     * @param   string  $value  value
-     * @param   string  $prefix add prefix if it's required
-     */
-    public function setPlaceholder($key, $value, $prefix = '') {
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
-        $this->_placeholders[$prefix . $key] = $value;
-    }
-
-    /**
-     * Set internal placeholders
-     * @param   array   $placeholders   placeholders in an associative array
-     * @param   string  $prefix         add prefix if it's required
-     * @return  mixed   boolean|array of placeholders
-     */
-    public function setPlaceholders($placeholders, $prefix = '') {
-        if (empty($placeholders)) {
-            return FALSE;
-        }
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
-        $placeholders = $this->trimArray($placeholders);
-        $placeholders = $this->implodePhs($placeholders, rtrim($prefix, '.'));
-        // enclosed private scope
-        $this->_placeholders = array_merge($this->_placeholders, $placeholders);
-        // return only for this scope
-        return $placeholders;
-    }
-
-    /**
-     * Get internal placeholders in an associative array
-     * @return array
-     */
-    public function getPlaceholders() {
-        return $this->_placeholders;
-    }
-
-    /**
-     * Get an internal placeholder
-     * @param   string  $key    key
-     * @return  string  value
-     */
-    public function getPlaceholder($key) {
-        return $this->_placeholders[$key];
     }
 
     /**

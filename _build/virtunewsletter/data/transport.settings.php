@@ -88,41 +88,41 @@ $settings['virtunewsletter.readerpage']->fromArray(array(
     'area' => 'URL',
         ), '', true, true);
 
-$settings['virtunewsletter.subscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.subscribe_confirmation_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.subscribe_confirmation_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.unsubscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.unsubscribe_confirmation_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.unsubscribe_confirmation_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.subscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.subscribe_succeeded_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.subscribe_succeeded_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.unsubscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.unsubscribe_succeeded_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.unsubscribe_succeeded_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
+//$settings['virtunewsletter.subscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.subscribe_confirmation_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.subscribe_confirmation_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.unsubscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.unsubscribe_confirmation_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.unsubscribe_confirmation_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.subscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.subscribe_succeeded_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.subscribe_succeeded_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.unsubscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.unsubscribe_succeeded_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.unsubscribe_succeeded_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
 
 $settings['virtunewsletter.usergroups'] = $modx->newObject('modSystemSetting');
 $settings['virtunewsletter.usergroups']->fromArray(array(

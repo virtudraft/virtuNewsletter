@@ -50,8 +50,8 @@
         </index>
 
         <!-- self-join -->
-        <composite alias="Parent" class="vnewsNewsletters" local="parent_id" foreign="id" cardinality="one" owner="foreign" />
-        <aggregate alias="Children" class="vnewsNewsletters" local="id" foreign="parent_id" cardinality="many" owner="local" />
+        <aggregate alias="Parent" class="vnewsNewsletters" local="parent_id" foreign="id" cardinality="one" owner="foreign" />
+        <composite alias="Children" class="vnewsNewsletters" local="id" foreign="parent_id" cardinality="many" owner="local" />
 
         <composite alias="vnewsNewslettersHasCategories" class="vnewsNewslettersHasCategories" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
         <composite alias="vnewsReports" class="vnewsReports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
@@ -139,10 +139,10 @@
         <field key="subject" dbtype="varchar" precision="255" phptype="string" null="false" />
         <field key="content" dbtype="text" phptype="string" null="false" />
     </object>
-	<object class="vnewsUsergroups" extends="modUserGroup">
+    <object class="vnewsUsergroups" extends="modUserGroup">
         <composite alias="vnewsCategoriesHasUsergroups" class="vnewsCategoriesHasUsergroups" local="id" foreign="usergroup_id" cardinality="many" owner="local" />
-	</object>
-	<object class="vnewsUsers" extends="modUser">
+    </object>
+    <object class="vnewsUsers" extends="modUser">
         <composite alias="vnewsSubscribers" class="vnewsSubscribers" local="id" foreign="user_id" cardinality="one" owner="local" />
     </object>
 </model>

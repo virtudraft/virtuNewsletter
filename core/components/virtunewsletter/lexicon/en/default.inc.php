@@ -34,6 +34,7 @@ $_lang['virtunewsletter.subscriber_err_proc'] = 'There was an error to process y
 $_lang['virtunewsletter.subscriber_err_ne'] = 'This subscriber does not exists.';
 $_lang['virtunewsletter.subscriber_suc_activated'] = 'Your account has been activated successfully.';
 $_lang['virtunewsletter.subscriber_suc_deactivated'] = 'Your account has been deactivated successfully.';
+$_lang['virtunewsletter.subscriber_unsubscribing'] = 'You are about to unsubscribe from our newsletter. Please check your mailbox and click the link on our sent email to confirm about this unsubscription.';
 
 $_lang['setting_virtunewsletter.readerpage'] = 'Resource to read the newsletter';
 $_lang['setting_virtunewsletter.readerpage_desc'] = 'Resource\'s ID where visitor can access the newsletter via web';

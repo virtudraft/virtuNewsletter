@@ -1077,6 +1077,10 @@ class VirtuNewsletter {
                 $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_activated');
                 $this->setOutput($msg);
                 break;
+            case 'unsubscribing':
+                $msg = $this->modx->lexicon('virtunewsletter.subscriber_unsubscribing');
+                $this->setOutput($msg);
+                break;
             case 'unsubscribe':
                 $subscriber->set('is_active', 0);
                 $subscriber->save();

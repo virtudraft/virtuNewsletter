@@ -87,6 +87,7 @@ $_lang['virtunewsletter.uncategorized_desc'] = 'Uncategorized newsletters';
 $_lang['virtunewsletter.subscriber_remove'] = 'Remove Subscriber';
 $_lang['virtunewsletter.create_all'] = 'Create All';
 $_lang['virtunewsletter.send'] = 'Send';
+$_lang['virtunewsletter.send_all'] = 'Send All';
 $_lang['virtunewsletter.send_now'] = 'Send Now ?';
 $_lang['virtunewsletter.send_now_confirm'] = 'Some web hosting has limitation to the amount of mass emails, usually 50. <br>'
         . 'More than that will be blocked by system. <br>'
@@ -130,6 +131,7 @@ $_lang['virtunewsletter.import_err_nf'] = 'Missing fields\' names';
 $_lang['virtunewsletter.read_file_err'] = 'Unable to read the file';
 $_lang['virtunewsletter.sent'] = 'Sent';
 $_lang['virtunewsletter.queue'] = 'Queue';
+$_lang['virtunewsletter.requeue'] = 'Re-Queue';
 $_lang['virtunewsletter.weekly'] = 'Weekly';
 $_lang['virtunewsletter.monthly'] = 'Monthly';
 $_lang['virtunewsletter.yearly'] = 'Yearly';

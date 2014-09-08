@@ -58,9 +58,9 @@ VirtuNewsletter.grid.Reports = function(config) {
                 scope: this,
                 handler: this.clearQueues
             }, {
-                text: _('virtunewsletter.send'),
+                text: _('virtunewsletter.send_all'),
                 scope: this,
-                handler: this.send
+                handler: this.sendAll
             }
         ]
     });
@@ -70,6 +70,12 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
     getMenu: function() {
         var menu = [
             {
+                text: _('virtunewsletter.requeue'),
+                handler: this.reQueue
+            }, {
+                text: _('virtunewsletter.send'),
+                handler: this.send
+            }, {
                 text: _('virtunewsletter.remove'),
                 handler: this.removeQueue
             }
@@ -129,7 +135,26 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             }
         });
     },
-    send: function() {
+    reQueue: function(btn, e) {
+        var _this = this;
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/update',
+                newsletter_id: this.record.newsid,
+                subscriber_id: this.menu.record.subscriber_id,
+                status: 'queue'
+            },
+            listeners: {
+                'success': {
+                    fn: function() {
+                        _this.refresh();
+                    }
+                }
+            }
+        });
+    },
+    sendAll: function() {
         MODx.msg.confirm({
             title: _('virtunewsletter.send_now'),
             text: _('virtunewsletter.send_now_confirm'),
@@ -144,6 +169,24 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
                         this.refresh();
                     },
                     scope: this
+                }
+            }
+        });
+    },
+    send: function() {
+        var _this = this;
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/reports/send',
+                newsletter_id: this.record.newsid,
+                subscriber_id: this.menu.record.subscriber_id
+            },
+            listeners: {
+                'success': {
+                    fn: function() {
+                        _this.refresh();
+                    }
                 }
             }
         });

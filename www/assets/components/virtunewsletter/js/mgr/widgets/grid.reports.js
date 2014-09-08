@@ -141,7 +141,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/update',
-                newsletter_id: this.record.newsid,
+                newsletter_id: this.menu.record.newsletter_id,
                 subscriber_id: this.menu.record.subscriber_id,
                 status: 'queue'
             },
@@ -179,7 +179,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/send',
-                newsletter_id: this.record.newsid,
+                newsletter_id: this.menu.record.newsletter_id,
                 subscriber_id: this.menu.record.subscriber_id
             },
             listeners: {

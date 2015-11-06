@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -29,24 +29,8 @@ class CategoriesGetListProcessor extends modObjectGetListProcessor {
     public $classKey = 'vnewsCategories';
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesGetList';
-    public $defaultSortField = 'name';
+    public $defaultSortField = 'id';
     public $defaultSortDirection = 'asc';
-
-    /**
-     * Return arrays of objects (with count) converted to JSON.
-     *
-     * The JSON result includes two main elements, total and results. This format is used for list
-     * results.
-     *
-     * @access public
-     * @param array $array An array of data objects.
-     * @param mixed $count The total number of objects. Used for pagination.
-     * @return string The JSON output.
-     */
-    public function outputArray(array $array,$count = false) {
-        if ($count === false) { $count = count($array); }
-        return '{"success":true,"total":"'.$count.'","results":'.$this->modx->toJSON($array).'}';
-    }
 
 }
 

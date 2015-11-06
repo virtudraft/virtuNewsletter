@@ -4,16 +4,16 @@ $xpdo_meta_map = array (
   'xPDOSimpleObject' => 
   array (
     0 => 'vnewsCategories',
-    1 => 'vnewsNewsletters',
-    2 => 'vnewsSubscribers',
-    3 => 'vnewsTemplates',
+    1 => 'vnewsCategoriesHasUsergroups',
+    2 => 'vnewsNewsletters',
+    3 => 'vnewsNewslettersHasCategories',
+    4 => 'vnewsSubscribers',
+    5 => 'vnewsSubscribersHasCategories',
+    6 => 'vnewsTemplates',
   ),
   'xPDOObject' => 
   array (
-    0 => 'vnewsCategoriesHasUsergroups',
-    1 => 'vnewsNewslettersHasCategories',
-    2 => 'vnewsReports',
-    3 => 'vnewsSubscribersHasCategories',
+    0 => 'vnewsReports',
   ),
   'modUserGroup' => 
   array (

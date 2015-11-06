@@ -1,4 +1,4 @@
-VirtuNewsletter.panel.DashboardSubscribers = function(config) {
+VirtuNewsletter.panel.DashboardSubscribers = function (config) {
     config = config || {};
 
     Ext.applyIf(config, {
@@ -19,6 +19,8 @@ VirtuNewsletter.panel.DashboardSubscribers = function(config) {
         },
         items: [
             {
+                title: _('virtunewsletter.subscribers')
+            }, {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.subscribers_total'),
                 name: 'subscribers_total',

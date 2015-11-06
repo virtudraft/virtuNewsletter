@@ -6,6 +6,7 @@ $xpdo_meta_map['vnewsReports']= array (
   'extends' => 'xPDOObject',
   'fields' => 
   array (
+    'id' => NULL,
     'newsletter_id' => NULL,
     'subscriber_id' => NULL,
     'status' => NULL,
@@ -13,7 +14,7 @@ $xpdo_meta_map['vnewsReports']= array (
   ),
   'fieldMeta' => 
   array (
-    'newsletter_id' => 
+    'id' => 
     array (
       'dbtype' => 'int',
       'precision' => '10',
@@ -22,6 +23,15 @@ $xpdo_meta_map['vnewsReports']= array (
       'null' => false,
       'index' => 'pk',
     ),
+    'newsletter_id' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'index' => 'index',
+    ),
     'subscriber_id' => 
     array (
       'dbtype' => 'int',
@@ -29,7 +39,7 @@ $xpdo_meta_map['vnewsReports']= array (
       'attributes' => 'unsigned',
       'phptype' => 'integer',
       'null' => false,
-      'index' => 'pk',
+      'index' => 'index',
     ),
     'status' => 
     array (
@@ -57,13 +67,7 @@ $xpdo_meta_map['vnewsReports']= array (
       'type' => 'BTREE',
       'columns' => 
       array (
-        'newsletter_id' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-        'subscriber_id' => 
+        'id' => 
         array (
           'length' => '',
           'collation' => 'A',
@@ -106,7 +110,7 @@ $xpdo_meta_map['vnewsReports']= array (
   ),
   'aggregates' => 
   array (
-    'vnewsNewsletters' => 
+    'Newsletters' => 
     array (
       'class' => 'vnewsNewsletters',
       'local' => 'newsletter_id',
@@ -114,7 +118,7 @@ $xpdo_meta_map['vnewsReports']= array (
       'cardinality' => 'one',
       'owner' => 'foreign',
     ),
-    'vnewsSubscribers' => 
+    'Subscribers' => 
     array (
       'class' => 'vnewsSubscribers',
       'local' => 'subscriber_id',

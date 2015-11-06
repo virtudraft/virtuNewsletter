@@ -25,13 +25,13 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-class NewslettersGetProcessor extends modObjectGetProcessor {
+class CategoriesGetProcessor extends modObjectGetProcessor {
 
     /** @var string $objectType The object "type", this will be used in various lexicon error strings */
-    public $objectType = 'virtunewsletter.NewslettersGet';
+    public $objectType = 'virtunewsletter.CategoriesGet';
 
     /** @var string $classKey The class key of the Object to iterate */
-    public $classKey = 'vnewsNewsletters';
+    public $classKey = 'vnewsCategories';
 
     /** @var array $languageTopics An array of language topics to load */
     public $languageTopics = array('virtunewsletter:cmp');
@@ -43,30 +43,39 @@ class NewslettersGetProcessor extends modObjectGetProcessor {
     public function cleanup() {
         $objectArray = $this->object->toArray();
 
-        $categories = $this->object->getMany('NewslettersHasCategories');
-        $categoriesArray = array();
-        if ($categories) {
-            foreach ($categories as $category) {
-                $categoryId = $category->get('category_id');
-                $categoryObj = $this->modx->getObject('vnewsCategories', $categoryId);
-                if ($categoryObj) {
-                    $categoriesArray[] = array(
-                        'category_id' => $categoryId,
-                        'category' => $categoryObj->get('name')
+        $usergroups = $this->object->getMany('CategoriesHasUsergroups');
+        $usergroupsArray = array();
+        $usergroupsGrid = array();
+        if ($usergroups) {
+            foreach ($usergroups as $usergroup) {
+                $usergroupId = $usergroup->get('usergroup_id');
+                $c = $this->modx->newQuery('modUserGroup');
+                $c->where(array(
+                    'id' => $usergroupId
+                ));
+
+                $modUserGroup = $this->modx->getObject('modUserGroup', $c);
+                if ($modUserGroup) {
+//                    $usergroupsArray[] = array(
+//                        'usergroup_id' => $usergroupId,
+//                        'usergroup' => $modUserGroup->get('name')
+//                    );
+                    $usergroupsArray[] = $usergroupId;
+                    $usergroupsObjects[$usergroupId] = $modUserGroup->get('name');
+                    $usergroupsGrid[] = array(
+                        $usergroupId,
+                        $modUserGroup->get('name')
                     );
                 }
             }
-        } else {
-            $categoriesArray[] = array(
-                'category_id' => 0,
-                'category' => 'uncategorized'
-            );
         }
-        $objectArray['categories'] = $categoriesArray;
+        $objectArray['usergroups'] = @implode(',', $usergroupsArray);
+        $objectArray['usergroups_grid'] = $usergroupsGrid;
+        $objectArray['usergroups_objects'] = $usergroupsObjects;
 
         return $this->success('', $objectArray);
     }
 
 }
 
-return 'NewslettersGetProcessor';
+return 'CategoriesGetProcessor';

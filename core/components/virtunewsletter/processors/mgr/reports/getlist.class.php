@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -46,10 +46,10 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
                 'newsletter_id:IN' => $ids,
             ));
         }
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
         $c->select(array(
             'vnewsReports.*',
-            $this->modx->getSelectColumns('vnewsSubscribers', 'vnewsSubscribers', null, array('id', 'is_active'), TRUE),
+            $this->modx->getSelectColumns('vnewsSubscribers', 'Subscribers', null, array('id', 'is_active'), TRUE),
         ));
 
         return $c;

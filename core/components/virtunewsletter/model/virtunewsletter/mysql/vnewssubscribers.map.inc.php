@@ -76,7 +76,7 @@ $xpdo_meta_map['vnewsSubscribers']= array (
   ),
   'composites' => 
   array (
-    'vnewsReports' => 
+    'Reports' => 
     array (
       'class' => 'vnewsReports',
       'local' => 'id',
@@ -84,7 +84,7 @@ $xpdo_meta_map['vnewsSubscribers']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
-    'vnewsSubscribersHasCategories' => 
+    'SubscribersHasCategories' => 
     array (
       'class' => 'vnewsSubscribersHasCategories',
       'local' => 'id',
@@ -95,7 +95,7 @@ $xpdo_meta_map['vnewsSubscribers']= array (
   ),
   'aggregates' => 
   array (
-    'vnewsUsers' => 
+    'Users' => 
     array (
       'class' => 'vnewsUsers',
       'local' => 'user_id',

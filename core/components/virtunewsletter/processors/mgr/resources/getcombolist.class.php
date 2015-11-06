@@ -20,30 +20,34 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
-
 /**
  * @package virtunewsletter
  * @subpackage processor
  */
-if (empty($scriptProperties['subscriberIds'])) {
-    return $this->failure($modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id'));
-}
+class ResourcesGetComboListProcessor extends modObjectGetListProcessor {
 
-if (empty($scriptProperties['categories'])) {
-    return $this->failure($modx->lexicon('virtunewsletter.newsletter_err_ns_categories'));
-}
+    public $classKey = 'modResource';
+    public $languageTopics = array('virtunewsletter:cmp');
+    public $objectType = 'virtunewsletter.ResourcesGetComboList';
+    public $defaultSortField = 'id';
+    public $defaultSortDirection = 'ASC';
 
-$subscriberIds = @explode(',', $scriptProperties['subscriberIds']);
-$categories = @explode(',', $scriptProperties['categories']);
-foreach ($subscriberIds as $subscriberId) {
-    $this->modx->removeCollection('vnewsSubscribersHasCategories', array(
-        'subscriber_id' => $subscriberId
-    ));
-    $subscriber = $modx->getObject('vnewsSubscribers', $subscriberId);
-    if ($subscriber) {
-        foreach ($categories as $category) {
-            $subscriber->setCategory($category);
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $query = $this->getProperty('query', false);
+        if (!empty($query)) {
+            $c->where(array(
+                'pagetitle:LIKE' => "%$query%"
+            ));
         }
+        return $c;
     }
+
 }
-return $this->success();
+
+return 'ResourcesGetComboListProcessor';

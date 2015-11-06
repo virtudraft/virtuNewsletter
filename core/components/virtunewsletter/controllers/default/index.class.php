@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -25,7 +25,37 @@
  * @package virtunewsletter
  * @subpackage controller
  */
-class VirtuNewsletterHomeManagerController extends VirtuNewsletterManagerController {
+require_once dirname(dirname(dirname(__FILE__))) . '/model/virtunewsletter.class.php';
+
+class VirtunewsletterIndexManagerController extends modExtraManagerController {
+
+    /** @var VirtuNewsletter $virtunewsletter */
+    public $virtunewsletter;
+
+    public function initialize() {
+        $this->virtunewsletter = new VirtuNewsletter($this->modx);
+        $version = str_replace(' ', '', $this->virtunewsletter->config['version']);
+        $isCssCompressed = $this->modx->getOption('compress_css');
+        $withVersion = $isCssCompressed? '' : '?v=' . $version;
+        $this->addCss($this->virtunewsletter->config['cssUrl'] . 'mgr.css' . $withVersion);
+        $isJsCompressed = $this->modx->getOption('compress_js');
+        $withVersion = $isJsCompressed? '' : '?v=' . $version;
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/virtunewsletter.js' . $withVersion);
+        $this->addHtml('<script type="text/javascript">
+        Ext.onReady(function() {
+            VirtuNewsletter.config = ' . $this->modx->toJSON($this->virtunewsletter->config) . ';
+        });
+        </script>');
+        return parent::initialize();
+    }
+
+    public function getLanguageTopics() {
+        return array('virtunewsletter:cmp');
+    }
+
+    public function checkPermissions() {
+        return true;
+    }
 
     public function process(array $scriptProperties = array()) {
 
@@ -37,29 +67,28 @@ class VirtuNewsletterHomeManagerController extends VirtuNewsletterManagerControl
 
     public function loadCustomCssJs() {
         $version = str_replace(' ', '', $this->virtunewsletter->config['version']);
-        $isJsCompressed = $this->modx->getOption('compress_js' . $withVersion);
+        $isJsCompressed = $this->modx->getOption('compress_js');
         $withVersion = $isJsCompressed? '' : '?v=' . $version;
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.resources.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.templates.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/CheckColumn.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/fileuploadfield/FileUploadField.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.importcsv.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.updatecategory.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.subscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.recurrences.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.newsletter.test.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.recurrence.range.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.categories.local.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.categories.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.usergroups.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.usergroups.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.usergroups.local.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newsletterconfiguration.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.reports.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.category.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.category.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newslettercontent.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.categories.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/tree.newsletters.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.newsletter.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.subscribers.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.newsletters.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newsletters.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardsubscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardnewsletters.js' . $withVersion);
@@ -69,7 +98,7 @@ class VirtuNewsletterHomeManagerController extends VirtuNewsletterManagerControl
     }
 
     public function getTemplateFile() {
-        return $this->virtunewsletter->config['templatesPath'] . 'home.tpl';
+        return $this->virtunewsletter->config['templatesPath'] . 'index.tpl';
     }
 
 }

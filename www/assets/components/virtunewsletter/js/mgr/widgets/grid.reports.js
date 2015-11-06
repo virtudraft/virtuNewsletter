@@ -5,7 +5,7 @@ VirtuNewsletter.grid.Reports = function(config) {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/reports/getList',
-            newsletter_id: config.record.newsid
+            newsletter_id: config.record.id
         },
         fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_logged_on'],
         paging: true,
@@ -90,7 +90,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/createall',
-                newsletter_id: this.record.newsid
+                newsletter_id: this.record.id
             },
             listeners: {
                 'success': {
@@ -107,7 +107,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/removeall',
-                newsletter_id: this.record.newsid
+                newsletter_id: this.record.id
             },
             listeners: {
                 'success': {
@@ -136,7 +136,6 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
         });
     },
     reQueue: function(btn, e) {
-        var _this = this;
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
             params: {
@@ -148,8 +147,9 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             listeners: {
                 'success': {
                     fn: function() {
-                        _this.refresh();
-                    }
+                        this.refresh();
+                    },
+                    scope:this
                 }
             }
         });
@@ -161,7 +161,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             url: VirtuNewsletter.config.connectorUrl,
             params: {
                 action: 'mgr/reports/sendall',
-                newsletter_id: this.record.newsid
+                newsletter_id: this.record.id
             },
             listeners: {
                 'success': {
@@ -173,8 +173,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             }
         });
     },
-    send: function() {
-        var _this = this;
+    send: function () {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
             params: {
@@ -184,9 +183,10 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function() {
-                        _this.refresh();
-                    }
+                    fn: function () {
+                        this.refresh();
+                    },
+                    scope: this
                 }
             }
         });

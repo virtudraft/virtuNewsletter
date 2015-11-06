@@ -1,3 +1,9 @@
+virtuNewsletter 2.0.0-beta1 (November 6, 2015)
+=================================================
+- refactor Newsletter page's layout on CMP
+- rename schema's aliases
+
+
 virtuNewsletter 1.6.0-beta3
 =================================================
 - add menu to re-queue and send newsletter on Reports tab

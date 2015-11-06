@@ -1,12 +1,12 @@
 <?php
 class vnewsSubscribers extends xPDOSimpleObject {
-    
+
     public function getCategories() {
         $output = array();
-        $many = $this->getMany('vnewsSubscribersHasCategories');
+        $many = $this->getMany('SubscribersHasCategories');
         if ($many) {
             foreach ($many as $item) {
-                $cat = $item->getOne('vnewsCategories');
+                $cat = $item->getOne('Categories');
                 if ($cat) {
                     $output[] = $cat->toArray();
                 }
@@ -15,13 +15,13 @@ class vnewsSubscribers extends xPDOSimpleObject {
         }
         return $output;
     }
-    
+
     public function getCategoryNames() {
         $output = array();
-        $many = $this->getMany('vnewsSubscribersHasCategories');
+        $many = $this->getMany('SubscribersHasCategories');
         if ($many) {
             foreach ($many as $item) {
-                $cat = $item->getOne('vnewsCategories');
+                $cat = $item->getOne('Categories');
                 if ($cat) {
                     $output[] = $cat->get('name');
                 }
@@ -30,7 +30,7 @@ class vnewsSubscribers extends xPDOSimpleObject {
         }
         return $output;
     }
-    
+
     public function getUserGroups() {
         $output = array();
         $userId = $this->get('user_id');
@@ -40,7 +40,7 @@ class vnewsSubscribers extends xPDOSimpleObject {
         }
         return $output;
     }
-    
+
     public function getUserGroupNames() {
         $output = array();
         $userId = $this->get('user_id');
@@ -50,10 +50,10 @@ class vnewsSubscribers extends xPDOSimpleObject {
         }
         return $output;
     }
-    
+
     public function getReports() {
         $output = array();
-        $many = $this->getMany('vnewsReports');
+        $many = $this->getMany('Reports');
         if ($many) {
             foreach ($many as $item) {
                 $output[] = $item->toArray();
@@ -62,17 +62,17 @@ class vnewsSubscribers extends xPDOSimpleObject {
         }
         return $output;
     }
-    
+
     public function getNewsletters() {
         $output = array();
 
         $c = $this->xpdo->newQuery('vnewsNewsletters');
-        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
-        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsNewslettersHasCategories.category_id');
-        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.category_id = vnewsCategories.id');
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsSubscribersHasCategories.subscriber_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
+        $c->leftJoin('vnewsCategories', 'Categories', 'Categories.id = NewslettersHasCategories.category_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = Categories.id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = SubscribersHasCategories.subscriber_id');
         $c->where(array(
-            'vnewsSubscribers.id' => $this->get('id')
+            'Subscribers.id' => $this->get('id')
         ));
 
         $newsletters = $this->xpdo->getCollection('vnewsNewsletters', $c);
@@ -84,7 +84,7 @@ class vnewsSubscribers extends xPDOSimpleObject {
 
         return $output;
     }
-    
+
     public function setCategory($categoryId) {
         $params = array(
             'subscriber_id' => $this->get('id'),
@@ -93,10 +93,10 @@ class vnewsSubscribers extends xPDOSimpleObject {
         $subHasCat = $this->xpdo->getObject('vnewsSubscribersHasCategories', $params);
         if (!$subHasCat) {
             $subHasCat = $this->xpdo->newObject('vnewsSubscribersHasCategories');
-            $subHasCat->fromArray($params, NULL, TRUE, TRUE);
+            $subHasCat->fromArray($params);
             return $subHasCat->save();
         }
-        
-        return TRUE;
+
+        return true;
     }
 }

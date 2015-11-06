@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -126,7 +126,7 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
                         'subscriber_id' => $subscriber->getPrimaryKey(),
                         'category_id' => $props['category_id']
                     );
-                    $subCat->fromArray($params, null, true, true);
+                    $subCat->fromArray($params);
                     if ($subCat->save() === false) {
                         $this->modx->setDebug();
                         $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to save vnewsSubscribersHasCategories: ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);

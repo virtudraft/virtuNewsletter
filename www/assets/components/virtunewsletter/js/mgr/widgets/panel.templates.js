@@ -7,10 +7,10 @@ VirtuNewsletter.panel.Templates = function(config) {
         defaults: {
             border: false
         },
-        bodyStyle: 'overflow-y: scroll;',
         items: [
             {
-                html: '<p>' + _('virtunewsletter.templates_desc') + '</p>',
+                html: '<h2>' + _('virtunewsletter.templates') + '</h2>'
+                    + '<p>' + _('virtunewsletter.templates_desc') + '</p>',
                 border: false,
                 bodyCssClass: 'panel-desc'
             }, {
@@ -195,16 +195,7 @@ VirtuNewsletter.panel.Templates = function(config) {
                     }
                 ]
             }
-        ],
-        listeners: {
-            beforerender: {
-                fn: function(panel) {
-                    var homeCenter = Ext.getCmp('virtunewsletter-panel-home-center');
-                    panel.height = homeCenter.lastSize.height;
-                },
-                scope: this
-            }
-        }
+        ]
     });
     VirtuNewsletter.panel.Templates.superclass.constructor.call(this, config);
 };

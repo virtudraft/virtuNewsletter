@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -25,8 +25,8 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.6.0';
-    const RELEASE = 'beta3';
+    const VERSION = '2.0.0';
+    const RELEASE = 'beta1';
 
     /**
      * modX object
@@ -260,7 +260,7 @@ class VirtuNewsletter {
      */
     public function parseTpl($tpl, array $phs = array()) {
         $output = '';
-        
+
         if (isset($this->_chunks[$tpl]) && !empty($this->_chunks[$tpl])) {
             return $this->parseTplCode($this->_chunks[$tpl], $phs);
         }
@@ -540,7 +540,7 @@ class VirtuNewsletter {
                 'status' => 'queue',
                 'status_logged_on' => $time,
             );
-            $report->fromArray($params, NULL, TRUE, TRUE);
+            $report->fromArray($params);
             if ($report->save() === FALSE) {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -564,12 +564,12 @@ class VirtuNewsletter {
         $newslettersArray = array();
 
         $c = $this->modx->newQuery('vnewsNewsletters');
-        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
-        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsNewslettersHasCategories.category_id');
-        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.category_id = vnewsCategories.id');
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsSubscribersHasCategories.subscriber_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
+        $c->leftJoin('vnewsCategories', 'Categories', 'Categories.id = NewslettersHasCategories.category_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = Categories.id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = SubscribersHasCategories.subscriber_id');
         $c->where(array(
-            'vnewsSubscribers.id' => $subscriberId
+            'Subscribers.id' => $subscriberId
         ));
 
         $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
@@ -607,7 +607,7 @@ class VirtuNewsletter {
                 'status_logged_on' => time(),
             );
             $newReport = $this->modx->newObject('vnewsReports');
-            $newReport->fromArray($params, NULL, TRUE, TRUE);
+            $newReport->fromArray($params);
             $newReport->save();
         }
         return TRUE;
@@ -710,7 +710,7 @@ class VirtuNewsletter {
                     'status' => 'queue',
                     'status_logged_on' => $time,
                 );
-                $report->fromArray($params, NULL, TRUE);
+                $report->fromArray($params);
                 if ($report->save() === FALSE) {
                     $this->modx->setDebug();
                     $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -735,13 +735,13 @@ class VirtuNewsletter {
         $subscribersArray = array();
 
         $c = $this->modx->newQuery('vnewsSubscribers');
-        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.subscriber_id = vnewsSubscribers.id');
-        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsSubscribersHasCategories.category_id');
-        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.category_id = vnewsCategories.id');
-        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsNewslettersHasCategories.newsletter_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.subscriber_id = vnewsSubscribers.id');
+        $c->leftJoin('vnewsCategories', 'Categories', 'Categories.id = SubscribersHasCategories.category_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.category_id = Categories.id');
+        $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = NewslettersHasCategories.newsletter_id');
         $c->where(array(
             'vnewsSubscribers.is_active' => 1,
-            'vnewsNewsletters.id' => $newsId
+            'Newsletters.id' => $newsId
         ));
 
         $subscribers = $this->modx->getCollection('vnewsSubscribers', $c);
@@ -761,17 +761,17 @@ class VirtuNewsletter {
      */
     public function processQueue($todayOnly = FALSE, $limit = 0) {
         $c = $this->modx->newQuery('vnewsReports');
-        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
+        $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
         $c->select(array(
             'vnewsReports.*',
-            'vnewsNewsletters.subject',
-            'vnewsNewsletters.created_on',
-            'vnewsNewsletters.scheduled_for',
-            'vnewsNewsletters.is_recurring',
+            'Newsletters.subject',
+            'Newsletters.created_on',
+            'Newsletters.scheduled_for',
+            'Newsletters.is_recurring',
         ));
         $c->where(array(
             'vnewsReports.status' => 'queue',
-            'vnewsNewsletters.is_active' => 1,
+            'Newsletters.is_active' => 1,
         ));
 //        $todayOnly = TRUE;
         if ($todayOnly) {
@@ -806,9 +806,9 @@ class VirtuNewsletter {
                         foreach ($output as $item) {
                             if (isset($item['email']) && isset($item['status'])) {
                                 $c = $this->modx->newQuery('vnewsReports');
-                                $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+                                $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
                                 $c->where(array(
-                                    'vnewsSubscribers.email' => $item['email']
+                                    'Subscribers.email' => $item['email']
                                 ));
                                 $itemQueue = $this->modx->getObject('vnewsReports', $c);
                                 if ($itemQueue) {
@@ -887,9 +887,9 @@ class VirtuNewsletter {
         $newSubscriber = $this->modx->newObject('vnewsSubscribers');
 
         $c = $this->modx->newQuery('vnewsUsers');
-        $c->leftJoin('modUserProfile', 'modUserProfile', 'vnewsUsers.id = modUserProfile.internalKey');
+        $c->leftJoin('modUserProfile', 'Profile', 'vnewsUsers.id = Profile.internalKey');
         $c->where(array(
-            'modUserProfile.email' => $email
+            'Profile.email' => $email
         ));
         $user = $this->modx->getObject('vnewsUsers', $c);
         $name = '';
@@ -968,7 +968,7 @@ class VirtuNewsletter {
             'subscriber_id' => $subscriber->getPrimaryKey(),
             'category_id' => $categoryObj->get('id')
         );
-        $subscribersHasCategories->fromArray($addManyParams, '', TRUE, TRUE);
+        $subscribersHasCategories->fromArray($addManyParams);
         $addMany = array($subscribersHasCategories);
         $subscriber->addMany($addMany);
         if ($subscriber->save() === FALSE) {
@@ -1515,7 +1515,7 @@ class VirtuNewsletter {
                 $this->modx->setDebug(FALSE);
                 return FALSE;
             }
-            $categories = $parentNewsletter->getMany('vnewsNewslettersHasCategories');
+            $categories = $parentNewsletter->getMany('NewslettersHasCategories');
             $recurringNewsletterCategories = array();
             foreach ($categories as $category) {
                 $addCategory = $this->modx->newObject('vnewsNewslettersHasCategories');
@@ -1523,7 +1523,7 @@ class VirtuNewsletter {
                     'newsletter_id' => $recurringNewsletter->getPrimaryKey(),
                     'category_id' => $category->get('category_id')
                 );
-                $addCategory->fromArray($catParams, NULL, TRUE, TRUE);
+                $addCategory->fromArray($catParams);
                 $recurringNewsletterCategories[] = $addCategory;
             }
             $recurringNewsletter->addMany($recurringNewsletterCategories);

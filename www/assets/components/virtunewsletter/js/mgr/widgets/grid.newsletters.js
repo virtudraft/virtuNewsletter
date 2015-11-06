@@ -1,18 +1,19 @@
-VirtuNewsletter.grid.Categories = function(config) {
+VirtuNewsletter.grid.Newsletters = function(config) {
     config = config || {};
 
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
-            action: 'mgr/categories/getList',
+            action: 'mgr/newsletters/getList',
+            parentId: config.record && config.record.id ? config.record.id : 0
         },
         autoHeight: true,
-        fields: ['id', 'name', 'categories'],
+        fields: ['id', 'subject'],
         paging: true,
         remoteSort: true,
         preventRender: true,
         margins: 15,
-        autoExpandColumn: 'name',
+        autoExpandColumn: 'subject',
         columns: [
             {
                 header: _('id'),
@@ -21,8 +22,8 @@ VirtuNewsletter.grid.Categories = function(config) {
                 sortable: true,
                 hidden: true
             }, {
-                header: _('virtunewsletter.name'),
-                dataIndex: 'name',
+                header: _('virtunewsletter.subject'),
+                dataIndex: 'subject',
                 sortable: true
             }, {
                 header: _('actions'),
@@ -38,7 +39,7 @@ VirtuNewsletter.grid.Categories = function(config) {
                         altText: _('virtunewsletter.remove'),
                         handler: function(grid, row, col) {
                             var rec = this.store.getAt(row);
-                            this.removeCategory(rec.data.id);
+                            this.removeNewsletter(rec.data.id);
                         },
                         scope: this
                     }, {
@@ -47,7 +48,7 @@ VirtuNewsletter.grid.Categories = function(config) {
                         altText: _('virtunewsletter.detail'),
                         handler: function(grid, row, col) {
                             var rec = this.store.getAt(row);
-                            this.loadCategory(rec.data.id);
+                            this.loadNewsletter(rec.data.id);
                         },
                         scope: this
                     }
@@ -56,38 +57,41 @@ VirtuNewsletter.grid.Categories = function(config) {
         ],
         tbar: [
             {
-                text: _('virtunewsletter.add_new_category'),
+                text: _('virtunewsletter.add_new_schedule'),
                 handler:  function() {
-                    this.categoryPanel();
+                    this.newsletterPanel();
                 },
                 scope: this
             }
         ]
     });
 
-    VirtuNewsletter.grid.Categories.superclass.constructor.call(this, config);
+    VirtuNewsletter.grid.Newsletters.superclass.constructor.call(this, config);
+
+    this.getStore().on('load', function() {
+        Ext.getCmp('virtunewsletter-newsletters-tabs').doLayout();
+    }, this);
 };
-Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
+Ext.extend(VirtuNewsletter.grid.Newsletters, MODx.grid.Grid, {
     getMenu: function(node, e) {
         var menu = [
             {
                 text: _('virtunewsletter.remove'),
                 handler: function(btn, e) {
-                        this.removeCategory(this.menu.record.id);
+                        this.removeNewsletter(this.menu.record.id);
                 }
             }
         ];
 
         return menu;
     },
-    removeCategory: function(id) {
-
+    removeNewsletter: function(id) {
         MODx.msg.confirm({
             title: _('virtunewsletter.remove'),
             text: _('virtunewsletter.remove_confirm'),
             url: VirtuNewsletter.config.connectorUrl,
             params: {
-                action: 'mgr/categories/remove',
+                action: 'mgr/newsletters/remove',
                 id: id
             },
             listeners: {
@@ -98,7 +102,7 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
             }
         });
     },
-    loadCategory: function(id) {
+    loadNewsletter: function(id) {
         if (!this.pageMask) {
             this.pageMask = new Ext.LoadMask(Ext.getBody(), {
                 msg: _('virtunewsletter.please_wait')
@@ -109,14 +113,14 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
             params: {
-                action: 'mgr/categories/get',
+                action: 'mgr/newsletters/get',
                 id: id
             },
             listeners: {
                 'success': {
                     fn: function(res) {
                         if (res.success === true) {
-                            this.categoryPanel(res.object);
+                            this.newsletterPanel(res.object);
                         }
                         return this.pageMask.hide();
                     },
@@ -131,35 +135,24 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
             }
         });
     },
-    categoryPanel: function(record) {
+    newsletterPanel: function(record) {
         record = record|| {};
-        var tabs = Ext.getCmp('virtunewsletter-categories-tabs');
+        var tabs = Ext.getCmp('virtunewsletter-newsletters-tabs');
         if (typeof(tabs) === 'undefined') {
             return false;
         }
-        var action = 'create';
-        var id = 0;
-        if (typeof(record['id']) !== 'undefined') {
-            id = record['id'];
-            action = 'update';
-        }
         var newTab = MODx.load({
-            title: record.id ? _('virtunewsletter.category_update') : _('virtunewsletter.category_create'),
+            title: record.id ? _('virtunewsletter.schedule_update') : _('virtunewsletter.schedule_create'),
             closable: true,
-            xtype: 'virtunewsletter-panel-category',
-            baseParams: {
-                action: 'mgr/categories/' + action,
-                id: id
-            },
+            xtype: 'virtunewsletter-panel-newsletter-content',
             record: record
         });
-        newTab.getForm().setValues(record);
         newTab.on('success', function(o) {
             if (o.result.success === true) {
                 this.refresh();
                 if (typeof(record.id) === 'undefined') {
                     newTab.destroy();
-                    this.loadCategory(o.result.object.id);
+                    this.newsletterPanel(o.result.object);
                 }
             }
         }, this);
@@ -167,4 +160,4 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
         tabs.setActiveTab(newTab);
     }
 });
-Ext.reg('virtunewsletter-grid-categories', VirtuNewsletter.grid.Categories);
+Ext.reg('virtunewsletter-grid-newsletters', VirtuNewsletter.grid.Newsletters);

@@ -1,13 +1,13 @@
 <?php
 
 $c = $modx->newQuery('vnewsReports');
-$c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
-$c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+$c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
+$c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
 $c->select(array(
     'vnewsReports.*',
-    'vnewsNewsletters.subject',
-    'vnewsSubscribers.email',
-    'vnewsSubscribers.name',
+    'Newsletters.subject',
+    'Subscribers.email',
+    'Subscribers.name',
 ));
 
 date_default_timezone_set('UTC');
@@ -61,9 +61,9 @@ if ($queues) {
             foreach ($output as $item) {
                 if (isset($item['email']) && isset($item['status'])) {
                     $c = $modx->newQuery('vnewsReports');
-                    $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+                    $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
                     $c->where(array(
-                        'vnewsSubscribers.email' => $item['email']
+                        'Subscribers.email' => $item['email']
                     ));
                     $itemQueue = $modx->getObject('vnewsReports', $c);
                     if ($itemQueue) {

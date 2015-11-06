@@ -155,7 +155,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
-    'vnewsNewslettersHasCategories' => 
+    'NewslettersHasCategories' => 
     array (
       'class' => 'vnewsNewslettersHasCategories',
       'local' => 'id',
@@ -163,7 +163,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
-    'vnewsReports' => 
+    'Reports' => 
     array (
       'class' => 'vnewsReports',
       'local' => 'id',

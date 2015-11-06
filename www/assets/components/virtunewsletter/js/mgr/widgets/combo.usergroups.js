@@ -11,7 +11,9 @@ VirtuNewsletter.combo.Usergroups = function(config) {
         hiddenName: 'usergroup_id',
         displayField: 'name',
         valueField: 'id',
-        lazyRender: true
+        lazyRender: true,
+        editable: true,
+        typeAhead: true
     });
     VirtuNewsletter.combo.Usergroups.superclass.constructor.call(this, config);
 };

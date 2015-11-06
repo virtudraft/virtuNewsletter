@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -40,6 +41,7 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
             $this->addFieldError('name', $this->modx->lexicon('virtunewsletter.category_err_ns_name'));
             return FALSE;
         }
+
         return parent::initialize();
     }
 
@@ -49,24 +51,52 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
      */
     public function afterSave() {
         $catId = $this->getProperty('id');
-        $this->modx->removeCollection('vnewsCategoriesHasUsergroups', array(
-            'category_id' => $catId
-        ));
 
         $usergroups = $this->getProperty('usergroups');
         $usergroups = @explode(',', $usergroups);
-        if ($usergroups) {
+        if (!empty($usergroups)) {
+            // remove diff first
+            $diffs = $this->modx->getCollection('vnewsCategoriesHasUsergroups', array(
+                'category_id:=' => $catId,
+                'usergroup_id:NOT IN' => $usergroups,
+            ));
+            if ($diffs) {
+                foreach ($diffs as $diff) {
+                    $diff->remove();
+                }
+            }
+
             $addUsergroups = array();
             foreach ($usergroups as $usergroup) {
-                $catHasUg = $this->modx->newObject('vnewsCategoriesHasUsergroups');
-                $catHasUg->fromArray(array(
+                if (empty($usergroup)) {
+                    continue;
+                }
+                $catHasUg = $this->modx->getObject('vnewsCategoriesHasUsergroups', array(
                     'category_id' => $catId,
                     'usergroup_id' => $usergroup,
-                        ), NULL, TRUE, TRUE);
-                $addUsergroups[] = $catHasUg;
+                ));
+                if (!$catHasUg) {
+                    $catHasUg = $this->modx->newObject('vnewsCategoriesHasUsergroups');
+                    $catHasUg->fromArray(array(
+                        'category_id' => $catId,
+                        'usergroup_id' => $usergroup,
+                            ));
+                    $addUsergroups[] = $catHasUg;
+                }
             }
-            $this->object->addMany($addUsergroups);
-            $this->object->save();
+            if (!empty($addUsergroups)) {
+                $this->object->addMany($addUsergroups);
+                $this->object->save();
+            }
+        } else {
+            $olds = $this->modx->getCollection('vnewsCategoriesHasUsergroups', array(
+                'category_id' => $catId,
+            ));
+            if ($olds) {
+                foreach ($olds as $old) {
+                    $old->remove();
+                }
+            }
         }
 
         return true;

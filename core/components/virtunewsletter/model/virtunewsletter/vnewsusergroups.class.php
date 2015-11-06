@@ -6,5 +6,5 @@ class vnewsUsergroups extends modUserGroup {
         parent::__construct($xpdo);
         $this->set('class_key', 'vnewsUsergroups');
     }
-    
+
 }

@@ -5,7 +5,7 @@ VirtuNewsletter.grid.Recurrences = function(config) {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/newsletters/getList',
-            parentId: config.record.newsid
+            parentId: config.record.id || 0
         },
         fields: ['id', 'parent_id', 'resource_id', 'subject', 'content', 'created_on', 'created_by', 'scheduled_for',
             'is_recurring', 'recurrence_range', 'recurrence_number', 'is_active'],

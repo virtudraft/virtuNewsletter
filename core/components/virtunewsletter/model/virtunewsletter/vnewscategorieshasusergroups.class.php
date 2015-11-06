@@ -1,2 +1,2 @@
 <?php
-class vnewsCategoriesHasUsergroups extends xPDOObject {}
+class vnewsCategoriesHasUsergroups extends xPDOSimpleObject {}

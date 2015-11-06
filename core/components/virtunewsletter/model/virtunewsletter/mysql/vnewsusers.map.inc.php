@@ -11,7 +11,7 @@ $xpdo_meta_map['vnewsUsers']= array (
   ),
   'composites' => 
   array (
-    'vnewsSubscribers' => 
+    'Subscribers' => 
     array (
       'class' => 'vnewsSubscribers',
       'local' => 'id',

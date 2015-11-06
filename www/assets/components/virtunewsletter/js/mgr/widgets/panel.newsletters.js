@@ -1,45 +1,54 @@
-VirtuNewsletter.panel.Newsletters = function(config) {
+VirtuNewsletter.panel.Newsletters = function (config) {
     config = config || {};
 
     Ext.applyIf(config, {
         id: 'virtunewsletter-panel-newsletters',
         border: false,
-        baseCls: 'modx-formpanel',
-        layout: 'border',
-        bodyStyle: 'min-height: 300px;',
+        autoHeight: true,
         defaults: {
             border: false
         },
         items: [
             {
-                id: 'virtunewsletter-panel-newsletters-center',
-                region: 'center',
-                bodyStyle: 'overflow-y: auto; background-color: transparent;'
+                html: '<h2>' + _('virtunewsletter.newsletters') + '</h2>',
+                border: false,
+                bodyCssClass: 'panel-desc'
             }, {
-                region: 'west',
-                bodyStyle: 'padding: 5px; overflow-y: auto; background-color: transparent;',
-                collapsible: 'mini',
-                split: true,
-                margins: '0 0 0 0',
-                cmargins: '0 0 0 5',
-                width: 300,
+                xtype: 'modx-tabs',
+                bodyStyle: 'min-height: 500px;',
+                autoHeight: true,
+                defaults: {
+                    xtype: 'modx-tabs',
+                    enableTabScroll: true,
+                    defaults: {
+                        autoScroll: true
+                    },
+                    padding: 10,
+                    autoHeight: true
+                },
                 items: [
                     {
-                        xtype: 'virtunewsletter-tree-newsletters',
-                        bodyStyle: 'background-color: transparent;'
+                        title: _('virtunewsletter.newsletters'),
+                        id: 'virtunewsletter-newsletters-tabs',
+                        items: [
+                            {
+                                title: _('virtunewsletter.list'),
+                                xtype: 'virtunewsletter-grid-newsletters'
+                            }
+                        ]
+                    }, {
+                        title: 'Categories',
+                        id: 'virtunewsletter-categories-tabs',
+                        items: [
+                            {
+                                title: _('virtunewsletter.list'),
+                                xtype: 'virtunewsletter-grid-categories'
+                            }
+                        ]
                     }
                 ]
             }
-        ],
-        listeners: {
-            beforerender: {
-                fn: function(panel) {
-                    var homeCenter = Ext.getCmp('virtunewsletter-panel-home-center');
-                    panel.height = homeCenter.lastSize.height;
-                },
-                scope: this
-            }
-        }
+        ]
     });
     VirtuNewsletter.panel.Newsletters.superclass.constructor.call(this, config);
 };

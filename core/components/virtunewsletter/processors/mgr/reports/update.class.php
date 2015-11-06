@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -61,7 +61,7 @@ class ReportUpdateProcessor extends modObjectUpdateProcessor {
             return $this->failure($canSave);
         }
 
-        $this->object->fromArray($this->getProperties(), '', true, false, false);
+        $this->object->fromArray($this->getProperties(), '');
 
         /* Run the beforeSave method and allow stoppage */
         $canSave = $this->beforeSave();

@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -111,9 +111,9 @@ if ($usersArray) {
          * because vnewsCategoriesHasUsergroups
          */
         $c = $this->modx->newQuery('vnewsCategories');
-        $c->leftJoin('vnewsCategoriesHasUsergroups', 'vnewsCategoriesHasUsergroups', 'vnewsCategories.id = vnewsCategoriesHasUsergroups.category_id');
+        $c->leftJoin('vnewsCategoriesHasUsergroups', 'CategoriesHasUsergroups', 'vnewsCategories.id = CategoriesHasUsergroups.category_id');
         $c->where(array(
-            'vnewsCategoriesHasUsergroups.usergroup_id:IN' => $user['usergroups']
+            'CategoriesHasUsergroups.usergroup_id:IN' => $user['usergroups']
         ));
 
         $categories = $this->modx->getCollection('vnewsCategories', $c);
@@ -132,7 +132,7 @@ if ($usersArray) {
                     'subscriber_id' => $subscriberId,
                     'category_id' => $categoryId
                 );
-                $subsHasCats->fromArray($params, NULL, TRUE, TRUE);
+                $subsHasCats->fromArray($params);
                 $subsHasCats->save();
                 if ($subsHasCats->save() === FALSE) {
                     $this->modx->setDebug();

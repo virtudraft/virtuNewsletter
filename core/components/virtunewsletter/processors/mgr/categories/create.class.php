@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -58,7 +59,7 @@ class CategoriesCreateProcessor extends modObjectCreateProcessor {
                 $catHasUg->fromArray(array(
                     'category_id' => $catId,
                     'usergroup_id' => $usergroup,
-                        ));
+                ));
                 $addUsergroups[] = $catHasUg;
             }
             $this->object->addMany($addUsergroups);

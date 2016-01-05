@@ -74,6 +74,7 @@ class VirtunewsletterIndexManagerController extends modExtraManagerController {
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/CheckColumn.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/fileuploadfield/FileUploadField.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.importcsv.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.updatecategory.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.subscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.recurrences.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.newsletter.test.js' . $withVersion);

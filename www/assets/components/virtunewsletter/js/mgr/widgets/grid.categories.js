@@ -1,10 +1,17 @@
 VirtuNewsletter.grid.Categories = function(config) {
     config = config || {};
 
+    var ids = [];
+    if (config.record && config.record.categories) {
+        Ext.each(config.record.categories, function(item) {
+            ids.push(item.category_id);
+        });
+    }
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/categories/getList',
+            ids: JSON.stringify(ids)
         },
         autoHeight: true,
         fields: ['id', 'name', 'categories'],

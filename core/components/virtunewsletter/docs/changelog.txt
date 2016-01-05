@@ -2,7 +2,7 @@ virtuNewsletter 2.0.0-beta1 (November 6, 2015)
 =================================================
 - refactor Newsletter page's layout on CMP
 - rename schema's aliases
-
+- class based processors
 
 virtuNewsletter 1.6.0-beta3
 =================================================

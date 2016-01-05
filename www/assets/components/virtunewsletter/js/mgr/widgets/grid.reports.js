@@ -7,7 +7,7 @@ VirtuNewsletter.grid.Reports = function(config) {
             action: 'mgr/reports/getList',
             newsletter_id: config.record.id
         },
-        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_logged_on'],
+        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_text', 'status_logged_on'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -32,7 +32,7 @@ VirtuNewsletter.grid.Reports = function(config) {
                 sortable: true
             }, {
                 header: _('virtunewsletter.status'),
-                dataIndex: 'status',
+                dataIndex: 'status_text',
                 sortable: true,
                 width: 80,
                 fixed: true
@@ -68,11 +68,7 @@ VirtuNewsletter.grid.Reports = function(config) {
 };
 Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
     getMenu: function() {
-        var menu = [
-            {
-                text: _('virtunewsletter.requeue'),
-                handler: this.reQueue
-            }, {
+        var menu = [{
                 text: _('virtunewsletter.send'),
                 handler: this.send
             }, {
@@ -80,6 +76,13 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
                 handler: this.removeQueue
             }
         ];
+
+        if (this.menu.record.status !== 'queue') {
+            menu.push({
+                text: _('virtunewsletter.requeue'),
+                handler: this.reQueue
+            });
+        }
 
         return menu;
     },
@@ -155,6 +158,12 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
         });
     },
     sendAll: function() {
+        if (!this.pageMask) {
+            this.pageMask = new Ext.LoadMask(Ext.getBody(), {
+                msg: _('virtunewsletter.please_wait')
+            });
+        }
+        this.pageMask.show();
         MODx.msg.confirm({
             title: _('virtunewsletter.send_now'),
             text: _('virtunewsletter.send_now_confirm'),
@@ -167,6 +176,13 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
                 'success': {
                     fn: function(){
                         this.refresh();
+                        this.pageMask.hide();
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function() {
+                        return this.pageMask.hide();
                     },
                     scope: this
                 }

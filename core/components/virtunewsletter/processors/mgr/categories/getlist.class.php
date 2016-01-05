@@ -32,6 +32,26 @@ class CategoriesGetListProcessor extends modObjectGetListProcessor {
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'asc';
 
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $props = $this->getProperties();
+        if (isset($props['ids'])) {
+            $ids = json_decode($props['ids']);
+            if (!empty($ids)) {
+                $c->where(array(
+                    'id:IN' => $ids
+                ));
+            }
+        }
+
+        return $c;
+    }
+
 }
 
 return 'CategoriesGetListProcessor';

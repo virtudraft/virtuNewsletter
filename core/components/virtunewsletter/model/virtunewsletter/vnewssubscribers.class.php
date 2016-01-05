@@ -1,4 +1,5 @@
 <?php
+
 class vnewsSubscribers extends xPDOSimpleObject {
 
     public function getCategories() {
@@ -88,15 +89,17 @@ class vnewsSubscribers extends xPDOSimpleObject {
     public function setCategory($categoryId) {
         $params = array(
             'subscriber_id' => $this->get('id'),
-            'category_id' => $categoryId
+            'category_id' => $categoryId,
         );
         $subHasCat = $this->xpdo->getObject('vnewsSubscribersHasCategories', $params);
         if (!$subHasCat) {
             $subHasCat = $this->xpdo->newObject('vnewsSubscribersHasCategories');
+            $params['subscribed_on'] = time();
             $subHasCat->fromArray($params);
             return $subHasCat->save();
         }
 
         return true;
     }
+
 }

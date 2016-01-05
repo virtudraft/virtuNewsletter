@@ -887,7 +887,7 @@ class VirtuNewsletter {
         $newSubscriber = $this->modx->newObject('vnewsSubscribers');
 
         $c = $this->modx->newQuery('vnewsUsers');
-        $c->leftJoin('modUserProfile', 'Profile', 'vnewsUsers.id = Profile.internalKey');
+        $c->leftJoin('modUserProfile', 'Profile', 'Profile.internalKey = vnewsUsers.id');
         $c->where(array(
             'Profile.email' => $email
         ));

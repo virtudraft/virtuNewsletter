@@ -1,4 +1,5 @@
 <?php
+
 class vnewsNewsletters extends xPDOSimpleObject {
 
     public function getSubscribers($includeInactive = FALSE) {

@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -75,7 +76,7 @@ class ReportUpdateProcessor extends modObjectUpdateProcessor {
             $validator = $this->object->getValidator();
             if ($validator->hasMessages()) {
                 foreach ($validator->getMessages() as $message) {
-                    $this->addFieldError($message['field'],$this->modx->lexicon($message['message']));
+                    $this->addFieldError($message['field'], $this->modx->lexicon($message['message']));
                 }
             }
         }
@@ -87,7 +88,7 @@ class ReportUpdateProcessor extends modObjectUpdateProcessor {
         }
 
         if ($this->saveObject() == false) {
-            return $this->failure($this->modx->lexicon($this->objectType.'_err_save'));
+            return $this->failure($this->modx->lexicon($this->objectType . '_err_save'));
         }
         $this->afterSave();
         $this->fireAfterSaveEvent();

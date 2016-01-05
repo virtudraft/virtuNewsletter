@@ -3,10 +3,9 @@ $xpdo_meta_map['vnewsReports']= array (
   'package' => 'virtunewsletter',
   'version' => '1.1',
   'table' => 'reports',
-  'extends' => 'xPDOObject',
+  'extends' => 'xPDOSimpleObject',
   'fields' => 
   array (
-    'id' => NULL,
     'newsletter_id' => NULL,
     'subscriber_id' => NULL,
     'status' => NULL,
@@ -14,15 +13,6 @@ $xpdo_meta_map['vnewsReports']= array (
   ),
   'fieldMeta' => 
   array (
-    'id' => 
-    array (
-      'dbtype' => 'int',
-      'precision' => '10',
-      'attributes' => 'unsigned',
-      'phptype' => 'integer',
-      'null' => false,
-      'index' => 'pk',
-    ),
     'newsletter_id' => 
     array (
       'dbtype' => 'int',
@@ -59,22 +49,6 @@ $xpdo_meta_map['vnewsReports']= array (
   ),
   'indexes' => 
   array (
-    'PRIMARY' => 
-    array (
-      'alias' => 'PRIMARY',
-      'primary' => true,
-      'unique' => true,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'id' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
     'fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx' => 
     array (
       'alias' => 'fk_modx_virtunewsletter_reports_modx_virtunewsletter_newsle_idx',

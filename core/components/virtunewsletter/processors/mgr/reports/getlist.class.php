@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -77,10 +78,11 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
         $objectArray = parent::prepareRow($object);
         $status = $this->modx->lexicon('virtunewsletter.' . $objectArray['status']);
         if ($status) {
-            $objectArray['status'] = $status;
+            $objectArray['status_text'] = $status;
         }
         return $objectArray;
     }
+
 }
 
 return 'ReportsGetListProcessor';

@@ -8,6 +8,8 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
   array (
     'subscriber_id' => NULL,
     'category_id' => NULL,
+    'subscribed_on' => NULL,
+    'unsubscribed_on' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -28,6 +30,22 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
       'phptype' => 'integer',
       'null' => false,
       'index' => 'index',
+    ),
+    'subscribed_on' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+    ),
+    'unsubscribed_on' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => true,
     ),
   ),
   'indexes' => 

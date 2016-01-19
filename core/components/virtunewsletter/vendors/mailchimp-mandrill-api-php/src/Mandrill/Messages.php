@@ -33,17 +33,18 @@ class Mandrill_Messages {
      *     - signing_domain string a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
      *     - return_path_domain string a custom domain to use for the messages's return-path
      *     - merge boolean whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
+     *     - merge_language string the merge tag language to use when evaluating merge tags, either mailchimp or handlebars
      *     - global_merge_vars array global merge variables to use for all recipients. You can override these per recipient.
      *         - global_merge_vars[] struct a single global merge variable
      *             - name string the global merge variable's name. Merge variable names are case-insensitive and may not start with _
-     *             - content string the global merge variable's content
+     *             - content mixed the global merge variable's content
      *     - merge_vars array per-recipient merge variables, which override global merge variables with the same name.
      *         - merge_vars[] struct per-recipient merge variables
      *             - rcpt string the email address of the recipient that the merge variables should apply to
      *             - vars array the recipient's merge variables
      *                 - vars[] struct a single merge variable
      *                     - name string the merge variable's name. Merge variable names are case-insensitive and may not start with _
-     *                     - content string the merge variable's content
+     *                     - content mixed the merge variable's content
      *     - tags array an array of string to tag the message with.  Stats are accumulated using tags, though we only store the first 100 we see, so this should not be unique or change frequently.  Tags should be 50 characters or less.  Any tags starting with an underscore are reserved for internal use and will cause errors.
      *         - tags[] string a single tag - must not start with an underscore
      *     - subaccount string the unique id of a subaccount for this message - must already exist or will fail with an error
@@ -112,17 +113,18 @@ class Mandrill_Messages {
      *     - signing_domain string a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
      *     - return_path_domain string a custom domain to use for the messages's return-path
      *     - merge boolean whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
+     *     - merge_language string the merge tag language to use when evaluating merge tags, either mailchimp or handlebars
      *     - global_merge_vars array global merge variables to use for all recipients. You can override these per recipient.
      *         - global_merge_vars[] struct a single global merge variable
      *             - name string the global merge variable's name. Merge variable names are case-insensitive and may not start with _
-     *             - content string the global merge variable's content
+     *             - content mixed the global merge variable's content
      *     - merge_vars array per-recipient merge variables, which override global merge variables with the same name.
      *         - merge_vars[] struct per-recipient merge variables
      *             - rcpt string the email address of the recipient that the merge variables should apply to
      *             - vars array the recipient's merge variables
      *                 - vars[] struct a single merge variable
      *                     - name string the merge variable's name. Merge variable names are case-insensitive and may not start with _
-     *                     - content string the merge variable's content
+     *                     - content mixed the merge variable's content
      *     - tags array an array of string to tag the message with.  Stats are accumulated using tags, though we only store the first 100 we see, so this should not be unique or change frequently.  Tags should be 50 characters or less.  Any tags starting with an underscore are reserved for internal use and will cause errors.
      *         - tags[] string a single tag - must not start with an underscore
      *     - subaccount string the unique id of a subaccount for this message - must already exist or will fail with an error
@@ -354,7 +356,7 @@ class Mandrill_Messages {
     }
 
     /**
-     * Queries your scheduled emails by sender or recipient, or both.
+     * Queries your scheduled emails.
      * @param string $to an optional recipient address to restrict results to
      * @return array a list of up to 1000 scheduled emails
      *     - return[] struct a scheduled email

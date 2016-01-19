@@ -145,6 +145,7 @@ Ext.extend(VirtuNewsletter.grid.Newsletters, MODx.grid.Grid, {
             title: record.id ? _('virtunewsletter.schedule_update') : _('virtunewsletter.schedule_create'),
             closable: true,
             xtype: 'virtunewsletter-panel-newsletter-content',
+            id: 'virtunewsletter-panel-newsletter-content-tab-' + record.id,
             record: record
         });
         newTab.on('success', function(o) {

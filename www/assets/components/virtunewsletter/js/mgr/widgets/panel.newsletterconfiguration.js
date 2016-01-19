@@ -3,6 +3,41 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
 
     Ext.QuickTips.init();
 
+    var tbar = ['->'];
+    tbar.push({
+        text: _('save'),
+        handler: this.submit
+    });
+    if (config.record && config.record.id) {
+        tbar.push({
+            text: _('virtunewsletter.remove'),
+            handler: this.removeNewsletter,
+            scope: this
+        });
+        tbar.push({
+            text: _('virtunewsletter.view'),
+            handler: this.viewContent,
+            scope: this
+        });
+        tbar.push({
+            text: _('virtunewsletter.test'),
+            handler: function () {
+                var newsTest = new VirtuNewsletter.window.NewsletterTest({
+                    baseParams: {
+                        action: 'mgr/newsletters/test'
+                    },
+                    record: config.record
+                });
+                return newsTest.show();
+            }
+        });
+    }
+    tbar.push({
+        text: _('virtunewsletter.close'),
+        handler: this.closeTab,
+        scope: this
+    });
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
@@ -186,40 +221,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 checked: config.record && config.record.is_active ? 1 : 0
             }
         ],
-        tbar: [
-            '->', {
-//                text: _('virtunewsletter.recache'),
-                text: _('save'),
-//                handler: this.updateNewsletter,
-                handler: function(){
-                    this.submit();
-                },
-                scope: this
-            }, {
-                text: _('virtunewsletter.remove'),
-                handler: this.removeNewsletter,
-                scope: this
-            }, {
-                text: _('virtunewsletter.view'),
-                handler: this.viewContent,
-                scope: this
-            }, {
-                text: _('virtunewsletter.close'),
-                handler: this.cleanCenter,
-                scope: this
-            }, {
-                text: _('virtunewsletter.test'),
-                handler: function () {
-                    var newsTest = new VirtuNewsletter.window.NewsletterTest({
-                        baseParams: {
-                            action: 'mgr/newsletters/test'
-                        },
-                        record: config.record
-                    });
-                    return newsTest.show();
-                }
-            }
-        ]
+        tbar: tbar
     });
 
     VirtuNewsletter.panel.NewsletterConfiguration.superclass.constructor.call(this, config);
@@ -259,11 +261,13 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
             }
         });
     },
-    cleanCenter: function () {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
-        contentPanel.removeAll();
-        var container = Ext.getCmp('modx-content');
-        return container.doLayout();
+    closeTab: function () {
+        var tabs = Ext.getCmp('virtunewsletter-newsletters-tabs');
+        var tab = Ext.getCmp('virtunewsletter-panel-newsletter-content-tab-' + this.config.record.id);
+        if (typeof (tabs) !== 'undefined' && typeof (tab) !== 'undefined') {
+            tabs.remove(tab);
+            tabs.setActiveTab(0);
+        }
     },
     viewContent: function () {
         var time = new Date().getTime();

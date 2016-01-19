@@ -6,7 +6,8 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
     var tbar = ['->'];
     tbar.push({
         text: _('save'),
-        handler: this.submit
+        handler: this.submit,
+        scope: this
     });
     if (config.record && config.record.id) {
         tbar.push({

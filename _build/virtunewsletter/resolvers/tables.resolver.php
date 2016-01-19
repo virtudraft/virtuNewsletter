@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2014 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -122,10 +122,48 @@ if ($modx = & $object->xpdo) {
                         $manager->addIndex('vnewsSubscribersHasCategories', 'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx');
                         $manager->addIndex('vnewsSubscribersHasCategories', 'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx1');
                     }
-
                     if ($oldPackage->compareVersion('1.6.0-beta2', '>')) {
                         $manager->alterField('vnewsNewsletters', 'scheduled_for');
                         $manager->createObjectContainer('vnewsTemplates');
+                    }
+                    if ($oldPackage->compareVersion('2.0.0-beta1', '>')) {
+                        $menu = $modx->getObject('modMenu', array (
+                            'text' => 'virtunewsletter',
+                        ));
+                        if ($menu && ($menu->get('action') !== 'index' || $menu->get('namespace') !== 'virtunewsletter')) {
+                            $menu->set('action', 'index');
+                            $menu->set('namespace', 'virtunewsletter');
+                            $menu->save();
+                        }
+//                        $manager->addField('vnewsCategoriesHasUsergroups', 'id', array('first' => true));
+//                        $manager->addIndex('vnewsCategoriesHasUsergroups', 'id');
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsCategoriesHasUsergroups')} DROP PRIMARY KEY;");
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsCategoriesHasUsergroups')} ADD COLUMN `id` INT(10) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);");
+                        $manager->alterField('vnewsCategoriesHasUsergroups', 'category_id');
+                        $manager->alterField('vnewsCategoriesHasUsergroups', 'usergroup_id');
+
+//                        $manager->addField('vnewsNewslettersHasCategories', 'id', array('first' => true));
+//                        $manager->addIndex('vnewsNewslettersHasCategories', 'id');
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsNewslettersHasCategories')} DROP PRIMARY KEY;");
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsNewslettersHasCategories')} ADD COLUMN `id` INT(10) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);");
+                        $manager->alterField('vnewsNewslettersHasCategories', 'newsletter_id');
+                        $manager->alterField('vnewsNewslettersHasCategories', 'category_id');
+
+//                        $manager->addField('vnewsReports', 'id', array('first' => true));
+//                        $manager->addIndex('vnewsReports', 'id');
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsReports')} DROP PRIMARY KEY;");
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsReports')} ADD COLUMN `id` INT(10) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);");
+                        $manager->alterField('vnewsReports', 'newsletter_id');
+                        $manager->alterField('vnewsReports', 'subscriber_id');
+
+//                        $manager->addField('vnewsSubscribersHasCategories', 'id', array('first' => true));
+//                        $manager->addIndex('vnewsSubscribersHasCategories', 'id');
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsSubscribersHasCategories')} DROP PRIMARY KEY;");
+                        $modx->exec("ALTER TABLE {$modx->getTableName('vnewsSubscribersHasCategories')} ADD COLUMN `id` INT(10) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);");
+                        $manager->alterField('vnewsSubscribersHasCategories', 'subscriber_id');
+                        $manager->alterField('vnewsSubscribersHasCategories', 'category_id');
+                        $manager->addField('vnewsSubscribersHasCategories', 'subscribed_on', array('after' => 'category_id'));
+                        $manager->addField('vnewsSubscribersHasCategories', 'unsubscribed_on', array('after' => 'subscribed_on'));
                     }
                 }
             }

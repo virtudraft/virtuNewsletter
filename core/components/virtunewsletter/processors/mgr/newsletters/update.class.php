@@ -125,7 +125,7 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
                     'newsletter_id' => $newsId,
                     'category_id' => $category,
                 ));
-                if (!empty($newsHasCat)) {
+                if (empty($newsHasCat)) {
                     $newsHasCat = $this->modx->newObject('vnewsNewslettersHasCategories');
                     $newsHasCat->fromArray(array(
                         'newsletter_id' => $newsId,

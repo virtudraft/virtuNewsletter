@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -26,16 +26,15 @@
  * @subpackage build
  */
 
-$action = $modx->newObject('modAction');
-$action->fromArray(array(
-    'id' => 1,
-    'namespace' => 'virtunewsletter',
-    'parent' => 0,
-    'controller' => 'index',
-    'haslayout' => true,
-    'lang_topics' => 'virtunewsletter:default',
-    'assets' => '',
-        ), '', true, true);
+//$action = $modx->newObject('modAction');
+//$action->fromArray(array(
+//    'id' => 1,
+//    'namespace' => 'virtunewsletter',
+//    'controller' => 'index',
+//    'haslayout' => true,
+//    'lang_topics' => 'virtunewsletter:default',
+//    'assets' => '',
+//        ), '', true, true);
 
 $menu = $modx->newObject('modMenu');
 $menu->fromArray(array(
@@ -47,7 +46,8 @@ $menu->fromArray(array(
     'menuindex' => 0,
     'params' => '',
     'handler' => '',
+    'namespace' => 'virtunewsletter',
         ), '', true, true);
-$menu->addOne($action);
+//$menu->addOne($action);
 
 return $menu;

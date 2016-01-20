@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2015 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -72,6 +72,14 @@ if ($modx = & $object->xpdo) {
                 $manager->createObjectContainer('vnewsSubscribers');
                 $manager->createObjectContainer('vnewsSubscribersHasCategories');
                 $manager->createObjectContainer('vnewsTemplates');
+            }
+            $menu = $modx->getObject('modMenu', array (
+                'text' => 'virtunewsletter',
+            ));
+            if ($menu && ($menu->get('action') !== 'index' || $menu->get('namespace') !== 'virtunewsletter')) {
+                $menu->set('action', 'index');
+                $menu->set('namespace', 'virtunewsletter');
+                $menu->save();
             }
 
             break;

@@ -1,3 +1,7 @@
+virtuNewsletter 2.0.0-dev
+=================================================
+- fixed empty email on sync
+
 virtuNewsletter 2.0.0-beta1 (January 20, 2016)
 =================================================
 - fixed categories on newsletter update

@@ -83,6 +83,9 @@ class SyncSubscribersProcessor extends modProcessor {
                     $userArray = $user->toArray();
                     $profile = $user->getOne('Profile');
                     $profileArray = $profile->toArray();
+                    if (empty($profileArray['email'])) {
+                        continue;
+                    }
                     $userIds[] = $userArray['id'];
                     $usersArray[] = array(
                         'user_id' => $userArray['id'],

@@ -240,6 +240,13 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
 
         return true;
     }, this);
+
+    this.on('success', function() {
+        var grid = Ext.getCmp('virtunewsletter-grid-newsletters');
+        if (typeof(grid) !== 'undefined') {
+            grid.refresh();
+        }
+    });
 };
 
 Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {

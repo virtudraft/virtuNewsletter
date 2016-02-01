@@ -2,13 +2,14 @@ VirtuNewsletter.grid.Newsletters = function(config) {
     config = config || {};
 
     Ext.applyIf(config, {
+        id: 'virtunewsletter-grid-newsletters',
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
             action: 'mgr/newsletters/getList',
             parentId: config.record && config.record.id ? config.record.id : 0
         },
         autoHeight: true,
-        fields: ['id', 'subject'],
+        fields: ['id', 'subject', 'scheduled_for', 'subscribers', 'queue', 'is_active'],
         paging: true,
         remoteSort: true,
         preventRender: true,
@@ -25,6 +26,31 @@ VirtuNewsletter.grid.Newsletters = function(config) {
                 header: _('virtunewsletter.subject'),
                 dataIndex: 'subject',
                 sortable: true
+            }, {
+                header: _('virtunewsletter.scheduled_for'),
+                dataIndex: 'scheduled_for',
+                sortable: true,
+                width: 200,
+                fixed: true
+            }, {
+                header: _('virtunewsletter.subscribers'),
+                dataIndex: 'subscribers',
+                sortable: true,
+                width: 100,
+                fixed: true
+            }, {
+                header: _('virtunewsletter.queue'),
+                dataIndex: 'queue',
+                sortable: true,
+                width: 100,
+                fixed: true
+            }, {
+                xtype: 'checkcolumn',
+                header: _('virtunewsletter.active'),
+                dataIndex: 'is_active',
+                sortable: false,
+                width: 70,
+                fixed: true
             }, {
                 header: _('actions'),
                 xtype: 'actioncolumn',
@@ -148,15 +174,6 @@ Ext.extend(VirtuNewsletter.grid.Newsletters, MODx.grid.Grid, {
             id: 'virtunewsletter-panel-newsletter-content-tab-' + record.id,
             record: record
         });
-        newTab.on('success', function(o) {
-            if (o.result.success === true) {
-                this.refresh();
-                if (typeof(record.id) === 'undefined') {
-                    newTab.destroy();
-                    this.newsletterPanel(o.result.object);
-                }
-            }
-        }, this);
         tabs.add(newTab);
         tabs.setActiveTab(newTab);
     }

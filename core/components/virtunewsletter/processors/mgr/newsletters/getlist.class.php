@@ -48,6 +48,31 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         return $c;
     }
 
+    /**
+     * Prepare the row for iteration
+     * @param xPDOObject $object
+     * @return array
+     */
+    public function prepareRow(xPDOObject $object) {
+        $objectArray = $object->toArray();
+        if (!empty($objectArray['scheduled_for'])) {
+            $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
+            $timeFormat = $this->modx->getOption('manager_time_format', null, 'g:i a');
+            $objectArray['scheduled_for'] = date("$dateFormat $timeFormat", $objectArray['scheduled_for']);
+        } else {
+            $objectArray['scheduled_for'] = '';
+        }
+        $objectArray['subscribers'] = $object->countSubscribers();
+
+        $c = $this->modx->newQuery('vnewsReports');
+        $c->where(array(
+            'newsletter_id' => $objectArray['id'],
+            'status' => queue,
+        ));
+        $objectArray['queue'] = $this->modx->getCount('vnewsReports', $c);
+
+        return $objectArray;
+    }
 }
 
 return 'NewslettersGetListProcessor';

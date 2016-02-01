@@ -1,5 +1,7 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- add more info on newsletter's grid
+- refresh newsletter's grid when form is saved
 - fixed empty email on sync
 
 virtuNewsletter 2.0.0-beta1 (January 20, 2016)

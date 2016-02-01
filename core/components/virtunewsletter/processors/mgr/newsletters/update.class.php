@@ -161,7 +161,7 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             }
 
         } else {
-            $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
+//            $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
         }
 
         return true;

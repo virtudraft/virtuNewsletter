@@ -603,9 +603,21 @@ class VirtuNewsletter {
             $params = array(
                 'newsletter_id' => $newsletterArray['id'],
                 'subscriber_id' => $subscriberId,
+            );
+            $oldReport = $this->modx->getObject('vnewsReports', $params);
+            if (!empty($oldReport)) {
+                $oldReport->set('status', 'queue');
+                $oldReport->set('status_logged_on', time());
+                $oldReport->save();
+
+                continue;
+            }
+
+            $params = array_merge($params, array(
                 'status' => 'queue',
                 'status_logged_on' => time(),
-            );
+            ));
+
             $newReport = $this->modx->newObject('vnewsReports');
             $newReport->fromArray($params);
             $newReport->save();
@@ -1281,6 +1293,10 @@ class VirtuNewsletter {
         $this->modx->mail->set(modMail::MAIL_SUBJECT, $subject);
         $this->modx->mail->address('to', $emailTo);
         $this->modx->mail->address('reply-to', $emailFrom);
+        // https://support.google.com/mail/answer/180707?hl=en
+        $x = explode('@', $emailFrom);
+        $this->modx->mail->header('mailed-by:' . $x[1]);
+        $this->modx->mail->header('signed-by:' . $x[1]);
         $this->modx->mail->setHTML(true);
         if (!$this->modx->mail->send()) {
             $this->modx->setDebug();

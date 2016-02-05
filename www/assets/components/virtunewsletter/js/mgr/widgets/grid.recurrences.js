@@ -12,8 +12,8 @@ VirtuNewsletter.grid.Recurrences = function(config) {
         paging: true,
         remoteSort: true,
         autoExpandColumn: 'subject',
-        dateFormat: 'U',
-        displayFormat: 'm/d/Y',
+        dateFormat: config.dateFormat || 'U',
+        displayFormat: config.displayFormat || 'm/d/Y',
         columns: [
             {
                 header: _('id'),

@@ -12,8 +12,8 @@ VirtuNewsletter.grid.Reports = function(config) {
         remoteSort: true,
         anchor: '97%',
         autoExpandColumn: 'email',
-        dateFormat: 'U',
-        displayFormat: 'm/d/Y',
+        dateFormat: config.dateFormat || 'U',
+        displayFormat: config.displayFormat || 'm/d/Y',
         columns: [
             {
                 header: _('virtunewsletter.news_id'),
@@ -61,12 +61,36 @@ VirtuNewsletter.grid.Reports = function(config) {
                 text: _('virtunewsletter.send_all'),
                 scope: this,
                 handler: this.sendAll
+            }, {
+                xtype: 'textfield',
+                emptyText: _('virtunewsletter.search...'),
+                listeners: {
+                    'change': {fn: this.search, scope: this},
+                    'render': {fn: function(cmp) {
+                            new Ext.KeyMap(cmp.getEl(), {
+                                key: Ext.EventObject.ENTER,
+                                fn: function() {
+                                    this.fireEvent('change', this);
+                                    this.blur();
+                                    return true;
+                                },
+                                scope: cmp
+                            });
+                        },
+                        scope: this}
+                }
             }
         ]
     });
     VirtuNewsletter.grid.Reports.superclass.constructor.call(this, config);
 };
 Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
+    search: function(tf, nv, ov) {
+        var s = this.getStore();
+        s.baseParams.query = tf.getValue();
+        this.getBottomToolbar().changePage(1);
+        this.refresh();
+    },
     getMenu: function() {
         var menu = [{
                 text: _('virtunewsletter.send'),

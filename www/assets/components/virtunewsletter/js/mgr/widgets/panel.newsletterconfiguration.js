@@ -39,6 +39,8 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         scope: this
     });
 
+console.log('config.record', config.record);
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
@@ -47,8 +49,8 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         },
         baseCls: 'modx-formpanel',
         border: false,
-        dateFormat: 'U',
-        displayFormat: 'm/d/Y',
+        dateFormat: config.dateFormat || 'U',
+        displayFormat: config.displayFormat || 'm/d/Y',
         layout: 'form',
         labelAlign: 'left',
         labelWidth: 100,
@@ -114,7 +116,15 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                                     config.record.scheduled_for &&
                                     config.record.scheduled_for > 0 ?
                                     config.record.scheduled_for :
-                                    ''
+                                    '',
+//                                renderer: Ext.util.Format.dateRenderer(config.displayFormat)
+                                renderer: function(value) {
+console.log('value', value);
+                                    if (value) {
+                                        var date = Date.parseDate(value, config.dateFormat);
+                                        return date.format(config.displayFormat);
+                                    }
+                                }
                             }
                         ]
                     }

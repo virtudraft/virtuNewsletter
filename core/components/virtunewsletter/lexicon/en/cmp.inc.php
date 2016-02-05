@@ -144,5 +144,6 @@ $_lang['virtunewsletter.unsubscribing'] = 'Unsubscribing';
 $_lang['virtunewsletter.unsubscribed'] = 'Unsubscribed';
 $_lang['virtunewsletter.list'] = 'List';
 $_lang['virtunewsletter.detail'] = 'Detail';
+$_lang['virtunewsletter.subscriber_update'] = 'Update Subscriber';
 
 $_lang['virtunewsletter.TemplateGet_err_nfs'] = 'Could not find the specified template, try to create a new one.';

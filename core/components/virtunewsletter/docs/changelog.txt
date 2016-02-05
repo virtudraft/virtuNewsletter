@@ -1,5 +1,8 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- fix addSubscriberQueues() to check existing queue
+- add search box to Reports grid
+- add update subscriber feature on Subscribers page
 - add more info on newsletter's grid
 - refresh newsletter's grid when form is saved
 - fixed empty email on sync

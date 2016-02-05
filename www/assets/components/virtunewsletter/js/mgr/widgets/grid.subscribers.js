@@ -167,6 +167,9 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                 text: _('virtunewsletter.remove'),
                 handler: this.removeSubscriber
             }, {
+                text: _('virtunewsletter.subscriber_update'),
+                handler: this.updateSubscriber
+            }, {
                 text: _('virtunewsletter.category_update'),
                 handler: this.updateCategory
             }
@@ -256,6 +259,18 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
         batchCategoryWindow.reset();
         batchCategoryWindow.show();
         batchCategoryWindow.on('success', this.refresh, this);
+    },
+    updateSubscriber: function() {
+        var win = new VirtuNewsletter.window.Subscriber({
+            title: _('virtunewsletter.subscriber_update'),
+            baseParams: {
+                action: 'mgr/subscribers/update'
+            }
+        });
+        win.reset();
+        win.setValues(this.menu.record);
+        win.show();
+        win.on('success', this.refresh, this);
     },
     updateCategory: function() {
         var updateCategoryWindow = new VirtuNewsletter.window.UpdateCategory({

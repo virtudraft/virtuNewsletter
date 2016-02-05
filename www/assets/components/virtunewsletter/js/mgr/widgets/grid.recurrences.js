@@ -13,7 +13,7 @@ VirtuNewsletter.grid.Recurrences = function(config) {
         remoteSort: true,
         autoExpandColumn: 'subject',
         dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'm/d/Y',
+        displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
                 header: _('id'),
@@ -47,7 +47,7 @@ VirtuNewsletter.grid.Recurrences = function(config) {
                 dataIndex: 'scheduled_for',
                 sortable: true,
                 renderer: function(value) {
-                    if (value) {
+                    if (value !== '') {
                         var date = Date.parseDate(value, config.dateFormat);
                         return date.format(config.displayFormat);
                     }

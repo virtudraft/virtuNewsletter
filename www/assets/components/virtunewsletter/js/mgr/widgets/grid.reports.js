@@ -13,7 +13,7 @@ VirtuNewsletter.grid.Reports = function(config) {
         anchor: '97%',
         autoExpandColumn: 'email',
         dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'm/d/Y',
+        displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
                 header: _('virtunewsletter.news_id'),

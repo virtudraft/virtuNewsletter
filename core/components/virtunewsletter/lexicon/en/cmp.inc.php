@@ -47,6 +47,7 @@ $_lang['virtunewsletter.newsletter_err_ns_recurrence_number'] = 'Recurrence numb
 $_lang['virtunewsletter.newsletter_err_ns_recurrence_range'] = 'Recurrence range is required';
 $_lang['virtunewsletter.category_err_ns_name'] = 'Missing category\'s name';
 $_lang['virtunewsletter.is_recurring'] = 'Is recurring?';
+$_lang['virtunewsletter.recurring'] = 'Recurring';
 $_lang['virtunewsletter.scheduled_for'] = 'Scheduled for';
 $_lang['virtunewsletter.refresh'] = 'Refresh';
 $_lang['virtunewsletter.subject'] = 'Subject';

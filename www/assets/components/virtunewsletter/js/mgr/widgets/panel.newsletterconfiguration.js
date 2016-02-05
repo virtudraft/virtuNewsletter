@@ -39,8 +39,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         scope: this
     });
 
-console.log('config.record', config.record);
-
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
@@ -50,7 +48,7 @@ console.log('config.record', config.record);
         baseCls: 'modx-formpanel',
         border: false,
         dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'm/d/Y',
+        displayFormat: config.displayFormat || 'Y-m-d',
         layout: 'form',
         labelAlign: 'left',
         labelWidth: 100,
@@ -112,19 +110,16 @@ console.log('config.record', config.record);
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
                                 name: 'scheduled_for',
                                 allowBlank: true,
+                                format: 'Y-m-d', // make it display correct but sends it to server as Y-m-d
+                                dateFormat:'Y-m-d',
+                                submitFormat: 'U',
+                                renderer: Ext.util.Format.dateRenderer('Y-m-d'),
+                                altFormats:'U|u|m/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j',
                                 value: config.record &&
                                     config.record.scheduled_for &&
                                     config.record.scheduled_for > 0 ?
                                     config.record.scheduled_for :
-                                    '',
-//                                renderer: Ext.util.Format.dateRenderer(config.displayFormat)
-                                renderer: function(value) {
-console.log('value', value);
-                                    if (value) {
-                                        var date = Date.parseDate(value, config.dateFormat);
-                                        return date.format(config.displayFormat);
-                                    }
-                                }
+                                    ''
                             }
                         ]
                     }

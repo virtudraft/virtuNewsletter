@@ -55,11 +55,7 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
      */
     public function prepareRow(xPDOObject $object) {
         $objectArray = $object->toArray();
-        if (!empty($objectArray['scheduled_for'])) {
-            $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
-            $timeFormat = $this->modx->getOption('manager_time_format', null, 'g:i a');
-            $objectArray['scheduled_for'] = date("$dateFormat $timeFormat", $objectArray['scheduled_for']);
-        } else {
+        if (empty($objectArray['scheduled_for'])) {
             $objectArray['scheduled_for'] = '';
         }
         $objectArray['subscribers'] = $object->countSubscribers();

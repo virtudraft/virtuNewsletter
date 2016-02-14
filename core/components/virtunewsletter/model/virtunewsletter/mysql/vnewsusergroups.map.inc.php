@@ -11,7 +11,7 @@ $xpdo_meta_map['vnewsUsergroups']= array (
   ),
   'composites' => 
   array (
-    'vnewsCategoriesHasUsergroups' => 
+    'CategoriesHasUsergroups' => 
     array (
       'class' => 'vnewsCategoriesHasUsergroups',
       'local' => 'id',

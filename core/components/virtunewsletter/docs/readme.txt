@@ -13,4 +13,9 @@ To set the cron job, use the web accessible connector file
 To get your site ID, check your core/config.inc.php file, and find out the
 $site_id variable.
 
-Official documentation is being made.
+Official documentation is https://rtfm.modx.com/extras/revo/virtunewsletter
+
+Resources:
+* https://www.mail-tester.com
+* http://www.openspf.org
+* http://www.dkim.org

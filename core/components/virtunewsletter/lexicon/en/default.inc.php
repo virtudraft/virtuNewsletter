@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -26,12 +26,15 @@
 $_lang['virtunewsletter'] = 'virtuNewsletter';
 $_lang['virtunewsletter_desc'] = 'Newsletter Manager';
 $_lang['virtunewsletter.subscriber_exists'] = 'Subscriber with email [[+email]] exists.';
+$_lang['virtunewsletter.subscriber_err_ns'] = 'Unspecified email address.';
+$_lang['virtunewsletter.subscriber_err_invalid_email'] = 'Invalid email address.';
 $_lang['virtunewsletter.subscriber_err_save'] = 'There was an unexpected result to subscribe you. Please try again.';
 $_lang['virtunewsletter.subscriber_suc_save'] = 'Thank you. You are now registered as our subscriber. Please check your mailbox to activate the subscription.';
 $_lang['virtunewsletter.subscriber_err_proc'] = 'There was an error to process your subscription. Please try again.';
 $_lang['virtunewsletter.subscriber_err_ne'] = 'This subscriber does not exists.';
 $_lang['virtunewsletter.subscriber_suc_activated'] = 'Your account has been activated successfully.';
 $_lang['virtunewsletter.subscriber_suc_deactivated'] = 'Your account has been deactivated successfully.';
+$_lang['virtunewsletter.subscriber_unsubscribing'] = 'You are about to unsubscribe from our newsletter. Please check your mailbox and click the link on our sent email to confirm about this unsubscription.';
 
 $_lang['setting_virtunewsletter.readerpage'] = 'Resource to read the newsletter';
 $_lang['setting_virtunewsletter.readerpage_desc'] = 'Resource\'s ID where visitor can access the newsletter via web';
@@ -54,7 +57,7 @@ $_lang['setting_virtunewsletter.email_debug_desc'] = 'Turn this on to dump the e
 $_lang['setting_virtunewsletter.email_prefix'] = 'Placeholder\'s prefix in email';
 $_lang['setting_virtunewsletter.email_prefix_desc'] = 'Placeholder\'s prefix for the output\'s values in the email\'s body of the newsletter';
 $_lang['setting_virtunewsletter.use_csstoinlinestyles'] = 'Use CssToInlineStyles Class';
-$_lang['setting_virtunewsletter.use_csstoinlinestyles_desc'] = 'Use CssToInlineStyles Class to process automatic css classes insertion into the mail body. This does not work well in some character sets.';
+$_lang['setting_virtunewsletter.use_csstoinlinestyles_desc'] = 'Use CssToInlineStyles Class to process automatic css classes insertion into the mail body. This does not work well for some character sets.';
 $_lang['setting_virtunewsletter.assets_url'] = 'Web URL to assets folder';
 $_lang['setting_virtunewsletter.assets_url_desc'] = 'Set relative URL to assets folder of component';
 $_lang['setting_virtunewsletter.core_path'] = 'Path to core folder';

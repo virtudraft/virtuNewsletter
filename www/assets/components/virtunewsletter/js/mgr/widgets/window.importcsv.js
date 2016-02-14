@@ -65,6 +65,7 @@ VirtuNewsletter.window.ImportCsv = function(config) {
                 xtype: 'virtunewsletter-combo-categories',
                 fieldLabel: _('virtunewsletter.category'),
                 name: 'category_id',
+                hiddenName: 'category_id',
                 allowBlank: false,
                 anchor: '100%'
             }, {

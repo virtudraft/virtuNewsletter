@@ -1,2 +1,2 @@
 <?php
-class vnewsReports extends xPDOObject {}
+class vnewsReports extends xPDOSimpleObject {}

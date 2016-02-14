@@ -74,7 +74,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'precision' => '10',
       'attributes' => 'unsigned',
       'phptype' => 'integer',
-      'null' => false,
+      'null' => true,
     ),
     'is_recurring' => 
     array (
@@ -147,15 +147,15 @@ $xpdo_meta_map['vnewsNewsletters']= array (
   ),
   'composites' => 
   array (
-    'Parent' => 
+    'Children' => 
     array (
       'class' => 'vnewsNewsletters',
-      'local' => 'parent_id',
-      'foreign' => 'id',
-      'cardinality' => 'one',
-      'owner' => 'foreign',
+      'local' => 'id',
+      'foreign' => 'parent_id',
+      'cardinality' => 'many',
+      'owner' => 'local',
     ),
-    'vnewsNewslettersHasCategories' => 
+    'NewslettersHasCategories' => 
     array (
       'class' => 'vnewsNewslettersHasCategories',
       'local' => 'id',
@@ -163,7 +163,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
-    'vnewsReports' => 
+    'Reports' => 
     array (
       'class' => 'vnewsReports',
       'local' => 'id',
@@ -174,13 +174,13 @@ $xpdo_meta_map['vnewsNewsletters']= array (
   ),
   'aggregates' => 
   array (
-    'Children' => 
+    'Parent' => 
     array (
       'class' => 'vnewsNewsletters',
-      'local' => 'id',
-      'foreign' => 'parent_id',
-      'cardinality' => 'many',
-      'owner' => 'local',
+      'local' => 'parent_id',
+      'foreign' => 'id',
+      'cardinality' => 'one',
+      'owner' => 'foreign',
     ),
   ),
 );

@@ -18,6 +18,25 @@
     margin-right: 5px;
 }
 
+.virtunewsletter-icon-actioncolumn-img {
+    width: 16px;
+    height: 16px;
+    margin-top: 6px;
+    margin-right: 6px;
+}
+
+.virtunewsletter-icon-delete {
+    background-image: url(../img/delete.png) !important;
+    background-repeat: no-repeat;
+}
+
+.virtunewsletter-desc {
+    color: #777;
+    font-style: italic;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 /*!
  * Ext JS Library 3.4.0
  * Copyright(c) 2006-2011 Sencha Inc.

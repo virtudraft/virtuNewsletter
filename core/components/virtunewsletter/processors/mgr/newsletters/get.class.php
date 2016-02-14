@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -43,7 +43,7 @@ class NewslettersGetProcessor extends modObjectGetProcessor {
     public function cleanup() {
         $objectArray = $this->object->toArray();
 
-        $categories = $this->object->getMany('vnewsNewslettersHasCategories');
+        $categories = $this->object->getMany('NewslettersHasCategories');
         $categoriesArray = array();
         if ($categories) {
             foreach ($categories as $category) {

@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -35,12 +35,11 @@ $_lang['virtunewsletter.schedule_create'] = 'Create new schedule';
 $_lang['virtunewsletter.schedule_update'] = 'Update schedule';
 $_lang['virtunewsletter.add_new_category'] = 'Add new category';
 $_lang['virtunewsletter.category_create'] = 'Create new category';
-$_lang['virtunewsletter.category_update'] = 'Update category';
+$_lang['virtunewsletter.category_update'] = 'Update Category';
 $_lang['virtunewsletter.resource_id'] = 'Resource\'s ID';
 $_lang['virtunewsletter.newsletter_err_ns_subject'] = 'Subject is required';
 $_lang['virtunewsletter.newsletter_err_ns_resource_id'] = 'Resource\'s ID is required';
 $_lang['virtunewsletter.newsletter_err_ns_categories'] = 'At least 1 (one) category is required to connect with the users/usergroups.';
-$_lang['virtunewsletter.newsletter_err_ns_scheduled_for'] = 'Date is required';
 $_lang['virtunewsletter.newsletter_err_empty_content'] = 'Content is empty';
 $_lang['virtunewsletter.newsletter_err_empty_url'] = 'URL is empty';
 $_lang['virtunewsletter.newsletter_err_ns_scheduled_for'] = 'Date is required';
@@ -48,6 +47,7 @@ $_lang['virtunewsletter.newsletter_err_ns_recurrence_number'] = 'Recurrence numb
 $_lang['virtunewsletter.newsletter_err_ns_recurrence_range'] = 'Recurrence range is required';
 $_lang['virtunewsletter.category_err_ns_name'] = 'Missing category\'s name';
 $_lang['virtunewsletter.is_recurring'] = 'Is recurring?';
+$_lang['virtunewsletter.recurring'] = 'Recurring';
 $_lang['virtunewsletter.scheduled_for'] = 'Scheduled for';
 $_lang['virtunewsletter.refresh'] = 'Refresh';
 $_lang['virtunewsletter.subject'] = 'Subject';
@@ -88,6 +88,7 @@ $_lang['virtunewsletter.uncategorized_desc'] = 'Uncategorized newsletters';
 $_lang['virtunewsletter.subscriber_remove'] = 'Remove Subscriber';
 $_lang['virtunewsletter.create_all'] = 'Create All';
 $_lang['virtunewsletter.send'] = 'Send';
+$_lang['virtunewsletter.send_all'] = 'Send All';
 $_lang['virtunewsletter.send_now'] = 'Send Now ?';
 $_lang['virtunewsletter.send_now_confirm'] = 'Some web hosting has limitation to the amount of mass emails, usually 50. <br>'
         . 'More than that will be blocked by system. <br>'
@@ -129,3 +130,21 @@ $_lang['virtunewsletter.enclosure'] = 'Enclosure';
 $_lang['virtunewsletter.escape'] = 'Escape';
 $_lang['virtunewsletter.import_err_nf'] = 'Missing fields\' names';
 $_lang['virtunewsletter.read_file_err'] = 'Unable to read the file';
+$_lang['virtunewsletter.sent'] = 'Sent';
+$_lang['virtunewsletter.queue'] = 'Queue';
+$_lang['virtunewsletter.requeue'] = 'Re-Queue';
+$_lang['virtunewsletter.weekly'] = 'Weekly';
+$_lang['virtunewsletter.monthly'] = 'Monthly';
+$_lang['virtunewsletter.yearly'] = 'Yearly';
+$_lang['virtunewsletter.subscribers_delete_confirm'] = 'Are you sure you want to delete these subscribers? This is irreversible.';
+$_lang['virtunewsletter.templates'] = 'Templates';
+$_lang['virtunewsletter.templates_desc'] = 'Email Templates for un/registering processes.';
+$_lang['virtunewsletter.subscribing'] = 'Subscribing';
+$_lang['virtunewsletter.subscribed'] = 'Subscribed';
+$_lang['virtunewsletter.unsubscribing'] = 'Unsubscribing';
+$_lang['virtunewsletter.unsubscribed'] = 'Unsubscribed';
+$_lang['virtunewsletter.list'] = 'List';
+$_lang['virtunewsletter.detail'] = 'Detail';
+$_lang['virtunewsletter.subscriber_update'] = 'Update Subscriber';
+
+$_lang['virtunewsletter.TemplateGet_err_nfs'] = 'Could not find the specified template, try to create a new one.';

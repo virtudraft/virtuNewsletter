@@ -11,7 +11,7 @@ VirtuNewsletter.window.NewsletterTest = function(config) {
                 xtype: 'hidden',
                 name: 'id',
                 value: config.record &&
-                        config.record.newsid ? config.record.newsid : 0
+                        config.record.id ? config.record.id : 0
             }, {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.email') + ':',

@@ -3,11 +3,13 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
   'package' => 'virtunewsletter',
   'version' => '1.1',
   'table' => 'subscribers_has_categories',
-  'extends' => 'xPDOObject',
+  'extends' => 'xPDOSimpleObject',
   'fields' => 
   array (
     'subscriber_id' => NULL,
     'category_id' => NULL,
+    'subscribed_on' => NULL,
+    'unsubscribed_on' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -18,7 +20,7 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
       'attributes' => 'unsigned',
       'phptype' => 'integer',
       'null' => false,
-      'index' => 'pk',
+      'index' => 'index',
     ),
     'category_id' => 
     array (
@@ -27,33 +29,27 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
       'attributes' => 'unsigned',
       'phptype' => 'integer',
       'null' => false,
-      'index' => 'pk',
+      'index' => 'index',
+    ),
+    'subscribed_on' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+    ),
+    'unsubscribed_on' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => true,
     ),
   ),
   'indexes' => 
   array (
-    'PRIMARY' => 
-    array (
-      'alias' => 'PRIMARY',
-      'primary' => true,
-      'unique' => true,
-      'type' => 'BTREE',
-      'columns' => 
-      array (
-        'subscriber_id' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-        'category_id' => 
-        array (
-          'length' => '',
-          'collation' => 'A',
-          'null' => false,
-        ),
-      ),
-    ),
     'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx' => 
     array (
       'alias' => 'fk_modx_virtunewsletter_subscribers_has_modx_virtunewslette_idx',
@@ -89,7 +85,7 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
   ),
   'aggregates' => 
   array (
-    'vnewsSubscribers' => 
+    'Subscribers' => 
     array (
       'class' => 'vnewsSubscribers',
       'local' => 'subscriber_id',
@@ -97,7 +93,7 @@ $xpdo_meta_map['vnewsSubscribersHasCategories']= array (
       'cardinality' => 'one',
       'owner' => 'foreign',
     ),
-    'vnewsCategories' => 
+    'Categories' => 
     array (
       'class' => 'vnewsCategories',
       'local' => 'category_id',

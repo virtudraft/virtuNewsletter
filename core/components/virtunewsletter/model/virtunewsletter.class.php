@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -25,8 +25,8 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '1.6.0';
-    const RELEASE = 'beta-1';
+    const VERSION = '2.0.0';
+    const RELEASE = 'beta1';
 
     /**
      * modX object
@@ -57,6 +57,11 @@ class VirtuNewsletter {
      * @var array
      */
     private $_placeholders = array();
+    /**
+     * store the chunk's HTML to property to save memory of loop rendering
+     * @var array
+     */
+    private $_chunks = array();
 
     /**
      * constructor
@@ -106,6 +111,147 @@ class VirtuNewsletter {
     }
 
     /**
+     * Set string error for boolean returned methods
+     * @return  void
+     */
+    public function setError($msg) {
+        $this->_error = $msg;
+    }
+
+    /**
+     * Get string error for boolean returned methods
+     * @return  string  output
+     */
+    public function getError() {
+        return $this->_error;
+    }
+
+    /**
+     * Set string output for boolean returned methods
+     * @return  void
+     */
+    public function setOutput($msg) {
+        $this->_output = $msg;
+    }
+
+    /**
+     * Get string output for boolean returned methods
+     * @return  string  output
+     */
+    public function getOutput() {
+        return $this->_output;
+    }
+
+    /**
+     * Set internal placeholder
+     * @param   string  $key    key
+     * @param   string  $value  value
+     * @param   string  $prefix add prefix if it's required
+     */
+    public function setPlaceholder($key, $value, $prefix = '') {
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $this->_placeholders[$prefix . $key] = $this->trimString($value);
+    }
+
+    /**
+     * Get an internal placeholder
+     * @param   string  $key    key
+     * @return  string  value
+     */
+    public function getPlaceholder($key) {
+        return $this->_placeholders[$key];
+    }
+
+    /**
+     * Set internal placeholders
+     * @param   array   $placeholders   placeholders in an associative array
+     * @param   string  $prefix         add prefix if it's required
+     * @param   boolean $merge          define whether the output will be merge to global properties or not
+     * @param   string  $delimiter      define placeholder's delimiter
+     * @return  mixed   boolean|array of placeholders
+     */
+    public function setPlaceholders($placeholders, $prefix = '', $merge = true, $delimiter = '.') {
+        if (empty($placeholders)) {
+            return FALSE;
+        }
+        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $placeholders = $this->trimArray($placeholders);
+        $placeholders = $this->implodePhs($placeholders, rtrim($prefix, $delimiter));
+        // enclosed private scope
+        if ($merge) {
+            $this->_placeholders = array_merge($this->_placeholders, $placeholders);
+        }
+        // return only for this scope
+        return $placeholders;
+    }
+
+    /**
+     * Get internal placeholders in an associative array
+     * @return array
+     */
+    public function getPlaceholders() {
+        return $this->_placeholders;
+    }
+
+    /**
+     * Merge multi dimensional associative arrays with separator
+     * @param   array   $array      raw associative array
+     * @param   string  $keyName    parent key of this array
+     * @param   string  $separator  separator between the merged keys
+     * @param   array   $holder     to hold temporary array results
+     * @return  array   one level array
+     */
+    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
+        $phs = !empty($holder) ? $holder : array();
+        foreach ($array as $k => $v) {
+            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
+            if (is_array($v)) {
+                $phs = $this->implodePhs($v, $key, $separator, $phs);
+            } else {
+                $phs[$key] = $v;
+            }
+        }
+        return $phs;
+    }
+
+    /**
+     * Trim string value
+     * @param   string  $string     source text
+     * @param   string  $charlist   defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  string  trimmed text
+     */
+    public function trimString($string, $charlist = null) {
+        if (empty($string) && !is_numeric($string)) {
+            return '';
+        }
+        $string = htmlentities($string);
+        // blame TinyMCE!
+        $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
+        $string = trim($string, $charlist);
+        $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
+        $string = html_entity_decode($string);
+        return $string;
+    }
+
+    /**
+     * Trim array values
+     * @param   array   $array          array contents
+     * @param   string  $charlist       [default: null] defined characters to be trimmed
+     * @link http://php.net/manual/en/function.trim.php
+     * @return  array   trimmed array
+     */
+    public function trimArray($input, $charlist = null) {
+        if (is_array($input)) {
+            $output = array_map(array($this, 'trimArray'), $input);
+        } else {
+            $output = $this->trimString($input, $charlist);
+        }
+
+        return $output;
+    }
+
+    /**
      * Parsing template
      * @param   string  $tpl    @BINDINGs options
      * @param   array   $phs    placeholders
@@ -114,11 +260,17 @@ class VirtuNewsletter {
      */
     public function parseTpl($tpl, array $phs = array()) {
         $output = '';
+
+        if (isset($this->_chunks[$tpl]) && !empty($this->_chunks[$tpl])) {
+            return $this->parseTplCode($this->_chunks[$tpl], $phs);
+        }
+
         if (preg_match('/^(@CODE|@INLINE)/i', $tpl)) {
             $tplString = preg_replace('/^(@CODE|@INLINE)/i', '', $tpl);
             // tricks @CODE: / @INLINE:
             $tplString = ltrim($tplString, ':');
             $tplString = trim($tplString);
+            $this->_chunks[$tpl] = $tplString;
             $output = $this->parseTplCode($tplString, $phs);
         } elseif (preg_match('/^@FILE/i', $tpl)) {
             $tplFile = preg_replace('/^@FILE/i', '', $tpl);
@@ -150,11 +302,12 @@ class VirtuNewsletter {
                     return 'Chunk: ' . $tplChunk . ' is not found, neither the file ' . $output;
                 }
             } else {
-//                $output = $this->modx->getChunk($tpl, $phs);
+//                $output = $this->modx->getChunk($tplChunk, $phs);
                 /**
                  * @link    http://forums.modx.com/thread/74071/help-with-getchunk-and-modx-speed-please?page=4#dis-post-464137
                  */
-                $chunk = $this->modx->getParser()->getElement('modChunk', $tpl);
+                $chunk = $this->modx->getParser()->getElement('modChunk', $tplChunk);
+                $this->_chunks[$tpl] = $chunk->get('content');
                 $chunk->setCacheable(false);
                 $chunk->_processed = false;
                 $output = $chunk->process($phs);
@@ -191,6 +344,7 @@ class VirtuNewsletter {
             throw new Exception('File: ' . $file . ' is not found.');
         }
         $o = file_get_contents($file);
+        $this->_chunks[$file] = $o;
         $chunk = $this->modx->newObject('modChunk');
 
         // just to create a name for the modChunk object.
@@ -291,9 +445,10 @@ class VirtuNewsletter {
             $newsletterArray = $newsletter->toArray();
             if ($newsletterArray['is_recurring']) {
                 $recurringNewsletter = $this->createNextRecurrence($newsletterArray['id']);
-                if (!empty($recurringNewsletter)) {
-                    $newsletterArray = $recurringNewsletter;
+                if (empty($recurringNewsletter)) {
+                    return false;
                 }
+                $newsletterArray = $recurringNewsletter;
             }
         }
         return $newsletterArray;
@@ -362,7 +517,7 @@ class VirtuNewsletter {
         $time = time();
 
         $outputReports = array();
-        $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
+        $subscribers = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
         if (!$subscribers) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsletterArray['id'], '', __METHOD__, __FILE__, __LINE__);
@@ -385,7 +540,7 @@ class VirtuNewsletter {
                 'status' => 'queue',
                 'status_logged_on' => $time,
             );
-            $report->fromArray($params, NULL, TRUE, TRUE);
+            $report->fromArray($params);
             if ($report->save() === FALSE) {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -400,6 +555,7 @@ class VirtuNewsletter {
     }
 
     /**
+     * @deprecated since version 1.6.0-beta2
      * Get all newsletters of a subscriber
      * @param   int     $subscriberId   subscriber's ID
      * @return  mixed   false|subscribers array
@@ -408,12 +564,12 @@ class VirtuNewsletter {
         $newslettersArray = array();
 
         $c = $this->modx->newQuery('vnewsNewsletters');
-        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
-        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsNewslettersHasCategories.category_id');
-        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.category_id = vnewsCategories.id');
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsSubscribersHasCategories.subscriber_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.newsletter_id = vnewsNewsletters.id');
+        $c->leftJoin('vnewsCategories', 'Categories', 'Categories.id = NewslettersHasCategories.category_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = Categories.id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = SubscribersHasCategories.subscriber_id');
         $c->where(array(
-            'vnewsSubscribers.id' => $subscriberId
+            'Subscribers.id' => $subscriberId
         ));
 
         $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
@@ -432,7 +588,7 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function addSubscriberQueues($subscriberId) {
-        $newsletters = $this->subscriberHasNewsletters($subscriberId);
+        $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters();
         if (!$newsletters) {
             return FALSE;
         }
@@ -447,11 +603,23 @@ class VirtuNewsletter {
             $params = array(
                 'newsletter_id' => $newsletterArray['id'],
                 'subscriber_id' => $subscriberId,
+            );
+            $oldReport = $this->modx->getObject('vnewsReports', $params);
+            if (!empty($oldReport)) {
+                $oldReport->set('status', 'queue');
+                $oldReport->set('status_logged_on', time());
+                $oldReport->save();
+
+                continue;
+            }
+
+            $params = array_merge($params, array(
                 'status' => 'queue',
                 'status_logged_on' => time(),
-            );
+            ));
+
             $newReport = $this->modx->newObject('vnewsReports');
-            $newReport->fromArray($params, NULL, TRUE, TRUE);
+            $newReport->fromArray($params);
             $newReport->save();
         }
         return TRUE;
@@ -501,7 +669,7 @@ class VirtuNewsletter {
     }
 
     /**
-     * Set all queues
+     * Set all queues of the subscribers' reports
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   report's array
      */
@@ -527,14 +695,14 @@ class VirtuNewsletter {
                 $newsletterArray = $this->getNewsletter($newsletter->get('id'));
                 if (empty($newsletterArray)) {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsletter->get('id'), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, $this->getError(), '', __METHOD__, __FILE__, __LINE__);
                     $this->modx->setDebug(FALSE);
                     continue;
                 }
             } else {
                 $newsletterArray = $newsletter->toArray();
             }
-            $subscribers = $this->newsletterHasSubscribers($newsletterArray['id']);
+            $subscribers = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
             if (empty($subscribers)) {
                 continue;
             }
@@ -554,7 +722,7 @@ class VirtuNewsletter {
                     'status' => 'queue',
                     'status_logged_on' => $time,
                 );
-                $report->fromArray($params, NULL, TRUE);
+                $report->fromArray($params);
                 if ($report->save() === FALSE) {
                     $this->modx->setDebug();
                     $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -569,6 +737,8 @@ class VirtuNewsletter {
     }
 
     /**
+     * @deprecated since version 1.6.0-beta2
+     * @see vnewsNewsletters::getSubscribers()
      * Get all subscribers of a newsletter
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|subscribers array
@@ -577,13 +747,13 @@ class VirtuNewsletter {
         $subscribersArray = array();
 
         $c = $this->modx->newQuery('vnewsSubscribers');
-        $c->leftJoin('vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories', 'vnewsSubscribersHasCategories.subscriber_id = vnewsSubscribers.id');
-        $c->leftJoin('vnewsCategories', 'vnewsCategories', 'vnewsCategories.id = vnewsSubscribersHasCategories.category_id');
-        $c->leftJoin('vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories', 'vnewsNewslettersHasCategories.category_id = vnewsCategories.id');
-        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsNewslettersHasCategories.newsletter_id');
+        $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.subscriber_id = vnewsSubscribers.id');
+        $c->leftJoin('vnewsCategories', 'Categories', 'Categories.id = SubscribersHasCategories.category_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.category_id = Categories.id');
+        $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = NewslettersHasCategories.newsletter_id');
         $c->where(array(
             'vnewsSubscribers.is_active' => 1,
-            'vnewsNewsletters.id' => $newsId
+            'Newsletters.id' => $newsId
         ));
 
         $subscribers = $this->modx->getCollection('vnewsSubscribers', $c);
@@ -601,19 +771,19 @@ class VirtuNewsletter {
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   reports' outputs in array
      */
-    public function processQueue($todayOnly = FALSE) {
+    public function processQueue($todayOnly = FALSE, $limit = 0) {
         $c = $this->modx->newQuery('vnewsReports');
-        $c->leftJoin('vnewsNewsletters', 'vnewsNewsletters', 'vnewsNewsletters.id = vnewsReports.newsletter_id');
+        $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
         $c->select(array(
             'vnewsReports.*',
-            'vnewsNewsletters.subject',
-            'vnewsNewsletters.created_on',
-            'vnewsNewsletters.scheduled_for',
-            'vnewsNewsletters.is_recurring',
+            'Newsletters.subject',
+            'Newsletters.created_on',
+            'Newsletters.scheduled_for',
+            'Newsletters.is_recurring',
         ));
         $c->where(array(
             'vnewsReports.status' => 'queue',
-            'vnewsNewsletters.is_active' => 1,
+            'Newsletters.is_active' => 1,
         ));
 //        $todayOnly = TRUE;
         if ($todayOnly) {
@@ -623,7 +793,7 @@ class VirtuNewsletter {
                 'scheduled_for' => $today,
             ));
         }
-        $limit = $this->modx->getOption('virtunewsletter.email_limit');
+        $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
         if (!empty($limit)) {
             $c->limit($limit);
         }
@@ -648,9 +818,9 @@ class VirtuNewsletter {
                         foreach ($output as $item) {
                             if (isset($item['email']) && isset($item['status'])) {
                                 $c = $this->modx->newQuery('vnewsReports');
-                                $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+                                $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
                                 $c->where(array(
-                                    'vnewsSubscribers.email' => $item['email']
+                                    'Subscribers.email' => $item['email']
                                 ));
                                 $itemQueue = $this->modx->getObject('vnewsReports', $c);
                                 if ($itemQueue) {
@@ -698,19 +868,23 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function subscribe($fields) {
-        if (!isset($fields[$this->config['emailKey']])) {
-            $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
-                'email' => $fields[$this->config['emailKey']]
-            ));
+        if (!isset($fields[$this->config['emailKey']]) || empty($fields[$this->config['emailKey']])) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_ns');
+            $this->setError($msg);
+            return FALSE;
+        }
+        $email = trim($fields[$this->config['emailKey']]);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_invalid_email');
             $this->setError($msg);
             return FALSE;
         }
         $registeredSubscriber = $this->modx->getObject('vnewsSubscribers', array(
-            'email' => $fields[$this->config['emailKey']]
+            'email' => $email
         ));
         if ($registeredSubscriber) {
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_exists', array(
-                'email' => $fields[$this->config['emailKey']]
+                'email' => $email
             ));
             $this->setError($msg);
             return FALSE;
@@ -725,9 +899,9 @@ class VirtuNewsletter {
         $newSubscriber = $this->modx->newObject('vnewsSubscribers');
 
         $c = $this->modx->newQuery('vnewsUsers');
-        $c->leftJoin('modUserProfile', 'modUserProfile', 'vnewsUsers.id = modUserProfile.internalKey');
+        $c->leftJoin('modUserProfile', 'Profile', 'Profile.internalKey = vnewsUsers.id');
         $c->where(array(
-            'modUserProfile.email' => $fields[$this->config['emailKey']]
+            'Profile.email' => $email
         ));
         $user = $this->modx->getObject('vnewsUsers', $c);
         $name = '';
@@ -745,10 +919,10 @@ class VirtuNewsletter {
 
         $params = array(
             'user_id' => $userId,
-            'email' => $fields[$this->config['emailKey']],
+            'email' => $email,
             'name' => $name,
             'is_active' => 0, // wait to confirm
-            'hash' => $this->setHash($fields[$this->config['emailKey']])
+            'hash' => $this->setHash($email)
         );
 
         $newSubscriber->fromArray($params);
@@ -764,22 +938,13 @@ class VirtuNewsletter {
         /**
          * If defined in the input field, set user to the categories
          */
-        if (isset($fields[$this->config['categoryKey']])) {
-            $category = $this->modx->getObjectGraph('vnewsCategories'
-                    , array('vnewsSubscribersHasCategories' => array())
-                    , array(
-                'name' => $fields[$this->config['categoryKey']]
-            ));
-            if ($category) {
-                $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
-                $addManyParams = array(
-                    'subscriber_id' => $newSubscriber->getPrimaryKey(),
-                    'category_id' => $category->get('id')
-                );
-                $subscribersHasCategories->fromArray($addManyParams, '', TRUE, TRUE);
-                $addMany = array($subscribersHasCategories);
-                $newSubscriber->addMany($addMany);
-                $newSubscriber->save();
+        if (isset($fields[$this->config['categoryKey']]) && !empty($fields[$this->config['categoryKey']])) {
+            if (is_array($fields[$this->config['categoryKey']])) {
+                foreach ($fields[$this->config['categoryKey']] as $category) {
+                    $this->addSubscriberToCategory($newSubscriber->getPrimaryKey(), $category);
+                }
+            } else {
+                $this->addSubscriberToCategory($newSubscriber->getPrimaryKey(), $fields[$this->config['categoryKey']]);
             }
         }
 
@@ -792,6 +957,63 @@ class VirtuNewsletter {
         $this->setPlaceholders($phs);
 
         return TRUE;
+    }
+
+    /**
+     * Add subscriber to category
+     * @param   int     $subscriberId   Subscriber's ID
+     * @param   string  $category       Category's Name
+     */
+    public function addSubscriberToCategory($subscriberId, $category) {
+        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
+                , array('vnewsSubscribersHasCategories' => array())
+                , array(
+            'name' => $category
+        ));
+        if (!$categoryObj) {
+            return FALSE;
+        }
+
+        $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
+        $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
+        $addManyParams = array(
+            'subscriber_id' => $subscriber->getPrimaryKey(),
+            'category_id' => $categoryObj->get('id')
+        );
+        $subscribersHasCategories->fromArray($addManyParams);
+        $addMany = array($subscribersHasCategories);
+        $subscriber->addMany($addMany);
+        if ($subscriber->save() === FALSE) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! ' . print_r($addManyParams, TRUE), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(FALSE);
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    /**
+     * Remove subscriber from category
+     * @param   int     $subscriberId   Subscriber's ID
+     * @param   string  $category       Category's Name
+     */
+    public function removeSubscriberFromCategory($subscriberId, $category) {
+        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
+                , array('vnewsSubscribersHasCategories' => array())
+                , array(
+            'name' => $category
+        ));
+        if (!$categoryObj) {
+            return FALSE;
+        }
+        $subscribersHasCategories = $this->modx->getObject('vnewsSubscribersHasCategories', array(
+            'subscriber_id' => $subscriberId,
+            'category_id' => $categoryObj->get('id')
+        ));
+        if (!$subscribersHasCategories) {
+            return FALSE;
+        }
+        return $subscribersHasCategories->remove();
     }
 
     /**
@@ -867,6 +1089,10 @@ class VirtuNewsletter {
                 $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_activated');
                 $this->setOutput($msg);
                 break;
+            case 'unsubscribing':
+                $msg = $this->modx->lexicon('virtunewsletter.subscriber_unsubscribing');
+                $this->setOutput($msg);
+                break;
             case 'unsubscribe':
                 $subscriber->set('is_active', 0);
                 $subscriber->save();
@@ -891,143 +1117,6 @@ class VirtuNewsletter {
     }
 
     /**
-     * Set string error for boolean returned methods
-     * @return  void
-     */
-    public function setError($msg) {
-        $this->_error = $msg;
-    }
-
-    /**
-     * Get string error for boolean returned methods
-     * @return  string  output
-     */
-    public function getError() {
-        return $this->_error;
-    }
-
-    /**
-     * Set string output for boolean returned methods
-     * @return  void
-     */
-    public function setOutput($msg) {
-        $this->_output = $msg;
-    }
-
-    /**
-     * Get string output for boolean returned methods
-     * @return  string  output
-     */
-    public function getOutput() {
-        return $this->_output;
-    }
-
-    /**
-     * Trim array values
-     * @param   array   $array          array contents
-     * @param   string  $charlist       [default: null] defined characters to be trimmed
-     * @link http://php.net/manual/en/function.trim.php
-     * @return  array   trimmed array
-     */
-    public function trimArray($input, $charlist = null) {
-        if (is_array($input)) {
-            $output = array_map(array($this, 'trimArray'), $input);
-        } else {
-            $output = $this->trimString($input, $charlist);
-        }
-
-        return $output;
-    }
-
-    /**
-     * Trim string value
-     * @param   string  $string     source text
-     * @param   string  $charlist   defined characters to be trimmed
-     * @link http://php.net/manual/en/function.trim.php
-     * @return  string  trimmed text
-     */
-    public function trimString($string, $charlist = null) {
-        if (empty($string)) {
-            return '';
-        }
-        $string = htmlentities($string);
-        // blame TinyMCE!
-        $string = preg_replace('/(&Acirc;|&nbsp;)+/i', '', $string);
-        $string = trim($string, $charlist);
-        $string = trim(preg_replace('/\s+^(\r|\n|\r\n)/', ' ', $string));
-        $string = html_entity_decode($string);
-        return $string;
-    }
-
-    /**
-     * Merge multi dimensional associative arrays with separator
-     * @param   array   $array      raw associative array
-     * @param   string  $keyName    parent key of this array
-     * @param   string  $separator  separator between the merged keys
-     * @param   array   $holder     to hold temporary array results
-     * @return  array   one level array
-     */
-    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
-        $phs = !empty($holder) ? $holder : array();
-        foreach ($array as $k => $v) {
-            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
-            if (is_array($v)) {
-                $phs = $this->implodePhs($v, $key, $separator, $phs);
-            } else {
-                $phs[$key] = $v;
-            }
-        }
-        return $phs;
-    }
-
-    /**
-     * Set internal placeholder
-     * @param   string  $key    key
-     * @param   string  $value  value
-     * @param   string  $prefix add prefix if it's required
-     */
-    public function setPlaceholder($key, $value, $prefix = '') {
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
-        $this->_placeholders[$prefix . $key] = $value;
-    }
-
-    /**
-     * Set internal placeholders
-     * @param   array   $placeholders   placeholders in an associative array
-     * @param   string  $prefix         add prefix if it's required
-     * @return  mixed   boolean|array of placeholders
-     */
-    public function setPlaceholders($placeholders, $prefix = '') {
-        if (empty($placeholders)) {
-            return FALSE;
-        }
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
-        $placeholders = $this->trimArray($placeholders);
-        $placeholders = $this->implodePhs($placeholders, rtrim($prefix, '.'));
-        // enclosed private scope
-        $this->_placeholders = array_merge($this->_placeholders, $placeholders);
-        // return only for this scope
-        return $placeholders;
-    }
-
-    /**
-     * Get internal placeholders in an associative array
-     * @return array
-     */
-    public function getPlaceholders() {
-        return $this->_placeholders;
-    }
-
-    /**
-     * Get an internal placeholder
-     * @param   string  $key    key
-     * @return  string  value
-     */
-    public function getPlaceholder($key) {
-        return $this->_placeholders[$key];
-    }
-
-    /**
      * Apply CSS rules:
      * @param   string  $html   HTML content
      *
@@ -1041,8 +1130,9 @@ class VirtuNewsletter {
             $this->modx->setDebug(FALSE);
             return FALSE;
         }
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/Exception.php';
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/CssToInlineStyles.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Specificity.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Exception.php';
+        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/CssToInlineStyles.php';
 
         // embedded CSS:
         preg_match_all('|<style(.*)>(.*)</style>|isU', $html, $css);
@@ -1105,6 +1195,12 @@ class VirtuNewsletter {
         return $this->sendMail($newsletterArray['subject'], $content, $subscriberArray['email']);
     }
 
+    /**
+     * Process content for email body
+     * @param   int $newsId News' ID
+     * @return  boolean
+     * @todo    need to parse System Setting's and Context Setting's tags,
+     */
     public function processEmailMessage($newsId) {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
@@ -1197,6 +1293,10 @@ class VirtuNewsletter {
         $this->modx->mail->set(modMail::MAIL_SUBJECT, $subject);
         $this->modx->mail->address('to', $emailTo);
         $this->modx->mail->address('reply-to', $emailFrom);
+        // https://support.google.com/mail/answer/180707?hl=en
+        $x = explode('@', $emailFrom);
+        $this->modx->mail->header('mailed-by:' . $x[1]);
+        $this->modx->mail->header('signed-by:' . $x[1]);
         $this->modx->mail->setHTML(true);
         if (!$this->modx->mail->send()) {
             $this->modx->setDebug();
@@ -1339,8 +1439,7 @@ class VirtuNewsletter {
         // keeping the email's placeholders' tags
         $columns = $this->modx->getSelectColumns('vnewsSubscribers');
         $columns = str_replace('`', '', $columns);
-        $phsArray = @explode(',', $columns);
-        array_walk($phsArray, create_function('&$v', '$v = trim($v);'));
+        $phsArray = array_map('trim', @explode(',', $columns));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $phsArray = array_merge($phsArray, array('newsid', 'subid', 'act'));
         $search = array();
@@ -1394,7 +1493,7 @@ class VirtuNewsletter {
         $c->sortby('scheduled_for', 'desc');
         $recurringNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
         if (!$recurringNewsletter) {
-            // checking the content latest recurrence.
+            // checking the content of the latest recurrence.
             // if its content is as same as the current one, skip this
             $currentContent = $this->prepareEmailContent($parentNewsletterArray['content']);
 
@@ -1406,8 +1505,9 @@ class VirtuNewsletter {
             $c->sortby('scheduled_for', 'desc');
             $latestNewsletter = $this->modx->getObject('vnewsNewsletters', $c);
             if ($latestNewsletter) {
-                $latestContent = $latestNewsletter->get('content');
+                $latestContent = $this->prepareEmailContent($latestNewsletter->get('content'));
                 if ($latestContent === $currentContent) {
+                    $this->setError('$latestContent === $currentContent');
                     return FALSE;
                 }
             }
@@ -1431,7 +1531,7 @@ class VirtuNewsletter {
                 $this->modx->setDebug(FALSE);
                 return FALSE;
             }
-            $categories = $parentNewsletter->getMany('vnewsNewslettersHasCategories');
+            $categories = $parentNewsletter->getMany('NewslettersHasCategories');
             $recurringNewsletterCategories = array();
             foreach ($categories as $category) {
                 $addCategory = $this->modx->newObject('vnewsNewslettersHasCategories');
@@ -1439,7 +1539,7 @@ class VirtuNewsletter {
                     'newsletter_id' => $recurringNewsletter->getPrimaryKey(),
                     'category_id' => $category->get('category_id')
                 );
-                $addCategory->fromArray($catParams, NULL, TRUE, TRUE);
+                $addCategory->fromArray($catParams);
                 $recurringNewsletterCategories[] = $addCategory;
             }
             $recurringNewsletter->addMany($recurringNewsletterCategories);

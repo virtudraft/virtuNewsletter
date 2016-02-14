@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -88,41 +88,41 @@ $settings['virtunewsletter.readerpage']->fromArray(array(
     'area' => 'URL',
         ), '', true, true);
 
-$settings['virtunewsletter.subscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.subscribe_confirmation_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.subscribe_confirmation_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.unsubscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.unsubscribe_confirmation_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.unsubscribe_confirmation_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.subscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.subscribe_succeeded_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.subscribe_succeeded_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
-
-$settings['virtunewsletter.unsubscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.unsubscribe_succeeded_tpl']->fromArray(array(
-    'key' => 'virtunewsletter.unsubscribe_succeeded_tpl',
-    'value' => '',
-    'xtype' => 'textfield',
-    'namespace' => 'virtunewsletter',
-    'area' => 'Email',
-        ), '', true, true);
+//$settings['virtunewsletter.subscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.subscribe_confirmation_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.subscribe_confirmation_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.unsubscribe_confirmation_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.unsubscribe_confirmation_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.unsubscribe_confirmation_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.subscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.subscribe_succeeded_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.subscribe_succeeded_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
+//
+//$settings['virtunewsletter.unsubscribe_succeeded_tpl'] = $modx->newObject('modSystemSetting');
+//$settings['virtunewsletter.unsubscribe_succeeded_tpl']->fromArray(array(
+//    'key' => 'virtunewsletter.unsubscribe_succeeded_tpl',
+//    'value' => '',
+//    'xtype' => 'textfield',
+//    'namespace' => 'virtunewsletter',
+//    'area' => 'Email',
+//        ), '', true, true);
 
 $settings['virtunewsletter.usergroups'] = $modx->newObject('modSystemSetting');
 $settings['virtunewsletter.usergroups']->fromArray(array(
@@ -186,37 +186,5 @@ $settings['virtunewsletter.email_bcc_address']->fromArray(array(
     'namespace' => 'virtunewsletter',
     'area' => 'Email',
         ), '', true, true);
-
-$extensionPackages = $modx->getObject('modSystemSetting', array(
-    'key' => 'extension_packages'
-        ));
-if ($extensionPackages) {
-    $value = $extensionPackages->get('value');
-    $valueArray = json_decode($value, TRUE);
-    if (!isset($valueArray['virtunewsletter'])) {
-        $valueArray['virtunewsletter'] = array(
-            'path' => '[[++core_path]]components/virtunewsletter/model/'
-        );
-        $value = json_encode($valueArray);
-        $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
-        $settings['extension_packages']->set('value', $value);
-    }
-} else {
-    $valueArray = array(
-        'virtunewsletter' => array(
-            'path' => '[[++core_path]]components/virtunewsletter/model/'
-        )
-    );
-    $value = json_encode($valueArray);
-    $value = str_replace('[[++core_path]]', '\[\[\+\+core_path\]\]', $value);
-    $settings['extension_packages'] = $modx->newObject('modSystemSetting');
-    $settings['extension_packages']->fromArray(array(
-        'key' => 'extension_packages',
-        'value' => $value,
-        'xtype' => 'textfield',
-        'namespace' => 'core',
-        'area' => 'system',
-            ), '', true, true);
-}
 
 return $settings;

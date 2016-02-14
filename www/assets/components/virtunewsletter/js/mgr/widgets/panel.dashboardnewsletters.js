@@ -1,7 +1,7 @@
-VirtuNewsletter.panel.DashboardNewsletters = function(config) {
+VirtuNewsletter.panel.DashboardNewsletters = function (config) {
     config = config || {};
 
-    Ext.apply(config, {
+    Ext.applyIf(config, {
         id: 'virtunewsletter-panel-dashboardnewsletter',
         collapsible: false,
         bodyStyle: 'padding: 10px;',
@@ -19,6 +19,8 @@ VirtuNewsletter.panel.DashboardNewsletters = function(config) {
         },
         items: [
             {
+                title: _('virtunewsletter.newsletters')
+            }, {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.upcoming_schedules'),
                 name: 'upcoming_schedules',

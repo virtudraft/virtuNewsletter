@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -46,10 +47,17 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
                 'newsletter_id:IN' => $ids,
             ));
         }
-        $c->leftJoin('vnewsSubscribers', 'vnewsSubscribers', 'vnewsSubscribers.id = vnewsReports.subscriber_id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
+        $query = $this->getProperty('query');
+        if (!empty($query)) {
+            $c->where(array(
+                'Subscribers.name:LIKE' => '%' . $query . '%',
+                'OR:Subscribers.email:LIKE' => '%' . $query . '%',
+            ));
+        }
         $c->select(array(
             'vnewsReports.*',
-            $this->modx->getSelectColumns('vnewsSubscribers', 'vnewsSubscribers', null, array('id', 'is_active'), TRUE),
+            $this->modx->getSelectColumns('vnewsSubscribers', 'Subscribers', null, array('id', 'is_active'), TRUE),
         ));
 
         return $c;
@@ -67,6 +75,21 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
         }
         return $ids;
     }
+
+    /**
+     * Prepare the row for iteration
+     * @param xPDOObject $object
+     * @return array
+     */
+    public function prepareRow(xPDOObject $object) {
+        $objectArray = parent::prepareRow($object);
+        $status = $this->modx->lexicon('virtunewsletter.' . $objectArray['status']);
+        if ($status) {
+            $objectArray['status_text'] = $status;
+        }
+        return $objectArray;
+    }
+
 }
 
 return 'ReportsGetListProcessor';

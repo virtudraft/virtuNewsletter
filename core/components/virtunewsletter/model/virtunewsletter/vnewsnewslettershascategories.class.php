@@ -1,2 +1,2 @@
 <?php
-class vnewsNewslettersHasCategories extends xPDOObject {}
+class vnewsNewslettersHasCategories extends xPDOSimpleObject {}

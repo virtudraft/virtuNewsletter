@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -76,13 +76,30 @@ class SubscribersExportCsvProcessor extends modProcessor {
         $out = fopen($this->modx->virtunewsletter->config['corePath'] . 'exports/' . $f, 'w');
         $columns = $this->modx->getSelectColumns('vnewsSubscribers');
         $columns = str_replace('`', '', $columns);
-        $columnsArray = @explode(',', $columns);
-        array_walk($columnsArray, create_function('&$v', '$v=trim($v);'));
+        $columnsArray = array_map('trim', @explode(',', $columns));
+        foreach ($columnsArray as $k => $v) {
+            if ($v === 'hash') {
+                unset($columnsArray[$k]);
+            }
+        }
+        $columnsArray = array_merge($columnsArray, array('categories', 'usergroups'));
+        $columnsArray = array_values($columnsArray);
+        
         fputcsv($out, $columnsArray);
         $collections = $this->modx->getCollection('vnewsSubscribers');
         if ($collections) {
             foreach ($collections as $item) {
                 $itemArray = $item->toArray();
+                foreach ($itemArray as $k => $v) {
+                    if ($k === 'hash') {
+                        unset($itemArray[$k]);
+                    }
+                }
+                $itemArray = array_merge($itemArray, array(
+                    @implode(', ', $item->getCategoryNames()),
+                    @implode(', ', $item->getUserGroupNames()),
+                    ));
+                $itemArray = array_values($itemArray);
                 fputcsv($out, $itemArray);
             }
         }

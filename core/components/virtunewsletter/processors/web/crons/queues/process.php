@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -24,21 +24,24 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-if (!isset($_GET['site_id'])) {
+if (!isset($_REQUEST['site_id'])) {
     die('Missing authentification!');
 }
-if ($_GET['site_id'] !== $modx->site_id) {
+if ($_REQUEST['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
-$modx->virtunewsletter->setQueues();
-$reports = $modx->virtunewsletter->processQueue();
+$todayOnly = isset($_REQUEST['today_only']) && ($_REQUEST['today_only'] == 1) ? true : false;
+$limit = isset($_REQUEST['limit']) && is_numeric($_REQUEST['limit']) ? intval($_REQUEST['limit']) : 0;
 
-$outputType = isset($_GET['outputtype']) && $_GET['outputtype'] === 'json' ? 'json' : 'html';
+$modx->virtunewsletter->setQueues($todayOnly);
+$reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
+
+$outputType = isset($_REQUEST['output_type']) && $_REQUEST['output_type'] === 'json' ? 'json' : 'html';
 if ($outputType === 'json') {
     return $this->success('', $reports);
 } else {
-    $getItems = isset($_GET['getitems']) && $_GET['getitems'] === 1 ? 1 : 0;
+    $getItems = isset($_REQUEST['get_items']) && $_REQUEST['get_items'] === 1 ? 1 : 0;
     $output = '';
     if (!empty($reports)) {
         $phs = array(
@@ -51,11 +54,15 @@ if ($outputType === 'json') {
         if ($getItems) {
             $itemArray = array();
             foreach ($reports as $report) {
-                $itemArray[] = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
+                $parseTpl = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
+                $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
             }
             $phs['items'] = @implode('', $itemArray);
+        } else {
+            $phs['items'] = '';
         }
         $output = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
+        $output = $modx->virtunewsletter->processElementTags($output);
     }
     return $output;
 }

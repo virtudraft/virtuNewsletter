@@ -1,25 +1,75 @@
-VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
+VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
     config = config || {};
 
     Ext.QuickTips.init();
 
-    Ext.apply(config, {
+    var tbar = ['->'];
+    tbar.push({
+        text: _('save'),
+        handler: this.submit,
+        scope: this
+    });
+    if (config.record && config.record.id) {
+        tbar.push({
+            text: _('virtunewsletter.remove'),
+            handler: this.removeNewsletter,
+            scope: this
+        });
+        tbar.push({
+            text: _('virtunewsletter.view'),
+            handler: this.viewContent,
+            scope: this
+        });
+        tbar.push({
+            text: _('virtunewsletter.test'),
+            handler: function () {
+                var newsTest = new VirtuNewsletter.window.NewsletterTest({
+                    baseParams: {
+                        action: 'mgr/newsletters/test'
+                    },
+                    record: config.record
+                });
+                return newsTest.show();
+            }
+        });
+    }
+    tbar.push({
+        text: _('virtunewsletter.close'),
+        handler: this.closeTab,
+        scope: this
+    });
+
+    Ext.applyIf(config, {
+        url: VirtuNewsletter.config.connectorUrl,
+        baseParams: {
+            action: 'mgr/newsletters/' + (config.record && config.record.id ? 'update' : 'create'),
+//            id: config.record && config.record.id ? config.record.id : 0
+        },
         baseCls: 'modx-formpanel',
-        layout: 'anchor',
         border: false,
-        dateFormat: 'U',
-        displayFormat: 'm/d/Y',
+        dateFormat: config.dateFormat || 'U',
+        displayFormat: config.displayFormat || 'Y-m-d',
+        layout: 'form',
+        labelAlign: 'left',
+        labelWidth: 100,
+        autoHeight: true,
         items: [
             {
                 xtype: 'hidden',
                 fieldLabel: _('id'),
                 name: 'id',
-                value: config.record &&
-                        config.record.newsid ? config.record.newsid : 0
+                value: config.record && config.record.id ? config.record.id : 0
             }, {
                 // will be used for the grid below
                 xtype: 'hidden',
                 name: 'categories'
+            }, {
+                xtype: 'textfield',
+                fieldLabel: _('virtunewsletter.subject'),
+                name: 'subject',
+                allowBlank: false,
+                anchor: '100%',
+                value: config.record && config.record.subject ? config.record.subject : ''
             }, {
                 layout: 'column',
                 columns: 2,
@@ -29,29 +79,28 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                 },
                 items: [
                     {
-                        columnWidth: 1,
-                        items: [
-                            {
-                                xtype: 'textfield',
-                                fieldLabel: _('virtunewsletter.subject'),
-                                name: 'subject',
-                                allowBlank: false,
-                                anchor: '100%',
-                                value: config.record &&
-                                        config.record.subject ? config.record.subject : ''
-                            }
-                        ]
-                    }, {
                         columnWidth: .5,
                         items: [
                             {
-                                xtype: 'numberfield',
+                                xtype: 'virtunewsletter-combo-resources',
+                                anchor: '100%',
                                 fieldLabel: _('virtunewsletter.resource_id'),
                                 name: 'resource_id',
-                                allowBlank: false,
-                                value: config.record &&
-                                        config.record.resource_id ? config.record.resource_id : ''
+                                value: config.record && config.record.resource_id ? config.record.resource_id : ''
                             }
+//                            {
+//                                xtype: 'modx-field-parent-change',
+//                                anchor: '100%',
+//                                fieldLabel: _('virtunewsletter.resource_id'),
+//                                name: 'resource_id2',
+//                                value: config.record && config.record.resource_id ? config.record.resource_id : '',
+//                                allowBlank: false
+//                            }, {
+//                                xtype: 'hidden',
+//                                name: 'resource_id',
+//                                value: config.record && config.record.resource_id ? config.record.resource_id : '',
+//                                id: 'modx-resource-parent-hidden'
+//                            }
                         ]
                     }, {
                         columnWidth: .5,
@@ -60,85 +109,39 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                 xtype: 'datefield',
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
                                 name: 'scheduled_for',
-                                allowBlank: false,
+                                allowBlank: true,
+                                format: 'Y-m-d', // make it display correct but sends it to server as Y-m-d
+                                dateFormat:'Y-m-d',
+                                submitFormat: 'U',
+                                renderer: Ext.util.Format.dateRenderer('Y-m-d'),
+                                altFormats:'U|u|m/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j',
                                 value: config.record &&
-                                        config.record.scheduled_for ? config.record.scheduled_for : ''
+                                    config.record.scheduled_for &&
+                                    config.record.scheduled_for > 0 ?
+                                    config.record.scheduled_for :
+                                    ''
                             }
                         ]
-                    }, {
-                        columnWidth: 1,
-                        layout: 'hbox',
-                        defaults: {
-                            flex: 1
-                        },
-                        items: [
-                            {
-                                xtype: 'xcheckbox',
-                                boxLabel: _('virtunewsletter.is_recurring'),
-                                name: 'is_recurring',
-                                checked: config.record &&
-                                        config.record.is_recurring ? config.record.is_recurring : 0,
-                                listeners: {
-                                    check: {
-                                        fn: function(cb, checked) {
-                                            var recurrenceNumber = this.form.findField('recurrence_number');
-                                            var recurrenceRange = this.form.findField('recurrence_range');
-                                            if (checked) {
-                                                recurrenceNumber.enable();
-                                                recurrenceNumber.allowBlank = false;
-                                                if (recurrenceNumber.value === '') {
-                                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
-                                                }
-                                                recurrenceRange.enable();
-                                                recurrenceRange.allowBlank = false;
-                                                if (recurrenceRange.value === '') {
-                                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
-                                                }
-                                            } else {
-                                                recurrenceNumber.disable();
-                                                recurrenceNumber.allowBlank = true;
-                                                recurrenceNumber.setValue('');
-                                                recurrenceNumber.clearInvalid();
-                                                recurrenceRange.disable();
-                                                recurrenceRange.allowBlank = true;
-                                                recurrenceRange.setValue('');
-                                                recurrenceRange.clearInvalid();
-                                            }
-                                        },
-                                        scope: this
-                                    }
-                                }
-                            }, {
-                                xtype: 'numberfield',
-                                fieldLabel: _('virtunewsletter.number_of_times'),
-                                name: 'recurrence_number',
-                                value: config.record &&
-                                        config.record.recurrence_number ? config.record.recurrence_number : ''
-                            }, {
-                                xtype: 'virtunewsletter-combo-recurrence-range',
-                                fieldLabel: _('virtunewsletter.by'),
-                                name: 'recurrence_range',
-                                value: config.record &&
-                                        config.record.recurrence_range ? config.record.recurrence_range : ''
-                            }
-                        ],
+                    }
+                ]
+            }, {
+                columnWidth: 1,
+                layout: 'hbox',
+                defaults: {
+                    flex: 1
+                },
+                items: [
+                    {
+                        xtype: 'xcheckbox',
+                        boxLabel: _('virtunewsletter.is_recurring'),
+                        name: 'is_recurring',
+                        checked: config.record && config.record.is_recurring ? config.record.is_recurring : 0,
                         listeners: {
-                            'render': {
-                                fn: function(obj) {
-                                    // for initial loading
-                                    var isRecurring = this.form.findField('is_recurring');
+                            check: {
+                                fn: function (cb, checked) {
                                     var recurrenceNumber = this.form.findField('recurrence_number');
                                     var recurrenceRange = this.form.findField('recurrence_range');
-                                    if (!isRecurring.checked) {
-                                        recurrenceNumber.disable();
-                                        recurrenceNumber.allowBlank = true;
-                                        recurrenceNumber.setValue('');
-                                        recurrenceNumber.clearInvalid();
-                                        recurrenceRange.disable();
-                                        recurrenceRange.allowBlank = true;
-                                        recurrenceRange.setValue('');
-                                        recurrenceRange.clearInvalid();
-                                    } else {
+                                    if (checked) {
                                         recurrenceNumber.enable();
                                         recurrenceNumber.allowBlank = false;
                                         if (recurrenceNumber.value === '') {
@@ -149,38 +152,71 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                                         if (recurrenceRange.value === '') {
                                             recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
                                         }
+                                    } else {
+                                        recurrenceNumber.disable();
+                                        recurrenceNumber.allowBlank = true;
+                                        recurrenceNumber.setValue('');
+                                        recurrenceNumber.clearInvalid();
+                                        recurrenceRange.disable();
+                                        recurrenceRange.allowBlank = true;
+                                        recurrenceRange.setValue('');
+                                        recurrenceRange.clearInvalid();
                                     }
                                 },
                                 scope: this
                             }
                         }
                     }, {
-                        columnWidth: 1,
-                        items: [
-                            {
-                                xtype: 'virtunewsletter-grid-categories',
-                                fieldLabel: _('virtunewsletter.categories'),
-                                record: config.record ? config.record : '',
-                                anchor: '100%',
-                                // this tbar is for this panel only!
-                                tbar: [
-                                    {
-                                        xtype: 'virtunewsletter-combo-categories',
-                                        anchor: '100%',
-                                        lazyRender: true
-                                    }, {
-                                        text: _('virtunewsletter.add'),
-                                        handler: this.addCategory
-                                    }, {
-                                        text: _('virtunewsletter.clear'),
-                                        handler: function() {
-                                            var topToolbar = this.getTopToolbar();
-                                            topToolbar.items.items[0].setValue('');
-                                        }
-                                    }
-                                ]
+                        xtype: 'numberfield',
+                        fieldLabel: _('virtunewsletter.number_of_times'),
+                        name: 'recurrence_number',
+                        value: config.record && config.record.recurrence_number ? config.record.recurrence_number : ''
+                    }, {
+                        xtype: 'virtunewsletter-combo-recurrence-range',
+                        fieldLabel: _('virtunewsletter.by'),
+                        name: 'recurrence_range',
+                        value: config.record && config.record.recurrence_range ? config.record.recurrence_range : ''
+                    }
+                ],
+                listeners: {
+                    'render': {
+                        fn: function (obj) {
+                            // for initial loading
+                            var isRecurring = this.form.findField('is_recurring');
+                            var recurrenceNumber = this.form.findField('recurrence_number');
+                            var recurrenceRange = this.form.findField('recurrence_range');
+                            if (!isRecurring.checked) {
+                                recurrenceNumber.disable();
+                                recurrenceNumber.allowBlank = true;
+                                recurrenceNumber.setValue('');
+                                recurrenceNumber.clearInvalid();
+                                recurrenceRange.disable();
+                                recurrenceRange.allowBlank = true;
+                                recurrenceRange.setValue('');
+                                recurrenceRange.clearInvalid();
+                            } else {
+                                recurrenceNumber.enable();
+                                recurrenceNumber.allowBlank = false;
+                                if (recurrenceNumber.value === '') {
+                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                }
+                                recurrenceRange.enable();
+                                recurrenceRange.allowBlank = false;
+                                if (recurrenceRange.value === '') {
+                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                }
                             }
-                        ]
+                        },
+                        scope: this
+                    }
+                }
+            }, {
+                fieldLabel: _('virtunewsletter.categories'),
+                items: [
+                    {
+                        xtype: 'virtunewsletter-grid-localcategories',
+                        record: config.record ? config.record : {},
+                        anchor: '100%'
                     }
                 ]
             }, {
@@ -188,138 +224,48 @@ VirtuNewsletter.panel.NewsletterConfiguration = function(config) {
                 boxLabel: _('virtunewsletter.active'),
                 name: 'is_active',
                 anchor: '100%',
-                checked: config.record &&
-                        config.record.is_active ? 1 : 0
+                checked: config.record && config.record.is_active ? 1 : 0
             }
         ],
-        tbar: [
-            '->', {
-                text: _('virtunewsletter.recache'),
-                handler: this.updateNewsletter,
-                scope: this
-            }, {
-                text: _('virtunewsletter.remove'),
-                handler: this.removeNewsletter,
-                scope: this
-            }, {
-                text: _('virtunewsletter.view'),
-                handler: this.viewContent,
-                scope: this
-            }, {
-                text: _('virtunewsletter.close'),
-                handler: this.cleanCenter,
-                scope: this
-            }, {
-                text: _('virtunewsletter.test'),
-                handler: function() {
-                    var newsTest = new VirtuNewsletter.window.NewsletterTest({
-                        baseParams: {
-                            action: 'mgr/newsletters/test'
-                        },
-                        record: config.record
-                    });
-                    return newsTest.show();
-                }
-            }
-        ]
+        tbar: tbar
     });
 
     VirtuNewsletter.panel.NewsletterConfiguration.superclass.constructor.call(this, config);
-};
-Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
-    addCategory: function() {
-        var topToolbar = this.getTopToolbar();
-        var combo = topToolbar.items.items[0];
-        var comboValue = combo.getValue();
-        var text = combo.lastSelectionText;
-        if (comboValue) {
-            this.data.push([comboValue, text]);
-            this.getStore().loadData(this.data);
-            this.getView().refresh();
-        }
-    },
-    updateNewsletter: function(btn, evt) {
-        var values = this.form.getValues();
-        var grid = Ext.getCmp('virtunewsletter-grid-categories');
-        var store = grid.getStore();
 
+    this.on('beforeSubmit', function (form, options, config) {
+        var grid = Ext.getCmp('virtunewsletter-grid-localcategories');
+        var store = grid.getStore();
         var categories = [];
         for (var i = 0, l = store.data.items.length; i < l; i++) {
             if (store.data.items[i].data.category_id !== 0) {
                 categories.push(store.data.items[i].data.category_id);
             }
         }
-        values['categories'] = categories.join(',');
+        this.getForm().findField('categories').setValue(categories.join(','));
 
-        if (!this.pageMask) {
-            this.pageMask = new Ext.LoadMask(Ext.getBody(), {
-                msg: _('virtunewsletter.please_wait')
-            });
+        return true;
+    }, this);
+
+    this.on('success', function() {
+        var grid = Ext.getCmp('virtunewsletter-grid-newsletters');
+        if (typeof(grid) !== 'undefined') {
+            grid.refresh();
         }
-        this.pageMask.show();
+    });
+};
 
-        MODx.Ajax.request({
-            url: VirtuNewsletter.config.connectorUrl + '?action=mgr/newsletters/update',
-            params: values,
-            listeners: {
-                'success': {
-                    fn: function(response) {
-                        this.pageMask.hide();
-                        Ext.getCmp('virtunewsletter-tree-newsletters').refreshNode(this.config.record.id);
-                        return this.refreshNewsletterPanel(response.object.id);
-                    },
-                    scope: this
-                },
-                'failure': {
-                    fn: function() {
-                        return this.pageMask.hide();
-                    },
-                    scope: this
-                }
-            }
-        });
-    },
-    refreshNewsletterPanel: function(newsId) {
-        MODx.Ajax.request({
-            url: VirtuNewsletter.config.connectorUrl + '?action=mgr/newsletters/get',
-            params: {
-                id: newsId
-            },
-            listeners: {
-                'success': {
-                    fn: function(response) {
-                        var record = response.object;
-                        var date = Date.parseDate(record.scheduled_for, this.config.dateFormat);
-                        record.scheduled_for = date.format(this.config.displayFormat);
-                        record.newsid = record.id;
-                        return Ext.getCmp('virtunewsletter-tree-newsletters').newslettersPanel(record);
-                    },
-                    scope: this
-                },
-                'failure': {
-                    fn: function() {
-                        return this.pageMask.hide();
-                    },
-                    scope: this
-                }
-            }
-        });
-    },
-    removeNewsletter: function() {
+Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
+    removeNewsletter: function () {
         MODx.msg.confirm({
             title: _('virtunewsletter.remove'),
             text: _('virtunewsletter.remove_confirm'),
             url: VirtuNewsletter.config.connectorUrl + '?action=mgr/newsletters/remove',
             params: {
-                id: this.config.record.newsid
+                id: this.config.record.id
             },
             listeners: {
                 'success': {
-                    fn: function() {
-                        var newslettersTree = Ext.getCmp('virtunewsletter-tree-newsletters');
-                        newslettersTree.refreshNode(this.config.record.id);
-                        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
-                        contentPanel.removeAll();
+                    fn: function () {
                         var container = Ext.getCmp('modx-content');
                         return container.doLayout();
                     },
@@ -328,15 +274,17 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
             }
         });
     },
-    cleanCenter: function() {
-        var contentPanel = Ext.getCmp('virtunewsletter-panel-newsletters-center');
-        contentPanel.removeAll();
-        var container = Ext.getCmp('modx-content');
-        return container.doLayout();
+    closeTab: function () {
+        var tabs = Ext.getCmp('virtunewsletter-newsletters-tabs');
+        var tab = Ext.getCmp('virtunewsletter-panel-newsletter-content-tab-' + this.config.record.id);
+        if (typeof (tabs) !== 'undefined' && typeof (tab) !== 'undefined') {
+            tabs.remove(tab);
+            tabs.setActiveTab(0);
+        }
     },
-    viewContent: function() {
+    viewContent: function () {
         var time = new Date().getTime();
-        window.open(VirtuNewsletter.config.webConnectorUrl + '?action=web/newsletters/read&newsid=' + this.record.newsid + '&preventCache=' + time, '_blank');
+        window.open(VirtuNewsletter.config.webConnectorUrl + '?action=web/newsletters/read&newsid=' + this.record.id + '&preventCache=' + time, '_blank');
     }
 });
 Ext.reg('virtunewsletter-panel-newsletter-configuration', VirtuNewsletter.panel.NewsletterConfiguration);

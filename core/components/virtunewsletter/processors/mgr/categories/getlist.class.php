@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -30,7 +30,27 @@ class CategoriesGetListProcessor extends modObjectGetListProcessor {
     public $languageTopics = array('virtunewsletter:cmp');
     public $objectType = 'virtunewsletter.CategoriesGetList';
     public $defaultSortField = 'id';
-    public $defaultSortDirection = 'DESC';
+    public $defaultSortDirection = 'asc';
+
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $props = $this->getProperties();
+        if (isset($props['ids'])) {
+            $ids = json_decode($props['ids']);
+            if (!empty($ids)) {
+                $c->where(array(
+                    'id:IN' => $ids
+                ));
+            }
+        }
+
+        return $c;
+    }
 
 }
 

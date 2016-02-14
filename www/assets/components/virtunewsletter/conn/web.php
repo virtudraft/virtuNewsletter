@@ -10,6 +10,14 @@ $validActions = array(
     'web/crons/queues/set',
     'web/crons/queues/process',
 );
+if (PHP_SAPI === "cli") {
+    $args = $_SERVER['argv'];
+    unset($args[0]);
+    foreach ($args as $arg) {
+        $params = @explode('=', $arg);
+        $_REQUEST[$params[0]] = isset($params[1]) ? $params[1] : '';
+    }
+}
 if (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], $validActions)) {
     @session_cache_limiter('public');
     define('MODX_REQP', false);

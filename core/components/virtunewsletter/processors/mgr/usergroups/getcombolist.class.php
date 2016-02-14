@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -20,6 +20,7 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -31,6 +32,22 @@ class UsergroupsGetComboListProcessor extends modObjectGetListProcessor {
     public $objectType = 'virtunewsletter.UsergroupsGetComboList';
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'ASC';
+
+    /**
+     * Can be used to adjust the query prior to the COUNT statement
+     *
+     * @param xPDOQuery $c
+     * @return xPDOQuery
+     */
+    public function prepareQueryBeforeCount(xPDOQuery $c) {
+        $query = $this->getProperty('query', false);
+        if (!empty($query)) {
+            $c->where(array(
+                'name:LIKE' => "%$query%"
+            ));
+        }
+        return $c;
+    }
 
 }
 

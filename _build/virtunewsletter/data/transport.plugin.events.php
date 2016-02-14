@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -25,27 +25,21 @@
  * @package virtunewsletter
  * @subpackage build
  */
+$eventNames = array(
+    'OnUserRemove',
+    'OnUserActivate',
+    'OnUserDeactivate',
+    'OnDocFormSave',
+);
+
 $events = array();
-
-$events['OnUserRemove'] = $modx->newObject('modPluginEvent');
-$events['OnUserRemove']->fromArray(array(
-    'event' => 'OnUserRemove',
-    'priority' => 0,
-    'propertyset' => 0,
-        ), '', true, true);
-
-$events['OnUserActivate'] = $modx->newObject('modPluginEvent');
-$events['OnUserActivate']->fromArray(array(
-    'event' => 'OnUserActivate',
-    'priority' => 0,
-    'propertyset' => 0,
-        ), '', true, true);
-
-$events['OnUserDeactivate'] = $modx->newObject('modPluginEvent');
-$events['OnUserDeactivate']->fromArray(array(
-    'event' => 'OnUserDeactivate',
-    'priority' => 0,
-    'propertyset' => 0,
-        ), '', true, true);
+foreach ($eventNames as $event) {
+    $events[$event] = $modx->newObject('modPluginEvent');
+    $events[$event]->fromArray(array(
+        'event' => $event,
+        'priority' => 0,
+        'propertyset' => 0,
+            ), '', true, true);
+}
 
 return $events;

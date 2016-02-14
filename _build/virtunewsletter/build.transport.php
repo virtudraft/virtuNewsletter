@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -85,16 +85,17 @@ if (empty($menu)) {
         xPDOTransport::PRESERVE_KEYS => true,
         xPDOTransport::UPDATE_OBJECT => true,
         xPDOTransport::UNIQUE_KEY => 'text',
-        xPDOTransport::RELATED_OBJECTS => true,
-        xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
-            'Action' => array(
-                xPDOTransport::PRESERVE_KEYS => false,
-                xPDOTransport::UPDATE_OBJECT => true,
-                xPDOTransport::UNIQUE_KEY => array('namespace', 'controller'),
-            ),
-        ),
+//        xPDOTransport::RELATED_OBJECTS => true,
+//        xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
+//            'Action' => array(
+//                xPDOTransport::PRESERVE_KEYS => false,
+//                xPDOTransport::UPDATE_OBJECT => true,
+//                xPDOTransport::UNIQUE_KEY => array('namespace', 'controller'),
+//            ),
+//        ),
     ));
-    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in Menu & Action done.');
+//    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in Menu & Action done.');
+    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in Menu done.');
     $builder->putVehicle($menuVehicle);
     unset($menuVehicle, $menu);
 }

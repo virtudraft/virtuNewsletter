@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -48,6 +48,27 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         return $c;
     }
 
+    /**
+     * Prepare the row for iteration
+     * @param xPDOObject $object
+     * @return array
+     */
+    public function prepareRow(xPDOObject $object) {
+        $objectArray = $object->toArray();
+        if (empty($objectArray['scheduled_for'])) {
+            $objectArray['scheduled_for'] = '';
+        }
+        $objectArray['subscribers'] = $object->countSubscribers();
+
+        $c = $this->modx->newQuery('vnewsReports');
+        $c->where(array(
+            'newsletter_id' => $objectArray['id'],
+            'status' => queue,
+        ));
+        $objectArray['queue'] = $this->modx->getCount('vnewsReports', $c);
+
+        return $objectArray;
+    }
 }
 
 return 'NewslettersGetListProcessor';

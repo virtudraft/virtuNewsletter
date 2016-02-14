@@ -1,70 +1,177 @@
 VirtuNewsletter.grid.Categories = function(config) {
     config = config || {};
 
-    var check = Ext.getCmp('virtunewsletter-grid-categories');
-    if (check) {
-        check.destroy();
+    var ids = [];
+    if (config.record && config.record.categories) {
+        Ext.each(config.record.categories, function(item) {
+            ids.push(item.category_id);
+        });
     }
-
-    if (!this.data) {
-        var data = [];
-        if (config.record && config.record.categories) {
-            for (var i = 0, l = config.record.categories.length; i < l; i++) {
-                if (config.record.categories[i].category_id !== 0) {
-                    data.push([config.record.categories[i].category_id, config.record.categories[i].category]);
-                }
-            }
-        }
-    }
-
     Ext.applyIf(config, {
-        id: 'virtunewsletter-grid-categories',
+        url: VirtuNewsletter.config.connectorUrl,
+        baseParams: {
+            action: 'mgr/categories/getList',
+            ids: JSON.stringify(ids)
+        },
         autoHeight: true,
-        data: data,
-        fields: ['category_id', 'category'],
+        fields: ['id', 'name', 'categories'],
+        paging: true,
+        remoteSort: true,
         preventRender: true,
-        anchor: '97%',
-        autoExpandColumn: 'category',
+        margins: 15,
+        autoExpandColumn: 'name',
         columns: [
             {
                 header: _('id'),
-                dataIndex: 'category_id',
-                width: 20,
-                sortable: true
+                dataIndex: 'id',
+                width: 40,
+                sortable: true,
+                hidden: true
             }, {
                 header: _('virtunewsletter.name'),
-                dataIndex: 'category',
+                dataIndex: 'name',
                 sortable: true
+            }, {
+                header: _('actions'),
+                xtype: 'actioncolumn',
+                dataIndex: 'id',
+                width: 80,
+                fixed: true,
+                sortable: false,
+                items: [
+                    {
+                        iconCls: 'virtunewsletter-icon-delete virtunewsletter-icon-actioncolumn-img',
+                        tooltip: _('virtunewsletter.remove'),
+                        altText: _('virtunewsletter.remove'),
+                        handler: function(grid, row, col) {
+                            var rec = this.store.getAt(row);
+                            this.removeCategory(rec.data.id);
+                        },
+                        scope: this
+                    }, {
+                        iconCls: 'virtunewsletter-icon-magnifier virtunewsletter-icon-actioncolumn-img',
+                        tooltip: _('virtunewsletter.detail'),
+                        altText: _('virtunewsletter.detail'),
+                        handler: function(grid, row, col) {
+                            var rec = this.store.getAt(row);
+                            this.loadCategory(rec.data.id);
+                        },
+                        scope: this
+                    }
+                ]
+            }
+        ],
+        tbar: [
+            {
+                text: _('virtunewsletter.add_new_category'),
+                handler:  function() {
+                    this.categoryPanel();
+                },
+                scope: this
             }
         ]
     });
 
     VirtuNewsletter.grid.Categories.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.LocalGrid, {
+Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
     getMenu: function(node, e) {
         var menu = [
             {
                 text: _('virtunewsletter.remove'),
-                handler: this.removeCategories
+                handler: function(btn, e) {
+                        this.removeCategory(this.menu.record.id);
+                }
             }
         ];
 
         return menu;
     },
-    removeCategories: function(btn, e) {
-        var newData = [];
-        for (var i = 0, l = this.data.length; i < l; i++) {
-            if (this.data[i][0] === this.menu.record.category_id) {
-                continue;
-            }
-            newData.push(this.data[i]);
-        }
+    removeCategory: function(id) {
 
-        this.data = newData;
-        this.getStore().loadData(newData);
-        this.getView().refresh();
-        return newData;
+        MODx.msg.confirm({
+            title: _('virtunewsletter.remove'),
+            text: _('virtunewsletter.remove_confirm'),
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/categories/remove',
+                id: id
+            },
+            listeners: {
+                'success': {
+                    fn: this.refresh,
+                    scope: this
+                }
+            }
+        });
+    },
+    loadCategory: function(id) {
+        if (!this.pageMask) {
+            this.pageMask = new Ext.LoadMask(Ext.getBody(), {
+                msg: _('virtunewsletter.please_wait')
+            });
+        }
+        this.pageMask.show();
+
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/categories/get',
+                id: id
+            },
+            listeners: {
+                'success': {
+                    fn: function(res) {
+                        if (res.success === true) {
+                            this.categoryPanel(res.object);
+                        }
+                        return this.pageMask.hide();
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function() {
+                        return this.pageMask.hide();
+                    },
+                    scope: this
+                }
+            }
+        });
+    },
+    categoryPanel: function(record) {
+        record = record|| {};
+        var tabs = Ext.getCmp('virtunewsletter-categories-tabs');
+        if (typeof(tabs) === 'undefined') {
+            return false;
+        }
+        var action = 'create';
+        var id = 0;
+        if (typeof(record['id']) !== 'undefined') {
+            id = record['id'];
+            action = 'update';
+        }
+        var newTab = MODx.load({
+            title: record.id ? _('virtunewsletter.category_update') : _('virtunewsletter.category_create'),
+            closable: true,
+            xtype: 'virtunewsletter-panel-category',
+            baseParams: {
+                action: 'mgr/categories/' + action,
+                id: id
+            },
+            record: record
+        });
+        newTab.getForm().setValues(record);
+        newTab.on('success', function(o) {
+            if (o.result.success === true) {
+                this.refresh();
+                if (typeof(record.id) === 'undefined') {
+                    newTab.destroy();
+                    this.loadCategory(o.result.object.id);
+                }
+            }
+        }, this);
+        tabs.add(newTab);
+        tabs.setActiveTab(newTab);
     }
 });
 Ext.reg('virtunewsletter-grid-categories', VirtuNewsletter.grid.Categories);

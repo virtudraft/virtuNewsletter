@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -52,11 +52,7 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
             $this->addFieldError('resource_id', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id'));
             return FALSE;
         }
-        $scheduledFor = $this->getProperty('scheduled_for');
-        if (empty($scheduledFor)) {
-            $this->addFieldError('scheduled_for', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_scheduled_for'));
-            return FALSE;
-        }
+
         $categories = $this->getProperty('categories');
         $categories = @explode(',', $categories);
         if (empty($categories) || (isset($categories[0]) && empty($categories[0]))) {
@@ -88,10 +84,12 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         $this->setProperty('content', $content);
 
         $schedule = $this->getProperty('scheduled_for');
-        date_default_timezone_set('UTC');
-        $schedule = strtotime($schedule);
+        if (!empty($schedule)) {
+            date_default_timezone_set('UTC');
+            $schedule = strtotime($schedule);
 
-        $this->setProperty('scheduled_for', $schedule);
+            $this->setProperty('scheduled_for', $schedule);
+        }
 
         return true;
     }
@@ -102,25 +100,45 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
      */
     public function afterSave() {
         $newsId = $this->getProperty('id');
-        $this->modx->removeCollection('vnewsNewslettersHasCategories', array(
-            'newsletter_id' => $newsId
-        ));
-
         $categories = $this->getProperty('categories');
         $categories = @explode(',', $categories);
-        if ($categories) {
+        if (!empty($categories)) {
+            // remove diff first
+            $diffs = $this->modx->getCollection('vnewsNewslettersHasCategories', array(
+                'newsletter_id:=' => $newsId,
+                'category_id:NOT IN' => $categories,
+            ));
+            if ($diffs) {
+                foreach ($diffs as $diff) {
+                    $diff->remove();
+                }
+            }
+
+            // categories to newsletter
             $addCats = array();
             foreach ($categories as $category) {
+                if (empty($category)) {
+                    continue;
+                }
                 $category = intval($category);
-                $newsHasCat = $this->modx->newObject('vnewsNewslettersHasCategories');
-                $newsHasCat->fromArray(array(
+                $newsHasCat = $this->modx->getObject('vnewsNewslettersHasCategories', array(
                     'newsletter_id' => $newsId,
                     'category_id' => $category,
-                        ), NULL, TRUE, TRUE);
-                $addCats[] = $newsHasCat;
+                ));
+                if (empty($newsHasCat)) {
+                    $newsHasCat = $this->modx->newObject('vnewsNewslettersHasCategories');
+                    $newsHasCat->fromArray(array(
+                        'newsletter_id' => $newsId,
+                        'category_id' => $category,
+                            ));
+                    $addCats[] = $newsHasCat;
+                }
             }
-            $this->object->addMany($addCats);
-            $this->object->save();
+            if (!empty($addCats)) {
+                $this->object->addMany($addCats);
+                $this->object->save();
+            }
+
         }
 
         $isRecurring = $this->getProperty('is_recurring');
@@ -129,20 +147,21 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
         } else {
             $this->modx->virtunewsletter->removeAllRecurrences($newsId);
         }
-        
+
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
             $this->modx->virtunewsletter->setNewsletterQueue($newsId);
-        } else {
-            $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
-        }
 
-        $children = $this->object->getMany('Children');
-        if ($children) {
-            foreach ($children as $child) {
-                $child->set('is_active', $isActive);
-                $child->save();
+            $children = $this->object->getMany('Children');
+            if ($children) {
+                foreach ($children as $child) {
+                    $child->set('is_active', $isActive);
+                    $child->save();
+                }
             }
+
+        } else {
+//            $this->modx->virtunewsletter->removeNewsletterQueues($newsId, true);
         }
 
         return true;

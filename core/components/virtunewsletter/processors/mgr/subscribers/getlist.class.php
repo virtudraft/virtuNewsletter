@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -68,15 +68,20 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
             }
         }
 
-        $subscribersHasCategories = $object->getMany('vnewsSubscribersHasCategories');
+        $subscribersHasCategories = $object->getMany('SubscribersHasCategories');
         $objectArray['categories'] = '';
         if ($subscribersHasCategories) {
             $categories = array();
+            $objectArray['categories'] = array();
             foreach ($subscribersHasCategories as $subsHasCats) {
-                $category = $subsHasCats->getOne('vnewsCategories');
+                $category = $subsHasCats->getOne('Categories');
                 $categories[] = $category->get('name');
+                $objectArray['categories'][] = array(
+                    'category_id' => $category->get('id'),
+                    'category' => $category->get('name'),
+                );
             }
-            $objectArray['categories'] = @implode(',', $categories);
+            $objectArray['categories_text'] = @implode(', ', $categories);
         }
 
         return $objectArray;

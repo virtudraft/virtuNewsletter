@@ -67,7 +67,12 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                             listeners: {
                                 'success': {
                                     fn: function() {
-                                        Ext.getCmp('virtunewsletter-grid-subscribers').refresh();
+                                        grid.refresh();
+                                    }
+                                },
+                                'failure': {
+                                    fn: function(r) {
+                                        grid.refresh();
                                     }
                                 }
                             }

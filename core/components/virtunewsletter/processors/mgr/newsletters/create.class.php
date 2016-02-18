@@ -139,11 +139,12 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
     public function cleanup() {
         $objectArray = $this->object->toArray();
         $objectArray['categories'] = array();
-        $categories = $this->object->getMany('NewslettersHasCategories');
-        if ($categories) {
-            foreach ($categories as $category) {
+        $newsHasCats = $this->object->getMany('NewslettersHasCategories');
+        if ($newsHasCats) {
+            foreach ($newsHasCats as $newsHasCat) {
+                $category = $newsHasCat->getOne('Categories');
                 $objectArray['categories'][] = array(
-                    'category_id' => $category->get('id'),
+                    'category_id' => $newsHasCat->get('id'),
                     'category' => $category->get('name'),
                 );
             }

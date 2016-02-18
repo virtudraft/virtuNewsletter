@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- show update panel after create new newsletter
 - fix addSubscriberQueues() to check existing queue
 - add search box to Reports grid
 - add update subscriber feature on Subscribers page

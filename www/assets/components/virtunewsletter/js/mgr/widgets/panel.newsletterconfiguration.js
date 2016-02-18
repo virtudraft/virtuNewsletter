@@ -246,10 +246,18 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         return true;
     }, this);
 
-    this.on('success', function() {
+    this.on('success', function(response) {
         var grid = Ext.getCmp('virtunewsletter-grid-newsletters');
         if (typeof(grid) !== 'undefined') {
             grid.refresh();
+            var data = response.result.object;
+            if (data.action = "mgr/newsletters/create") {
+                var create = Ext.getCmp('virtunewsletter-panel-newsletter-content-tab-new');
+                if (typeof(create) !== 'undefined') {
+                    create.destroy();
+                }
+                grid.newsletterPanel(data);
+            }
         }
     });
 };

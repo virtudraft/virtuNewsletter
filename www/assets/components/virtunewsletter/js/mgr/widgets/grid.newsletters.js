@@ -58,14 +58,16 @@ VirtuNewsletter.grid.Newsletters = function(config) {
                 dataIndex: 'is_recurring',
                 sortable: false,
                 width: 100,
-                fixed: true
+                fixed: true,
+                processEvent: Ext.emptyFn() // don't process recurrence in grid!
             }, {
                 xtype: 'checkcolumn',
                 header: _('virtunewsletter.active'),
                 dataIndex: 'is_active',
                 sortable: false,
                 width: 70,
-                fixed: true
+                fixed: true,
+                processEvent: this.processMouseEvent
             }, {
                 header: _('actions'),
                 xtype: 'actioncolumn',
@@ -186,11 +188,39 @@ Ext.extend(VirtuNewsletter.grid.Newsletters, MODx.grid.Grid, {
             title: record.id ? _('virtunewsletter.schedule_update') : _('virtunewsletter.schedule_create'),
             closable: true,
             xtype: 'virtunewsletter-panel-newsletter-content',
-            id: 'virtunewsletter-panel-newsletter-content-tab-' + record.id,
+            id: 'virtunewsletter-panel-newsletter-content-tab-' + (record.id ? record.id : 'new'),
             record: record
         });
         tabs.add(newTab);
         tabs.setActiveTab(newTab);
+    },
+    processMouseEvent: function (name, e, grid, rowIndex, colIndex) {
+        if (name === 'mousedown') {
+            var record = grid.store.getAt(rowIndex);
+            record.set(this.dataIndex, !record.data[this.dataIndex]);
+            MODx.Ajax.request({
+                url: VirtuNewsletter.config.connectorUrl,
+                params: {
+                    action: 'mgr/newsletters/updateFromGrid',
+                    data: JSON.stringify(record.data)
+                },
+                listeners: {
+                    'success': {
+                        fn: function () {
+                            grid.refresh();
+                        }
+                    },
+                    'failure': {
+                        fn: function (r) {
+                            grid.refresh();
+                        }
+                    }
+                }
+            });
+            return false;
+        } else {
+            return Ext.grid.ActionColumn.superclass.processEvent.apply(this, arguments);
+        }
     }
 });
 Ext.reg('virtunewsletter-grid-newsletters', VirtuNewsletter.grid.Newsletters);

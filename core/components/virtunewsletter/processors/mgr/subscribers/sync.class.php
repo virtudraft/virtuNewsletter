@@ -170,7 +170,6 @@ class SyncSubscribersProcessor extends modProcessor {
                             'subscribed_on' => $time,
                         );
                         $subsHasCats->fromArray($params);
-                        $subsHasCats->save();
                         if ($subsHasCats->save() === false) {
                             $this->modx->setDebug();
                             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to connect subscriber to category! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -180,7 +179,7 @@ class SyncSubscribersProcessor extends modProcessor {
                     }
                 }
 
-                $this->modx->virtunewsletter->addSubscriberQueues($subscriberId);
+                $this->modx->virtunewsletter->addSubscriberQueues($subscriberId, false);
             }
         }
 

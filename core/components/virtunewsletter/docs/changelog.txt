@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- add boolean option to not requeue existing subscriber on syncing
 - show update panel after create new newsletter
 - fix addSubscriberQueues() to check existing queue
 - add search box to Reports grid

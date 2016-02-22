@@ -584,10 +584,11 @@ class VirtuNewsletter {
 
     /**
      * Add this user to the newletters' queues
-     * @param   int     $subscriberId   subscriber's ID
+     * @param   int     $subscriberId       subscriber's ID
+     * @param   boolean $reQueueExisting    if exists, re-queue subscriber or not?
      * @return  boolean
      */
-    public function addSubscriberQueues($subscriberId) {
+    public function addSubscriberQueues($subscriberId, $reQueueExisting = true) {
         $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters();
         if (!$newsletters) {
             return FALSE;
@@ -606,9 +607,11 @@ class VirtuNewsletter {
             );
             $oldReport = $this->modx->getObject('vnewsReports', $params);
             if (!empty($oldReport)) {
-                $oldReport->set('status', 'queue');
-                $oldReport->set('status_logged_on', time());
-                $oldReport->save();
+                if ($reQueueExisting) {
+                    $oldReport->set('status', 'queue');
+                    $oldReport->set('status_logged_on', time());
+                    $oldReport->save();
+                }
 
                 continue;
             }

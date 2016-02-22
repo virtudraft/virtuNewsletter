@@ -1,3 +1,7 @@
+virtuNewsletter 2.0.0-beta3 (February 22, 2016)
+=================================================
+- avoid subscriber to be re-queued back to the past newsletters when their info is updated
+
 virtuNewsletter 2.0.0-beta2 (February 22, 2016)
 =================================================
 - add boolean option to not requeue existing subscriber on syncing

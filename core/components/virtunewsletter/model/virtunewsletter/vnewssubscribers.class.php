@@ -64,7 +64,12 @@ class vnewsSubscribers extends xPDOSimpleObject {
         return $output;
     }
 
-    public function getNewsletters() {
+    /**
+     * Get newsletters for current user
+     * @param   array   $options    optional
+     * @return  array
+     */
+    public function getNewsletters($options = array()) {
         $output = array();
 
         $c = $this->xpdo->newQuery('vnewsNewsletters');
@@ -73,8 +78,21 @@ class vnewsSubscribers extends xPDOSimpleObject {
         $c->leftJoin('vnewsSubscribersHasCategories', 'SubscribersHasCategories', 'SubscribersHasCategories.category_id = Categories.id');
         $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = SubscribersHasCategories.subscriber_id');
         $c->where(array(
-            'Subscribers.id' => $this->get('id')
+            'Subscribers.id:=' => $this->get('id')
         ));
+        if (!empty($options) && is_array($options)) {
+            if (isset($options['queueOnly']) && $options['queueOnly'] == 'true') {
+                $c->leftJoin('vnewsReports', 'Reports', 'Reports.subscriber_id = Subscribers.id');
+                $c->where(array(
+                    'Reports.status:=' => 'queue'
+                ));
+            }
+            if (isset($options['upcomingOnly']) && $options['upcomingOnly'] == 'true') {
+                $c->where(array(
+                    'vnewsNewsletters.scheduled_for:>' => time()
+                ));
+            }
+        }
 
         $newsletters = $this->xpdo->getCollection('vnewsNewsletters', $c);
         if ($newsletters) {

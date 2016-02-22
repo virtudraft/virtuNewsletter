@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '2.0.0';
-    const RELEASE = 'beta2';
+    const RELEASE = 'beta3';
 
     /**
      * modX object
@@ -589,7 +589,9 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function addSubscriberQueues($subscriberId, $reQueueExisting = true) {
-        $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters();
+        $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters(array(
+            'upcomingOnly' => true
+        ));
         if (!$newsletters) {
             return FALSE;
         }

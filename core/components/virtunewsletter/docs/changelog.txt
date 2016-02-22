@@ -1,4 +1,4 @@
-virtuNewsletter 2.0.0-dev
+virtuNewsletter 2.0.0-beta2 (February 22, 2016)
 =================================================
 - add boolean option to not requeue existing subscriber on syncing
 - show update panel after create new newsletter

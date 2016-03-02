@@ -838,18 +838,27 @@ class VirtuNewsletter {
             $emailProvider = $this->modx->getOption('virtunewsletter.email_provider');
             if (!empty($emailProvider)) {
                 $queuesArray = array();
-                $newsletterArray = array();
+                $newsletterIds = array();
                 foreach ($queues as $queue) {
                     $queuesArray[] = $queue->toArray();
-                    $newsletterArray[$queue->get('newsletter_id')] = $queue->get('newsletter_id');
+                    $newsletterIds[$queue->get('newsletter_id')] = $queue->get('newsletter_id');
                 }
-                foreach ($newsletterArray as $newsId) {
+                foreach ($newsletterIds as $newsId) {
+                    $newsletterArray = $this->getNewsletter($newsId);
+                    $output = array(
+                        'newsletter_id' => $newsId,
+                        'subject' => $newsletterArray['subject'],
+                        'created_on' => $newsletterArray['created_on'],
+                        'scheduled_for' => $newsletterArray['scheduled_for'],
+                        'message' => '',
+                        'recipients' => array(),
+                    );
                     $result = $this->sendToEmailProvider($emailProvider, $newsId, $queuesArray);
                     if (!$result) {
-                        $output = $this->getError();
+                        $output['message'] = $this->getError();
                     } else {
-                        $output = $this->getResponses();
-                        foreach ($output as $item) {
+                        $output['recipients'] = $this->getResponses();
+                        foreach ($output['recipients'] as $item) {
                             if (isset($item['email']) && isset($item['status'])) {
                                 $c = $this->modx->newQuery('vnewsReports');
                                 $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
@@ -873,6 +882,15 @@ class VirtuNewsletter {
                 }
             } else {
                 foreach ($queues as $queue) {
+                    $newsletterArray = $this->getNewsletter($queue->get('newsletter_id'));
+                    $output = array(
+                        'newsletter_id' => $newsId,
+                        'subject' => $newsletterArray['subject'],
+                        'created_on' => $newsletterArray['created_on'],
+                        'scheduled_for' => $newsletterArray['scheduled_for'],
+                        'message' => '',
+                        'recipients' => array(),
+                    );
                     $sent = $this->sendNewsletter($queue->get('newsletter_id'), $queue->get('subscriber_id'));
                     if ($sent) {
                         $queue->set('status_logged_on', $time);
@@ -882,14 +900,15 @@ class VirtuNewsletter {
                             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
                             $this->modx->setDebug(FALSE);
                         } else {
-                            $outputReports[] = $queue->toArray();
+                            $output['recipients'] = $queue->toArray();
                         }
                     } else {
                         $this->modx->setDebug();
                         $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
                         $this->modx->setDebug(FALSE);
-                        $outputReports[] = 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE);
+                        $output['message'] = 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE);
                     }
+                    $outputReports[] = $output;
                 }
             }
         }

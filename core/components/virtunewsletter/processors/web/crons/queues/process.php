@@ -44,25 +44,30 @@ if ($outputType === 'json') {
     $getItems = isset($_REQUEST['get_items']) && $_REQUEST['get_items'] === 1 ? 1 : 0;
     $output = '';
     if (!empty($reports)) {
-        $phs = array(
-            'newsletter_id' => $reports[0]['newsletter_id'],
-            'subject' => $reports[0]['subject'],
-            'created_on' => $reports[0]['created_on'],
-            'scheduled_for' => $reports[0]['scheduled_for'],
-            'count' => count($reports)
-        );
-        if ($getItems) {
-            $itemArray = array();
-            foreach ($reports as $report) {
-                $parseTpl = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
-                $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
+        $outputArray = array();
+        foreach ($reports as $report) {
+            $phs = array(
+                'newsletter_id' => $report['newsletter_id'],
+                'subject' => $report['subject'],
+                'created_on' => $report['created_on'],
+                'scheduled_for' => $report['scheduled_for'],
+                'count' => count($report['recipients'])
+            );
+            if ($getItems) {
+                $itemArray = array();
+                foreach ($reports as $report) {
+                    $parseTpl = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
+                    $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
+                }
+                $phs['items'] = @implode('', $itemArray);
+            } else {
+                $phs['items'] = '';
             }
-            $phs['items'] = @implode('', $itemArray);
-        } else {
-            $phs['items'] = '';
+            $parsed = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
+            $outputArray[] = $modx->virtunewsletter->processElementTags($parsed);
         }
-        $output = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
-        $output = $modx->virtunewsletter->processElementTags($output);
+        $output = @implode("\n", $outputArray);
     }
+
     return $output;
 }

@@ -93,8 +93,8 @@ class NewslettersUpdateProcessor extends modObjectUpdateProcessor {
     public function afterSave() {
         $newsId = $this->getProperty('id');
         $categories = $this->getProperty('categories');
-        $categories = @explode(',', $categories);
         if (!empty($categories)) {
+            $categories = @explode(',', $categories);
             // remove diff first
             $diffs = $this->modx->getCollection('vnewsNewslettersHasCategories', array(
                 'newsletter_id:=' => $newsId,

@@ -48,8 +48,7 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         }
 
         $categories = $this->getProperty('categories');
-        $categories = @explode(',', $categories);
-        if (empty($categories) || (isset($categories[0]) && empty($categories[0]))) {
+        if (empty($categories)) {
             $this->addFieldError('categories', $this->modx->lexicon('virtunewsletter.newsletter_err_ns_categories'));
             return $this->modx->lexicon('virtunewsletter.newsletter_err_ns_categories');
         }
@@ -96,8 +95,8 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
     public function afterSave() {
         $newsId = $this->object->getPrimaryKey();
         $categories = $this->getProperty('categories');
-        $categories = @explode(',', $categories);
-        if ($categories) {
+        if (!empty($categories)) {
+            $categories = @explode(',', $categories);
             $addCats = array();
             foreach ($categories as $category) {
                 $category = intval($category);

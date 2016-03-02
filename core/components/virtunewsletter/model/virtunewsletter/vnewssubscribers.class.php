@@ -81,13 +81,13 @@ class vnewsSubscribers extends xPDOSimpleObject {
             'Subscribers.id:=' => $this->get('id')
         ));
         if (!empty($options) && is_array($options)) {
-            if (isset($options['queueOnly']) && $options['queueOnly'] == 'true') {
+            if (isset($options['queueOnly']) && !empty($options['queueOnly'])) {
                 $c->leftJoin('vnewsReports', 'Reports', 'Reports.subscriber_id = Subscribers.id');
                 $c->where(array(
                     'Reports.status:=' => 'queue'
                 ));
             }
-            if (isset($options['upcomingOnly']) && $options['upcomingOnly'] == 'true') {
+            if (isset($options['upcomingOnly']) && !empty($options['upcomingOnly'])) {
                 $c->where(array(
                     'vnewsNewsletters.scheduled_for:>' => time()
                 ));

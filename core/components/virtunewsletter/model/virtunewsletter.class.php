@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '2.0.0';
-    const RELEASE = 'beta3';
+    const RELEASE = 'rc1';
 
     /**
      * modX object
@@ -62,6 +62,11 @@ class VirtuNewsletter {
      * @var array
      */
     private $_chunks = array();
+    /**
+     * store responses from email provider
+     * @var array
+     */
+    private $_responses = array();
 
     /**
      * constructor
@@ -140,6 +145,30 @@ class VirtuNewsletter {
      */
     public function getOutput() {
         return $this->_output;
+    }
+
+    /**
+     * Add array response from email provider
+     * @return  void
+     */
+    public function addResponse(array $response = array()) {
+        $this->_responses = array_merge($this->_responses, $response);
+    }
+
+    /**
+     * Get array output for the response of email provider
+     * @return  array  responses
+     */
+    public function getResponses() {
+        return $this->_responses;
+    }
+
+    /**
+     * Reset the response of email provider
+     * @return  void
+     */
+    public function resetResponses() {
+        $this->_responses = array();
     }
 
     /**
@@ -819,7 +848,7 @@ class VirtuNewsletter {
                     if (!$result) {
                         $output = $this->getError();
                     } else {
-                        $output = $this->getOutput();
+                        $output = $this->getResponses();
                         foreach ($output as $item) {
                             if (isset($item['email']) && isset($item['status'])) {
                                 $c = $this->modx->newQuery('vnewsReports');

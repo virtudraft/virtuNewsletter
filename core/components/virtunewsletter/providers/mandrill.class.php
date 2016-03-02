@@ -3,7 +3,15 @@
 class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
 
     public function send() {
-        require_once dirname(dirname(__FILE__)) . '/vendors/mailchimp-mandrill-api-php/src/Mandrill.php';
+        $file = dirname(dirname(__FILE__)) . '/vendors/mailchimp-mandrill-api-php/src/Mandrill.php';
+        if (!file_exists($file)) {
+            $this->modx->setDebug();
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Missing required file: ' . $file, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            $this->modx->virtunewsletter->setError('Missing a required file');
+            return false;
+        }
+        require_once $file;
 
         $apiKey = $this->modx->getOption('virtunewsletter.mandrill.api_key');
         if (empty($apiKey)) {
@@ -104,19 +112,18 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
             $send_at = date('Y-m-d H:i:s');
             $result = $mandrill->messages->send($message, $async, $ip_pool/* , $send_at */);
 
-            $this->modx->virtunewsletter->setOutput($result);
+            $this->modx->virtunewsletter->addResponse($result);
             //    print_r($result);
             /*
               Array
               (
-              [0] => Array
-              (
-              [email] => recipient.email@example.com
-              [status] => sent
-              [reject_reason] => hard-bounce
-              [_id] => abc123abc123abc123abc123abc123
-              )
-
+                [0] => Array
+                    (
+                        [email] => recipient.email@example.com
+                        [status] => sent
+                        [reject_reason] => hard-bounce
+                        [_id] => abc123abc123abc123abc123abc123
+                    )
               )
              */
         } catch (Mandrill_Error $e) {

@@ -1,3 +1,7 @@
+virtuNewsletter 2.0.0-dev
+=================================================
+- added mailgun support
+
 virtuNewsletter 2.0.0-beta3 (February 22, 2016)
 =================================================
 - avoid subscriber to be re-queued back to the past newsletters when their info is updated

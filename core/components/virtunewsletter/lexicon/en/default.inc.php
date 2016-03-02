@@ -71,4 +71,8 @@ $_lang['setting_virtunewsletter.email_provider_desc'] = 'Email provider which ge
 $_lang['setting_virtunewsletter.email_reply_to'] = 'Email address to reply';
 $_lang['setting_virtunewsletter.email_reply_to_desc'] = 'Email address for the recipients to reply';
 $_lang['setting_virtunewsletter.mandrill.api_key'] = 'Mandrill\'s API key';
-$_lang['setting_virtunewsletter.mandrill.api_key_desc'] = 'If you are using mandrill\'s service, get the Mandrill\'s API key from its <a href="http://mandrill.com/" title="Mandrill is a transactional email platform from MailChimp" target="_blank">website</a>.';
+$_lang['setting_virtunewsletter.mandrill.api_key_desc'] = 'If you are using Mandrill\'s service, get the Mandrill\'s API key from its <a href="http://mandrill.com/" title="Mandrill is a transactional email platform from MailChimp" target="_blank">website</a>.';
+$_lang['setting_virtunewsletter.mailgun.api_key'] = 'Mailgun\'s API key';
+$_lang['setting_virtunewsletter.mailgun.api_key_desc'] = 'If you are using Mailgun\'s service, get the Mailgun\'s API key from its <a href="http://mailgun.com/" title="Transactional Email API Service for Developers by Rackspace - Mailgun" target="_blank">website</a>.';
+$_lang['setting_virtunewsletter.mailgun.endpoint'] = 'Mailgun\'s URL Endpoint';
+$_lang['setting_virtunewsletter.mailgun.endpoint_desc'] = 'Mailgun\'s API Base URL for the validated domain. Check <a href="https://documentation.mailgun.com/api-intro.html#base-url" target="_blank">API</a>.';

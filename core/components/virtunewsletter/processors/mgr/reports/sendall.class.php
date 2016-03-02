@@ -114,7 +114,7 @@ class SendAllNewslettersProcessor extends modProcessor {
                     $error = $this->modx->virtunewsletter->getError();
                     return $this->failure($error);
                 } else {
-                    $output = $this->modx->virtunewsletter->getOutput();
+                    $output = $this->modx->virtunewsletter->getResponses();
                     foreach ($output as $item) {
                         if (isset($item['email']) && isset($item['status'])) {
                             $c = $this->modx->newQuery($this->classKey);

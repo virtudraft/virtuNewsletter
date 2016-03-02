@@ -69,6 +69,9 @@ class UpdateCategoryProcessor extends modProcessor {
         $subscriberIds = @explode(',', $scriptProperties['subscriberIds']);
         $categories = @explode(',', $scriptProperties['categories']);
         foreach ($subscriberIds as $subscriberId) {
+            if(empty($subscriberId) || empty($categories[0])) {
+                continue;
+            }
             // diff
             $this->modx->removeCollection('vnewsSubscribersHasCategories', array(
                 'subscriber_id:=' => $subscriberId,

@@ -48,6 +48,7 @@ class ReportSendProcessor extends ReportUpdateProcessor {
                     if (isset($item['email']) && isset($item['status'])) {
                         $this->object->set('status_logged_on', time());
                         $this->object->set('status', $item['status']);
+                        $this->object->save();
                     }
                 }
             }
@@ -56,6 +57,7 @@ class ReportSendProcessor extends ReportUpdateProcessor {
             if ($sent) {
                 $this->object->set('status_logged_on', time());
                 $this->object->set('status', 'sent');
+                $this->object->save();
             } else {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($this->object->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
@@ -64,7 +66,10 @@ class ReportSendProcessor extends ReportUpdateProcessor {
             }
         }
 
-        return parent::process();
+        $this->afterSave();
+        $this->fireAfterSaveEvent();
+//        $this->logManagerAction();
+        return $this->cleanup();
     }
 
 }

@@ -67,7 +67,7 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
 
         // switch modx's tags to mandrill's symbols
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
-        $mandrillTags = preg_replace_callback('/\[\[\+(' . $systemEmailPrefix . ')(\w+)\]\]/i', function($matches) {
+        $mandrillTags = preg_replace_callback('/\[\[\+(' . preg_quote($systemEmailPrefix) . ')(\w+)\]\]/i', function($matches) {
             return '*|' . strtoupper($matches[2]) . '|*';
         }, $messageArray['message']);
 

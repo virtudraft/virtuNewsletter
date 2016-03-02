@@ -255,8 +255,8 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 var create = Ext.getCmp('virtunewsletter-panel-newsletter-content-tab-new');
                 if (typeof(create) !== 'undefined') {
                     create.destroy();
+                    grid.newsletterPanel(data);
                 }
-                grid.newsletterPanel(data);
             }
         }
     });

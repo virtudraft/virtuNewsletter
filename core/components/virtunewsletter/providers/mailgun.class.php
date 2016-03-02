@@ -30,83 +30,77 @@ class VirtuNewsletterMailgunController extends VirtuNewsletterEmailProvider {
         $newsletter = $this->getNewsletter();
         $emailDebug = $this->modx->getOption('virtunewsletter.email_debug');
 
-        // switch modx's tags to mailgun's symbols
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
-        $message = preg_replace_callback('/\[\[\+(' . $systemEmailPrefix . ')(\w+)\]\]/i', function($matches) {
-            return '%recipient.' . strtolower($matches[2]) . '%';
-        }, $messageArray['message']);
+
+        /**
+         * Note: The maximum number of recipients allowed for Batch Sending is 1,000.
+         * @link https://documentation.mailgun.com/user_manual.html#batch-sending
+         */
+        $batchLimit = 1000; // Note: Mailgun limits the number of recipients per message to 1000
+        $loopRecipients = array_chunk($recipients, $batchLimit);
 
         if (!empty($sender['email_from_name'])) {
             $from = "{$sender['email_from_name']} <{$sender['email_sender']}>";
         } else {
             $from = $sender['email_sender'];
         }
-        $scheduleTime = (!empty($newsletter['scheduled_for']) ? date('r', $newsletter['scheduled_for']) : false);
-
-        $mg = new Mailgun($apiKey);
-        $batchMsg = $mg->BatchMessage($domain);
-        $firstName = '';
-        $lastName = '';
-        if (isset($sender['email_from_name']) && !empty($sender['email_from_name'])) {
-            $nameParts = preg_split("/\s+/", $sender['email_from_name']);
-            array_reverse($nameParts);
-            $lastName = $nameParts[0];
-            unset($nameParts[0]);
-            if (!empty($nameParts)) {
-                array_reverse($nameParts);
-                $firstName = @implode(' ', $nameParts);
-            }
+        $postData = array(
+            'from' => $from,
+            "o:tag" => $newsletter['subject'],
+            "o:testmode" => ($emailDebug ? 'yes' : 'no'),
+            "o:tracking" => 'yes',
+            "o:tracking-clicks" => 'yes',
+            "o:tracking-opens" => 'yes',
+        );
+        if (!empty($newsletter['scheduled_for'])) {
+            $postData['o:deliverytime'] = date('r', $newsletter['scheduled_for']);
         }
-        $batchMsg->setFromAddress($sender['email_sender'], array("first"=>$firstName, "last" => $lastName));
-        $batchMsg->setSubject($messageArray['subject']);
-        $batchMsg->setHtmlBody($message);
-        $batchMsg->setTextBody(strip_tags($message));
-        $batchMsg->addTag($newsletter['subject']);
-        $batchMsg->setDeliveryTime($scheduleTime);
-        $batchMsg->setTestMode($emailDebug);
-        $batchMsg->setClickTracking(true);
-        $batchMsg->setOpenTracking(true);
+        $client = new Mailgun($apiKey);
+        foreach ($loopRecipients as $queue) {
+            foreach ($queue as $recipient) {
+                $confirmLinkArgs = $this->modx->virtunewsletter->getSubscriber(array('email' => $recipient['email']));
+                $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
+                $phs = array_merge($recipient, $confirmLinkArgs, array(
+                    // to avoid confusion on template
+                    'id' => $newsletter['id'],
+                    'newsid' => $newsletter['id'],
+                    'subid' => $recipient['id']
+                ));
+                $this->modx->virtunewsletter->setPlaceholders($phs, $systemEmailPrefix);
+                $content = $this->modx->virtunewsletter->processEmailMessage($newsletter['id']);
 
-        try {
-            $responses = array();
-            foreach ($recipients as $recipient) {
-                $firstName = '';
-                $lastName = '';
-                if (isset($recipient['name']) && !empty($recipient['name'])) {
-                    $nameParts = preg_split("/\s+/", $recipient['name']);
-                    array_reverse($nameParts);
-                    $lastName = $nameParts[0];
-                    unset($nameParts[0]);
-                    if (!empty($nameParts)) {
-                        array_reverse($nameParts);
-                        $firstName = @implode(' ', $nameParts);
-                    }
+                $postData['html'] = $content;
+                $postData['text'] = strip_tags($content);
+
+                $phs = $this->modx->virtunewsletter->getPlaceholders();
+                $subject = $this->modx->virtunewsletter->parseTplCode($messageArray['subject'], $phs);
+                $subject = $this->modx->virtunewsletter->processElementTags($subject);
+                $postData['subject'] = $subject;
+
+                if (!empty($recipient['name'])) {
+                    $emailAddress = "{$recipient['name']} <{$recipient['email']}>";
+                } else {
+                    $emailAddress = $recipient['email'];
                 }
-                $batchMsg->addToRecipient($recipient['email'], array("first" => $firstName, "last" => $lastName));
-                $responses[] = array(
-                    'email' => $recipient['email'],
-                    'status' => 'sent',
-                );
+                $recipient['email'] = $emailAddress;
+                $postData['to'] = $emailAddress;
+
+                try {
+                    $result = $client->sendMessage($domain, $postData);
+                    if (!empty($result) && !empty($result->http_response_code) && $result->http_response_code == 200) {
+                        $this->modx->virtunewsletter->addResponse(array(array(
+                            'email' => $recipient['email'],
+                            'status' => 'sent',
+                        )));
+                    }
+                } catch (Exception $e) {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    $this->modx->virtunewsletter->setError('A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage());
+                    return FALSE;
+                }
             }
-            $batchMsg->finalize();
-
-            $this->modx->virtunewsletter->addResponse($responses);
-
-            $result = $batchMsg->getMessageIds();
-            // $this->modx->log(modX::LOG_LEVEL_ERROR, __LINE__ . ': $result ' . print_r($result, 1));
-            //    print_r($result);
-            /**
-             * Array
-             * (
-             *     [0] => <20160301113047.60700.98119@sandboxbc7bcbecaba34469aad0551876d4f380.mailgun.org>
-             * )
-             */
-        } catch (Exception $e) {
-            $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            $this->modx->virtunewsletter->setError('A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage());
-            return FALSE;
         }
 
 

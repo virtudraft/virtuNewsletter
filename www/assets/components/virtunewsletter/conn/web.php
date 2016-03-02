@@ -9,6 +9,11 @@ $validActions = array(
     'web/newsletters/read',
     'web/crons/queues/set',
     'web/crons/queues/process',
+
+    /**
+     * Mailgun's Webhooks
+     */
+    'web/responses/mailgun/webhook',
 );
 if (PHP_SAPI === "cli") {
     $args = $_SERVER['argv'];

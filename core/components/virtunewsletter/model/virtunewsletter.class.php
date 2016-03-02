@@ -1201,7 +1201,7 @@ class VirtuNewsletter {
         }
         if (empty($newsletterArray['content'])) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:' . print_r($subscriberArray, 1), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:' . print_r($newsletterArray, 1), '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(FALSE);
             return FALSE;
         }

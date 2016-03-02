@@ -82,9 +82,7 @@ class VirtuNewsletterMailgunController extends VirtuNewsletterEmailProvider {
                 } else {
                     $emailAddress = $recipient['email'];
                 }
-                $recipient['email'] = $emailAddress;
                 $postData['to'] = $emailAddress;
-
                 try {
                     $result = $client->sendMessage($domain, $postData);
                     if (!empty($result) && !empty($result->http_response_code) && $result->http_response_code == 200) {

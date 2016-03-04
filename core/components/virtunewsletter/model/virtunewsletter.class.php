@@ -665,9 +665,12 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function removeSubscriberQueues($subscriberId) {
-        return $this->modx->removeCollection('vnewsReports', array(
-                    'subscriber_id' => $subscriberId
+        $c = $this->modx->removeCollection('vnewsReports');
+        $c->where(array(
+            'subscriber_id' => $subscriberId,
+            'status' => 'queue'
         ));
+        return $this->modx->removeCollection('vnewsReports', $c);
     }
 
     /**
@@ -696,7 +699,7 @@ class VirtuNewsletter {
         ));
         if (!$includeSent) {
             $c->where(array(
-                'status:!=' => 'sent'
+                'status:=' => 'queue'
             ));
         }
         return $this->modx->removeCollection('vnewsReports', $c);

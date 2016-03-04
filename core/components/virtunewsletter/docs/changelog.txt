@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- CRITICAL: fixed vnewsSubscribers relation to vnewsReports
 - added System Settings for sync
 - fixed report listing when creating a new newsletter
 - added mailgun support

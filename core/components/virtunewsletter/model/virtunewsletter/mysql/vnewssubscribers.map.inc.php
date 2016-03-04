@@ -80,7 +80,7 @@ $xpdo_meta_map['vnewsSubscribers']= array (
     array (
       'class' => 'vnewsReports',
       'local' => 'id',
-      'foreign' => 'newsletter_id',
+      'foreign' => 'subscriber_id',
       'cardinality' => 'many',
       'owner' => 'local',
     ),

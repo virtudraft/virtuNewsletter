@@ -98,7 +98,7 @@
 
         <aggregate alias="Users" class="vnewsUsers" local="user_id" foreign="id" cardinality="one" owner="foreign" />
 
-        <composite alias="Reports" class="vnewsReports" local="id" foreign="newsletter_id" cardinality="many" owner="local" />
+        <composite alias="Reports" class="vnewsReports" local="id" foreign="subscriber_id" cardinality="many" owner="local" />
         <composite alias="SubscribersHasCategories" class="vnewsSubscribersHasCategories" local="id" foreign="subscriber_id" cardinality="many" owner="local" />
 
     </object>

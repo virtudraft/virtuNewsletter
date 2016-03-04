@@ -160,6 +160,24 @@ $settings['virtunewsletter.mandrill.api_key']->fromArray(array(
     'area' => 'Email',
         ), '', true, true);
 
+$settings['virtunewsletter.mailgun.api_key'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.mailgun.api_key']->fromArray(array(
+    'key' => 'virtunewsletter.mailgun.api_key',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.mailgun.endpoint'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.mailgun.endpoint']->fromArray(array(
+    'key' => 'virtunewsletter.mailgun.endpoint',
+    'value' => '',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
 $settings['virtunewsletter.email_from_name'] = $modx->newObject('modSystemSetting');
 $settings['virtunewsletter.email_from_name']->fromArray(array(
     'key' => 'virtunewsletter.email_from_name',
@@ -183,6 +201,24 @@ $settings['virtunewsletter.email_bcc_address']->fromArray(array(
     'key' => 'virtunewsletter.email_bcc_address',
     'value' => '',
     'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.sync_include_inactive_users'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.sync_include_inactive_users']->fromArray(array(
+    'key' => 'virtunewsletter.sync_include_inactive_users',
+    'value' => 1,
+    'xtype' => 'combo-boolean',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
+$settings['virtunewsletter.sync_default_activation'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.sync_default_activation']->fromArray(array(
+    'key' => 'virtunewsletter.sync_default_activation',
+    'value' => 0,
+    'xtype' => 'numberfield',
     'namespace' => 'virtunewsletter',
     'area' => 'Email',
         ), '', true, true);

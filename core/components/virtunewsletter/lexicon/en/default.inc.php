@@ -76,3 +76,7 @@ $_lang['setting_virtunewsletter.mailgun.api_key'] = 'Mailgun\'s API key';
 $_lang['setting_virtunewsletter.mailgun.api_key_desc'] = 'If you are using Mailgun\'s service, get the Mailgun\'s API key from its <a href="http://mailgun.com/" title="Transactional Email API Service for Developers by Rackspace - Mailgun" target="_blank">website</a>.';
 $_lang['setting_virtunewsletter.mailgun.endpoint'] = 'Mailgun\'s URL Endpoint';
 $_lang['setting_virtunewsletter.mailgun.endpoint_desc'] = 'Mailgun\'s API Base URL for the validated domain. Check <a href="https://documentation.mailgun.com/api-intro.html#base-url" target="_blank">API</a>.';
+$_lang['setting_virtunewsletter.sync_default_activation'] = 'Default activation on sync';
+$_lang['setting_virtunewsletter.sync_default_activation_desc'] = '0: inactive, 1: active, 2: follow user\'s active status. Default: 0';
+$_lang['setting_virtunewsletter.sync_include_inactive_users'] = 'Include inactive users on sync';
+$_lang['setting_virtunewsletter.sync_include_inactive_users_desc'] = 'No: will skip inactive users. Default: Yes';

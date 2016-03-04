@@ -67,6 +67,8 @@ class SyncSubscribersProcessor extends modProcessor {
          */
         $usersArray = array();
         $userIds = array();
+        $includeInactive = (boolean) $this->modx->getOption('virtunewsletter.sync_include_inactive_users', null, true);
+        $defaultActivation = (int) $this->modx->getOption('virtunewsletter.sync_default_activation', null, 0);
         foreach ($this->usergroups as $usergroup) {
             $usergroupObj = $this->modx->getObject('modUserGroup', array(
                 'name' => $usergroup
@@ -81,17 +83,27 @@ class SyncSubscribersProcessor extends modProcessor {
             if ($users) {
                 foreach ($users as $user) {
                     $userArray = $user->toArray();
+                    if (!$includeInactive && $userArray['active'] !== 1) {
+                        continue;
+                    }
                     $profile = $user->getOne('Profile');
                     $profileArray = $profile->toArray();
                     if (empty($profileArray['email'])) {
                         continue;
                     }
                     $userIds[] = $userArray['id'];
+                    $isActive = 0;
+                    if ($defaultActivation === 2) {
+                        $isActive = $userArray['active'];
+                    } else if ($defaultActivation === 0 || $defaultActivation === 1) {
+                        $isActive = $defaultActivation;
+                    }
                     $usersArray[] = array(
                         'user_id' => $userArray['id'],
                         'email' => $profileArray['email'],
                         'name' => !empty($profileArray['fullname']) ? $profileArray['fullname'] : $userArray['username'],
-                        'usergroups' => $user->getUserGroups()
+                        'usergroups' => $user->getUserGroups(),
+                        'is_active' => $isActive,
                     );
                 }
             }

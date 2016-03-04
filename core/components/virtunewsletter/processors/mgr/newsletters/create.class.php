@@ -148,8 +148,6 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
                 );
             }
         }
-        $objectArray['pk'] = $objectArray['id'];
-        $objectArray['id'] = 'news_' . $objectArray['pk'];
 
         return $this->success('', $objectArray);
     }

@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-dev
 =================================================
+- fixed report listing when creating a new newsletter
 - added mailgun support
 
 virtuNewsletter 2.0.0-beta3 (February 22, 2016)

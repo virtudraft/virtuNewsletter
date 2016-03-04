@@ -1,4 +1,4 @@
-virtuNewsletter 2.0.0-dev
+virtuNewsletter 2.0.0-rc1 (March 4, 2016)
 =================================================
 - CRITICAL: fixed vnewsSubscribers relation to vnewsReports
 - added System Settings for sync

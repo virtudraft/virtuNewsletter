@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '2.0.0';
-    const RELEASE = 'rc1';
+    const RELEASE = 'rc2';
 
     /**
      * modX object
@@ -665,7 +665,7 @@ class VirtuNewsletter {
      * @return  boolean
      */
     public function removeSubscriberQueues($subscriberId) {
-        $c = $this->modx->removeCollection('vnewsReports');
+        $c = $this->modx->newQuery('vnewsReports');
         $c->where(array(
             'subscriber_id' => $subscriberId,
             'status' => 'queue'

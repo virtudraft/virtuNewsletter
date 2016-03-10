@@ -45,40 +45,50 @@ $modx->virtunewsletter->setQueues($todayOnly);
 $reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
 
 $outputType = isset($_REQUEST['output_type']) && $_REQUEST['output_type'] === 'json' ? 'json' : 'html';
-if ($outputType === 'json') {
-    header('Content-type: application/json');
-    echo $this->success('', $reports);
-} else {
-    header('Content-Type: text/html; charset=utf-8');
-    $getItems = isset($_REQUEST['get_items']) && $_REQUEST['get_items'] === 1 ? 1 : 0;
-    $output = '';
-    if (!empty($reports)) {
-        $outputArray = array();
-        foreach ($reports as $report) {
-            $phs = array(
-                'newsletter_id' => $report['newsletter_id'],
-                'subject' => $report['subject'],
-                'created_on' => $report['created_on'],
-                'scheduled_for' => $report['scheduled_for'],
-                'count' => count($report['recipients'])
-            );
-            if ($getItems) {
-                $itemArray = array();
-                foreach ($reports as $report) {
-                    $parseTpl = $modx->virtunewsletter->parseTpl('cronreport.item', $report);
-                    $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
-                }
-                $phs['items'] = @implode('', $itemArray);
-            } else {
-                $phs['items'] = '';
-            }
-            $parsed = $modx->virtunewsletter->parseTpl('cronreport.wrapper', $phs);
-            $outputArray[] = $modx->virtunewsletter->processElementTags($parsed);
+$cronReportEnabled = $modx->getOption('virtunewsletter.cronreport.enabled', null, 1);
+if ($cronReportEnabled) {
+    if ($outputType === 'json') {
+        header('Content-type: application/json');
+        echo $this->success('', $reports);
+    } else {
+        header('Content-Type: text/html; charset=utf-8');
+        if (isset($_REQUEST['get_items'])) {
+            $getItems = $_REQUEST['get_items'] === 1 ? 1 : 0;
+        } else {
+            $getItems = $modx->getOption('virtunewsletter.cronreport.getItems', null, 0);
         }
-        $output = @implode("\n", $outputArray);
-    }
+        $output = '';
+        if (!empty($reports)) {
+            $outputArray = array();
+            $cronReportItemTpl = $modx->getOption('virtunewsletter.cronreport.itemTpl', null, 'cronreport.item');
+            $cronReportWrapperTpl = $modx->getOption('virtunewsletter.cronreport.wrapperTpl', null, 'cronreport.wrapper');
+            foreach ($reports as $report) {
+                $phs = array(
+                    'newsletter_id' => $report['newsletter_id'],
+                    'subject' => $report['subject'],
+                    'created_on' => $report['created_on'],
+                    'scheduled_for' => $report['scheduled_for'],
+                    'count' => count($report['recipients'])
+                );
+                if ($getItems) {
+                    $itemArray = array();
+                    foreach ($reports as $report) {
+                        $parseTpl = $modx->virtunewsletter->parseTpl($cronReportItemTpl, $report);
+                        $itemArray[] = $modx->virtunewsletter->processElementTags($parseTpl);
+                    }
+                    $phs['items'] = @implode('', $itemArray);
+                } else {
+                    $phs['items'] = '';
+                }
+                $parsed = $modx->virtunewsletter->parseTpl($cronReportWrapperTpl, $phs);
+                $outputArray[] = $modx->virtunewsletter->processElementTags($parsed);
+            }
+            $output = @implode("\n", $outputArray);
+        }
 
-    echo $output;
+        echo $output;
+    }
 }
 
 ob_end_flush();
+exit;

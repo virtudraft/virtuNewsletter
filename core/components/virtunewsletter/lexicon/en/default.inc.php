@@ -80,3 +80,11 @@ $_lang['setting_virtunewsletter.sync_default_activation'] = 'Default activation 
 $_lang['setting_virtunewsletter.sync_default_activation_desc'] = '0: inactive, 1: active, 2: follow user\'s active status. Default: 0';
 $_lang['setting_virtunewsletter.sync_include_inactive_users'] = 'Include inactive users on sync';
 $_lang['setting_virtunewsletter.sync_include_inactive_users_desc'] = 'No: will skip inactive users. Default: Yes';
+$_lang['setting_virtunewsletter.cronreport.enabled'] = 'Enable cron report';
+$_lang['setting_virtunewsletter.cronreport.enabled_desc'] = 'If this is enabled, the cron job will return some output to the cron generator.';
+$_lang['setting_virtunewsletter.cronreport.getItems'] = 'Get report for each email';
+$_lang['setting_virtunewsletter.cronreport.getItems_desc'] = 'If this is enabled, the cron job will return the report of each email. Beware that this will slow down the process! This is overriden by &get_items=1 (or 0) on cron job\'s parameter. Default: 0 (or No in dropdown menu).';
+$_lang['setting_virtunewsletter.cronreport.itemTpl'] = 'Item tpl for cron reports';
+$_lang['setting_virtunewsletter.cronreport.itemTpl_desc'] = 'If you enable getItems, this chunk will render each newsletter\'s report. Default: cronreport.item';
+$_lang['setting_virtunewsletter.cronreport.wrapperTpl'] = 'Wrapper tpl for cron reports';
+$_lang['setting_virtunewsletter.cronreport.wrapperTpl_desc'] = 'If you enable cron report, this chunk will wrap newsletter\'s reports. Default: cronreport.wrapper';

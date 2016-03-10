@@ -129,6 +129,19 @@ $category->set('id', 1);
 $category->set('category', 'virtuNewsletter');
 
 /**
+ * CHUNKS
+ */
+$modx->log(modX::LOG_LEVEL_INFO, 'Adding in chunks...');
+flush();
+$chunks = include $sources['data'] . 'transport.chunks.php';
+if (is_array($chunks)) {
+    $category->addMany($chunks);
+    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in ' . count($chunks) . ' chunks done.');
+} else {
+    $modx->log(modX::LOG_LEVEL_FATAL, 'Adding chunks failed.');
+}
+
+/**
  * SNIPPETS
  */
 $snippets = include $sources['data'] . 'transport.snippets.php';

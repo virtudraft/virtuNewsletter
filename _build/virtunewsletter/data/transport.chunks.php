@@ -19,32 +19,30 @@
  * You should have received a copy of the GNU General Public License along with
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
- */
-/**
+ *
+ * virtuNewsletter build script
+ *
  * @package virtunewsletter
- * @subpackage processor
+ * @subpackage build
  */
-if (!isset($_REQUEST['site_id'])) {
-    die('Missing authentification!');
-}
-if ($_REQUEST['site_id'] !== $modx->site_id) {
-    die('Wrong authentification!');
-}
+$chunks = array();
 
-ignore_user_abort(1); // run script in background
-set_time_limit(86400); // run script for 1 day
+$chunks[0] = $modx->newObject('modChunk');
+$chunks[0]->fromArray(array(
+    'id' => 0,
+    'name' => 'cronreport.item',
+    'description' => 'Item tpl for cron reports',
+    'snippet' => file_get_contents($sources['source_core'] . '/elements/chunks/cronreport.item.chunk.tpl'),
+    'properties' => '',
+        ), '', true, true);
 
-if (ob_get_level() == 0) {
-    ob_start();
-}
-header("Cache-Control: no-cache, must-revalidate");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+$chunks[1] = $modx->newObject('modChunk');
+$chunks[1]->fromArray(array(
+    'id' => 1,
+    'name' => 'cronreport.wrapper',
+    'description' => 'Wrapper tpl for cron reports',
+    'snippet' => file_get_contents($sources['source_core'] . '/elements/chunks/cronreport.wrapper.chunk.tpl'),
+    'properties' => '',
+        ), '', true, true);
 
-ob_start();
-$output = $modx->virtunewsletter->setQueues();
-$cronReportEnabled = $modx->getOption('virtunewsletter.cronreport.enabled', null, 1);
-if ($cronReportEnabled) {
-    echo $this->success('', $output);
-}
-ob_end_flush();
-exit;
+return $chunks;

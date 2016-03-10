@@ -223,4 +223,40 @@ $settings['virtunewsletter.sync_default_activation']->fromArray(array(
     'area' => 'Email',
         ), '', true, true);
 
+$settings['virtunewsletter.cronreport.enabled'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.cronreport.enabled']->fromArray(array(
+    'key' => 'virtunewsletter.cronreport.enabled',
+    'value' => 0,
+    'xtype' => 'combo-boolean',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Cron Job',
+        ), '', true, true);
+
+$settings['virtunewsletter.cronreport.itemTpl'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.cronreport.itemTpl']->fromArray(array(
+    'key' => 'virtunewsletter.cronreport.itemTpl',
+    'value' => 'cronreport.item',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Cron Job',
+        ), '', true, true);
+
+$settings['virtunewsletter.cronreport.wrapperTpl'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.cronreport.wrapperTpl']->fromArray(array(
+    'key' => 'virtunewsletter.cronreport.wrapperTpl',
+    'value' => 'cronreport.wrapper',
+    'xtype' => 'textfield',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Cron Job',
+        ), '', true, true);
+
+$settings['virtunewsletter.cronreport.getItems'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.cronreport.getItems']->fromArray(array(
+    'key' => 'virtunewsletter.cronreport.getItems',
+    'value' => 0,
+    'xtype' => 'combo-boolean',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Cron Job',
+        ), '', true, true);
+
 return $settings;

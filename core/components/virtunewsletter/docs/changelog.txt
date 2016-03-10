@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-rc3 (March 10, 2016)
 =================================================
+- added chunk options to cron report
 - added time limit to cron files
 - Added status filter on newsletter's report grid
 - Fixed report after sending through provider

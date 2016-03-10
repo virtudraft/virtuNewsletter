@@ -73,6 +73,7 @@ $_lang['virtunewsletter.close'] = 'Close';
 $_lang['virtunewsletter.usergroup'] = 'Usergroup';
 $_lang['virtunewsletter.usergroups'] = 'Usergroups';
 $_lang['virtunewsletter.add'] = 'Add';
+$_lang['virtunewsletter.all'] = 'All';
 $_lang['virtunewsletter.clear'] = 'Clear';
 $_lang['virtunewsletter.categories'] = 'Categories';
 $_lang['virtunewsletter.view'] = 'View';

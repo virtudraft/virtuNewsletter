@@ -1,5 +1,6 @@
 virtuNewsletter 2.0.0-rc3 (March 10, 2016)
 =================================================
+- Added status filter on newsletter's report grid
 - Fixed report after sending through provider
 
 virtuNewsletter 2.0.0-rc2 (March 7, 2016)

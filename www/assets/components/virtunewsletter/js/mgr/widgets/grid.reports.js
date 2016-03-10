@@ -61,8 +61,34 @@ VirtuNewsletter.grid.Reports = function(config) {
                 text: _('virtunewsletter.send_all'),
                 scope: this,
                 handler: this.sendAll
+            }, '->', {
+                xtype: 'combo',
+                id: 'virtunewsletter-filterStatus-' + config.record.id,
+                width: 100,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'local',
+                store: new Ext.data.ArrayStore({
+                    id: 0,
+                    fields: [
+                        'value',
+                        'displayText'
+                    ],
+                    data: [
+                        ['', _('virtunewsletter.all')],
+                        ['sent', _('virtunewsletter.sent')],
+                        ['queue', _('virtunewsletter.queue')]
+                    ]
+                }),
+                valueField: 'value',
+                displayField: 'displayText',
+                listeners: {
+                    'select': {fn: this.filterStatus, scope: this}
+                }
             }, {
                 xtype: 'textfield',
+                id: 'virtunewsletter-search-' + config.record.id,
                 emptyText: _('virtunewsletter.search...'),
                 listeners: {
                     'change': {fn: this.search, scope: this},
@@ -79,6 +105,10 @@ VirtuNewsletter.grid.Reports = function(config) {
                         },
                         scope: this}
                 }
+            }, {
+                text: _('virtunewsletter.clear'),
+                scope: this,
+                handler: this.clearFilter
             }
         ]
     });
@@ -88,6 +118,21 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
     search: function(tf, nv, ov) {
         var s = this.getStore();
         s.baseParams.query = tf.getValue();
+        this.getBottomToolbar().changePage(1);
+        this.refresh();
+    },
+    filterStatus: function(combo, record, index) {
+        var s = this.getStore();
+        s.baseParams.status = record.data.value;
+        this.getBottomToolbar().changePage(1);
+        this.refresh();
+    },
+    clearFilter: function() {
+        var s = this.getStore();
+        s.baseParams.status = '';
+        s.baseParams.query = '';
+        Ext.getCmp('virtunewsletter-filterStatus-' + this.config.record.id).reset();
+        Ext.getCmp('virtunewsletter-search-' + this.config.record.id).reset();
         this.getBottomToolbar().changePage(1);
         this.refresh();
     },

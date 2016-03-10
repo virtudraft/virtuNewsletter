@@ -67,7 +67,7 @@ $_lang['setting_virtunewsletter.email_bcc_address_desc'] = 'BCC address when new
 $_lang['setting_virtunewsletter.email_from_name'] = 'Name of the sender';
 $_lang['setting_virtunewsletter.email_from_name_desc'] = 'Name of the sender for newsletter';
 $_lang['setting_virtunewsletter.email_provider'] = 'Email provider';
-$_lang['setting_virtunewsletter.email_provider_desc'] = 'Email provider which generates the newsletter. Default: <em>empty</em> (this website), built-in option: <a href="http://mandrill.com/" title="Mandrill is a transactional email platform from MailChimp" target="_blank">"mandrill"</a>.';
+$_lang['setting_virtunewsletter.email_provider_desc'] = 'Email provider which generates the newsletter. Default: <em>empty</em> (this website), built-in options: <a href="http://mandrill.com/" title="Mandrill is a transactional email platform from MailChimp" target="_blank">"mandrill"</a> and <a href="https://mailgun.com/" title="Transactional Email API Service for Developers by Rackspace" target="_blank">"mailgun"</a>.';
 $_lang['setting_virtunewsletter.email_reply_to'] = 'Email address to reply';
 $_lang['setting_virtunewsletter.email_reply_to_desc'] = 'Email address for the recipients to reply';
 $_lang['setting_virtunewsletter.mandrill.api_key'] = 'Mandrill\'s API key';

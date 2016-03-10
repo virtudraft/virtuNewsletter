@@ -48,11 +48,17 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
             ));
         }
         $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
-        $query = $this->getProperty('query');
+        $query = $this->getProperty('query', false);
         if (!empty($query)) {
             $c->where(array(
                 'Subscribers.name:LIKE' => '%' . $query . '%',
                 'OR:Subscribers.email:LIKE' => '%' . $query . '%',
+            ));
+        }
+        $status = $this->getProperty('status', false);
+        if (!empty($status)) {
+            $c->where(array(
+                'status' => $status,
             ));
         }
         $c->select(array(

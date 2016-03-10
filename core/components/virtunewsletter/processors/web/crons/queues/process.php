@@ -31,16 +31,25 @@ if ($_REQUEST['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
+ignore_user_abort(1); // run script in background
+set_time_limit(86400); // run script for 1 day
+
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
 $todayOnly = isset($_REQUEST['today_only']) && ($_REQUEST['today_only'] == 1) ? true : false;
 $limit = isset($_REQUEST['limit']) && is_numeric($_REQUEST['limit']) ? intval($_REQUEST['limit']) : 0;
 
+ob_start();
 $modx->virtunewsletter->setQueues($todayOnly);
 $reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
 
 $outputType = isset($_REQUEST['output_type']) && $_REQUEST['output_type'] === 'json' ? 'json' : 'html';
 if ($outputType === 'json') {
-    return $this->success('', $reports);
+    header('Content-type: application/json');
+    echo $this->success('', $reports);
 } else {
+    header('Content-Type: text/html; charset=utf-8');
     $getItems = isset($_REQUEST['get_items']) && $_REQUEST['get_items'] === 1 ? 1 : 0;
     $output = '';
     if (!empty($reports)) {
@@ -69,5 +78,7 @@ if ($outputType === 'json') {
         $output = @implode("\n", $outputArray);
     }
 
-    return $output;
+    echo $output;
 }
+
+ob_end_flush();

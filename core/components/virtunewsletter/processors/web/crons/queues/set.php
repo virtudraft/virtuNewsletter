@@ -31,5 +31,14 @@ if ($_REQUEST['site_id'] !== $modx->site_id) {
     die('Wrong authentification!');
 }
 
+ignore_user_abort(1); // run script in background
+set_time_limit(86400); // run script for 1 day
+
+if (ob_get_level() == 0) {
+    ob_start();
+}
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
 $output = $modx->virtunewsletter->setQueues();
 return $this->success('', $output);

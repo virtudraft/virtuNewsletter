@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '2.0.0';
-    const RELEASE = 'rc2';
+    const RELEASE = 'rc3';
 
     /**
      * modX object
@@ -863,20 +863,30 @@ class VirtuNewsletter {
                         $output['recipients'] = $this->getResponses();
                         foreach ($output['recipients'] as $item) {
                             if (isset($item['email']) && isset($item['status'])) {
+                                $subscriber = $this->modx->getObject('vnewsSubscribers', array(
+                                    'email' => $item['email'],
+                                ));
+                                if (!$subscriber) {
+                                    continue;
+                                }
+                                $subscriberArray = $subscriber->toArray();
                                 $c = $this->modx->newQuery('vnewsReports');
-                                $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
                                 $c->where(array(
-                                    'Subscribers.email' => $item['email']
+                                    'newsletter_id' => $newsId,
+                                    'subscriber_id' => $subscriberArray['id'],
                                 ));
                                 $itemQueue = $this->modx->getObject('vnewsReports', $c);
-                                if ($itemQueue) {
-                                    $itemQueue->set('status_logged_on', time());
-                                    $itemQueue->set('status', $item['status']);
-                                    if ($itemQueue->save() === FALSE) {
-                                        $this->modx->setDebug();
-                                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($item, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                                        $this->modx->setDebug(FALSE);
-                                    }
+                                if (!$itemQueue) {
+                                    $itemQueue = $this->modx->newObject('vnewsReports');
+                                    $itemQueue->set('newsletter_id', $newsId);
+                                    $itemQueue->set('subscriber_id', $subscriberArray['id']);
+                                }
+                                $itemQueue->set('status_logged_on', time());
+                                $itemQueue->set('status', $item['status']);
+                                if ($itemQueue->save() === FALSE) {
+                                    $this->modx->setDebug();
+                                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($item, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                                    $this->modx->setDebug(FALSE);
                                 }
                             }
                         }

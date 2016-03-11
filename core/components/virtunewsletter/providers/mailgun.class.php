@@ -93,9 +93,9 @@ class VirtuNewsletterMailgunController extends VirtuNewsletterEmailProvider {
                     }
                 } catch (Exception $e) {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'A mailgun error occurred: ' . get_class($e) . ' - ' . $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
                     $this->modx->setDebug(FALSE);
-                    $this->modx->virtunewsletter->setError('A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage());
+                    $this->modx->virtunewsletter->setError('A mailgun error occurred: ' . get_class($e) . ' - ' . $e->getMessage());
                     return FALSE;
                 }
             }

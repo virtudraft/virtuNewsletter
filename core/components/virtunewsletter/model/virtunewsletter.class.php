@@ -806,6 +806,7 @@ class VirtuNewsletter {
     /**
      * Process queue
      * @param   boolean $todayOnly  strict to today's queue (default: false)
+     * @param   int     $limit      override limit of System Settings
      * @return  array   reports' outputs in array
      */
     public function processQueue($todayOnly = FALSE, $limit = 0) {
@@ -819,15 +820,22 @@ class VirtuNewsletter {
             'Newsletters.is_recurring',
         ));
         $c->where(array(
-            'vnewsReports.status' => 'queue',
-            'Newsletters.is_active' => 1,
+            'vnewsReports.status:=' => 'queue',
+            'Newsletters.is_active:=' => 1,
         ));
+        $time = time();
 //        $todayOnly = TRUE;
         if ($todayOnly) {
             date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $tomorrow = mktime(0, 0, 0, date('n'), date('j') + 1, date('Y'));
             $c->where(array(
-                'scheduled_for' => $today,
+                'Newsletters.scheduled_for:>' => $today,
+                'Newsletters.scheduled_for:<' => $tomorrow,
+            ));
+        } else {
+            $c->where(array(
+                'Newsletters.scheduled_for:<' => $time + 1,
             ));
         }
         $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
@@ -837,7 +845,6 @@ class VirtuNewsletter {
         $queues = $this->modx->getCollection('vnewsReports', $c);
         $outputReports = array();
         if ($queues) {
-            $time = time();
             $emailProvider = $this->modx->getOption('virtunewsletter.email_provider');
             if (!empty($emailProvider)) {
                 $queuesArray = array();

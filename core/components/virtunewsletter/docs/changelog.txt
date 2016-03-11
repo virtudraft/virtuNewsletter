@@ -1,3 +1,7 @@
+virtuNewsletter 2.0.0-pl (March 11, 2016)
+=================================================
+- fixed processQueue()
+
 virtuNewsletter 2.0.0-rc3 (March 10, 2016)
 =================================================
 - added chunk options to cron report

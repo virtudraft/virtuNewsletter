@@ -26,7 +26,7 @@
 class VirtuNewsletter {
 
     const VERSION = '2.0.0';
-    const RELEASE = 'rc3';
+    const RELEASE = 'pl';
 
     /**
      * modX object

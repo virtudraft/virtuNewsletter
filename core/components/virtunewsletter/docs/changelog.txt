@@ -1,3 +1,9 @@
+virtuNewsletter 2.0.1-pl (March 29, 2016)
+=================================================
+- Fixed sorting when processing and make sure the queue status before sending
+= [#46] Fixed sort by status
+- [#45] Added missing 'virtunewsletter.queued' lexicon
+
 virtuNewsletter 2.0.0-pl (March 11, 2016)
 =================================================
 - fixed processQueue()

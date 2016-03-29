@@ -842,6 +842,8 @@ class VirtuNewsletter {
         if (!empty($limit)) {
             $c->limit($limit);
         }
+        $c->sortby('Newsletters.id', 'asc');
+        $c->sortby('vnewsReports.id', 'asc');
         $queues = $this->modx->getCollection('vnewsReports', $c);
         $outputReports = array();
         if ($queues) {
@@ -902,7 +904,11 @@ class VirtuNewsletter {
                 }
             } else {
                 foreach ($queues as $queue) {
-                    $newsletterArray = $this->getNewsletter($queue->get('newsletter_id'));
+                    $queueArray = $queue->toArray('', false, true, true);
+                    if ($queueArray['status'] !== 'queue') {
+                        continue;
+                    }
+                    $newsletterArray = $this->getNewsletter($queueArray['newsletter_id']);
                     $output = array(
                         'newsletter_id' => $newsId,
                         'subject' => $newsletterArray['subject'],
@@ -911,22 +917,22 @@ class VirtuNewsletter {
                         'message' => '',
                         'recipients' => array(),
                     );
-                    $sent = $this->sendNewsletter($queue->get('newsletter_id'), $queue->get('subscriber_id'));
+                    $sent = $this->sendNewsletter($queueArray['newsletter_id'], $queueArray['subscriber_id']);
                     if ($sent) {
                         $queue->set('status_logged_on', $time);
                         $queue->set('status', 'sent');
                         if ($queue->save() === FALSE) {
                             $this->modx->setDebug();
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
                             $this->modx->setDebug(FALSE);
                         } else {
-                            $output['recipients'] = $queue->toArray();
+                            $output['recipients'] = $queueArray;
                         }
                     } else {
                         $this->modx->setDebug();
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
                         $this->modx->setDebug(FALSE);
-                        $output['message'] = 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE);
+                        $output['message'] = 'Failed to send a queue! ' . print_r($queueArray, TRUE);
                     }
                     $outputReports[] = $output;
                 }

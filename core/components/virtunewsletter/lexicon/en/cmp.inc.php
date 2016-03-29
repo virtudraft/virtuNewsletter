@@ -133,6 +133,7 @@ $_lang['virtunewsletter.import_err_nf'] = 'Missing fields\' names';
 $_lang['virtunewsletter.read_file_err'] = 'Unable to read the file';
 $_lang['virtunewsletter.sent'] = 'Sent';
 $_lang['virtunewsletter.queue'] = 'Queue';
+$_lang['virtunewsletter.queued'] = 'Queued';
 $_lang['virtunewsletter.requeue'] = 'Re-Queue';
 $_lang['virtunewsletter.weekly'] = 'Weekly';
 $_lang['virtunewsletter.monthly'] = 'Monthly';

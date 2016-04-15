@@ -1,4 +1,4 @@
-virtuNewsletter dev
+virtuNewsletter 2.0.2-pl (April 16, 2016)
 =================================================
 - [#43] fixed nicer error throw when mailgun's library doesn't exist
 - [#44][#47] enabled mailgun's batch sending

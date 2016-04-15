@@ -90,9 +90,12 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
     public function prepareRow(xPDOObject $object) {
         $objectArray = parent::prepareRow($object);
         $status = $this->modx->lexicon('virtunewsletter.' . $objectArray['status']);
-        if ($status) {
+        if ($status === 'virtunewsletter.' . $objectArray['status']) {
+            $objectArray['status_text'] = $objectArray['status'];
+        } else {
             $objectArray['status_text'] = $status;
         }
+
         return $objectArray;
     }
 

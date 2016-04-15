@@ -36,9 +36,12 @@ VirtuNewsletter.grid.Reports = function(config) {
                 sortable: true,
                 width: 80,
                 fixed: true,
-                renderer: function(value, metaData, record, row, col, store, gridView){
-                    return record.data.status_text;
-                }
+                hidden: true
+            }, {
+                header: _('virtunewsletter.status'),
+                dataIndex: 'status_text',
+                sortable: false,
+                width: 80
             }, {
                 header: _('virtunewsletter.created_on'),
                 dataIndex: 'status_logged_on',

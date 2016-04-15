@@ -116,6 +116,18 @@ class VirtuNewsletter {
     }
 
     /**
+     * Get individual config for the class
+     * @param   string  $key        array's key
+     * @param   string  $default    default value
+     */
+    public function getConfig($key, $default = null) {
+        if (!isset($this->config[$key])) {
+            return $default;
+        }
+        return $this->config[$key];
+    }
+
+    /**
      * Set string error for boolean returned methods
      * @return  void
      */
@@ -1411,6 +1423,8 @@ class VirtuNewsletter {
                 $subscriberArray = $subscriber->toArray();
                 $subscriberArray['subid'] = $subscriberArray['id'];
                 $subscribersArray[] = $subscriberArray;
+            } else if (isset ($queue['email'])){
+                $subscribersArray[] = $queue;
             }
         }
 

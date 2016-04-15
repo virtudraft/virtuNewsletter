@@ -178,6 +178,15 @@ $settings['virtunewsletter.mailgun.endpoint']->fromArray(array(
     'area' => 'Email',
         ), '', true, true);
 
+$settings['virtunewsletter.mailgun.batch_mode'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.mailgun.batch_mode']->fromArray(array(
+    'key' => 'virtunewsletter.mailgun.batch_mode',
+    'value' => 0,
+    'xtype' => 'combo-boolean',
+    'namespace' => 'virtunewsletter',
+    'area' => 'Email',
+        ), '', true, true);
+
 $settings['virtunewsletter.email_from_name'] = $modx->newObject('modSystemSetting');
 $settings['virtunewsletter.email_from_name']->fromArray(array(
     'key' => 'virtunewsletter.email_from_name',

@@ -1,3 +1,8 @@
+virtuNewsletter dev
+=================================================
+- [#43] fixed nicer error throw when mailgun's library doesn't exist
+- [#44][#47] enabled mailgun's batch sending
+
 virtuNewsletter 2.0.1-pl (March 29, 2016)
 =================================================
 - Fixed sorting when processing and make sure the queue status before sending

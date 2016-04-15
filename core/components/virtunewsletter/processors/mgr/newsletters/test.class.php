@@ -86,8 +86,12 @@ class TestNewsletterProcessor extends modProcessor {
             $this->modx->virtunewsletter->setPlaceholders($confirmLinkArgs, $systemEmailPrefix);
         }
         $this->modx->virtunewsletter->setPlaceholders(array_merge($subscriberArray, array('id' => $newsletterArray['id'])), $systemEmailPrefix);
-
-        $output = $this->modx->virtunewsletter->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email']);
+        $emailProvider = $this->modx->getOption('virtunewsletter.email_provider');
+        if (!empty($emailProvider)) {
+            $output = $this->modx->virtunewsletter->sendToEmailProvider($emailProvider, $newsletterArray['id'], array($subscriberArray));
+        } else {
+            $output = $this->modx->virtunewsletter->sendMail($newsletterArray['subject'], $newsletterArray['content'], $subscriberArray['email']);
+        }
 
         return $this->success($output);
     }

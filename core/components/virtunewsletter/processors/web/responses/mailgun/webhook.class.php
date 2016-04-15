@@ -43,7 +43,8 @@ class ResponseMailgunWebhookProcessor extends modObjectUpdateProcessor {
             header('X-PHP-Response-Code: 406', true, 406);
             return $this->modx->lexicon('access_denied');
         }
-        $hash = hash_hmac('sha256', $props['timestamp'] . $props['token'], $key);
+        $apiKey = $this->modx->getOption('virtunewsletter.mailgun.api_key');
+        $hash = hash_hmac('sha256', $props['timestamp'] . $props['token'], $apiKey);
         if ($hash !== $props['signature']) {
             header('X-PHP-Response-Code: 406', true, 406);
             return $this->modx->lexicon('access_denied');

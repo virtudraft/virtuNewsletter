@@ -7,7 +7,7 @@ use Mailgun\Mailgun;
 class VirtuNewsletterMailgunController extends VirtuNewsletterEmailProvider {
 
     public function send() {
-        if (!class_exists('Mailgun')) {
+        if (!class_exists('Mailgun\Mailgun')) {
             $err = 'Missing Mailgun\'s class file. Please add the "mailgun-php" library into ' . dirname(dirname(__FILE__)) . '/vendors/';
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, $err, '', __METHOD__, __FILE__, __LINE__);

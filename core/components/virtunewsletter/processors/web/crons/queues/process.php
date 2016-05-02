@@ -41,7 +41,6 @@ $todayOnly = isset($_REQUEST['today_only']) && ($_REQUEST['today_only'] == 1) ? 
 $limit = isset($_REQUEST['limit']) && is_numeric($_REQUEST['limit']) ? intval($_REQUEST['limit']) : 0;
 
 ob_start();
-$modx->virtunewsletter->setQueues($todayOnly);
 $reports = $modx->virtunewsletter->processQueue($todayOnly, $limit);
 
 $outputType = isset($_REQUEST['output_type']) && $_REQUEST['output_type'] === 'json' ? 'json' : 'html';

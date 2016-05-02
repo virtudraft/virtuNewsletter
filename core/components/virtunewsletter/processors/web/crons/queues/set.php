@@ -40,8 +40,9 @@ if (ob_get_level() == 0) {
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
+$todayOnly = isset($_REQUEST['today_only']) && ($_REQUEST['today_only'] == 1) ? true : false;
 ob_start();
-$output = $modx->virtunewsletter->setQueues();
+$output = $modx->virtunewsletter->setQueues($todayOnly);
 $cronReportEnabled = $modx->getOption('virtunewsletter.cronreport.enabled', null, 1);
 if ($cronReportEnabled) {
     echo $this->success('', $output);

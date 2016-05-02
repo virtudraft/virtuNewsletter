@@ -1,3 +1,8 @@
+virtuNewsletter 2.0.3-pl (May 2, 2016)
+=================================================
+- remove setQueue from cron's process proccessor
+- fixed class exists condition on Mailgun's class
+
 virtuNewsletter 2.0.2-pl (April 16, 2016)
 =================================================
 - [#43] fixed nicer error throw when mailgun's library doesn't exist

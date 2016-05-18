@@ -89,6 +89,7 @@
         <field key="user_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" index="index" />
         <field key="email" dbtype="varchar" precision="255" phptype="string" null="false" />
         <field key="name" dbtype="varchar" precision="255" phptype="string" null="true" />
+        <field key="email_provider" dbtype="varchar" precision="255" phptype="string" null="true" />
         <field key="is_active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="1" />
         <field key="hash" dbtype="varchar" precision="255" phptype="string" null="false" />
 

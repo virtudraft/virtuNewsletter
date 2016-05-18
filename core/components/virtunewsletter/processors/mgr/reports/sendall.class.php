@@ -71,6 +71,7 @@ class SendAllNewslettersProcessor extends modProcessor {
             'Newsletters.subject',
             'Subscribers.email',
             'Subscribers.name',
+            'Subscribers.email_provider',
         ));
 
         date_default_timezone_set('UTC');
@@ -103,59 +104,7 @@ class SendAllNewslettersProcessor extends modProcessor {
         $queues = $this->modx->getCollection($this->classKey, $c);
         $outputReports = array();
         if ($queues) {
-            $emailProvider = $this->modx->getOption('virtunewsletter.email_provider');
-            if (!empty($emailProvider)) {
-                $queuesArray = array();
-                foreach ($queues as $queue) {
-                    $queuesArray[] = $queue->toArray();
-                }
-                $result = $this->modx->virtunewsletter->sendToEmailProvider($emailProvider, $this->newsletter->get('id'), $queuesArray);
-                if (!$result) {
-                    $error = $this->modx->virtunewsletter->getError();
-                    return $this->failure($error);
-                } else {
-                    $output = $this->modx->virtunewsletter->getResponses();
-                    foreach ($output as $item) {
-                        if (isset($item['email']) && isset($item['status'])) {
-                            $c = $this->modx->newQuery($this->classKey);
-                            $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
-                            $c->where(array(
-                                'Subscribers.email' => $item['email']
-                            ));
-                            $itemQueue = $this->modx->getObject($this->classKey, $c);
-                            if ($itemQueue) {
-                                $itemQueue->set('status_logged_on', time());
-                                $itemQueue->set('status', $item['status']);
-                                if ($itemQueue->save() === FALSE) {
-                                    $this->modx->setDebug();
-                                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
-                                    $this->modx->setDebug(FALSE);
-                                }
-                            }
-                        }
-                    }
-                    $outputReports = $output;
-                }
-            } else {
-                foreach ($queues as $queue) {
-                    $sent = $this->modx->virtunewsletter->sendNewsletter($this->newsletter->get('id'), $queue->get('subscriber_id'));
-                    if ($sent) {
-                        $queue->set('status_logged_on', time());
-                        $queue->set('status', 'sent');
-                        if ($queue->save() === FALSE) {
-                            $this->modx->setDebug();
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
-                            $this->modx->setDebug(FALSE);
-                        } else {
-                            $outputReports[] = $this->modx->virtunewsletter->getPlaceholders();
-                        }
-                    } else {
-                        $this->modx->setDebug();
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queue->toArray(), TRUE), '', __METHOD__, __FILE__, __LINE__);
-                        $this->modx->setDebug(FALSE);
-                    }
-                }
-            }
+            $outputReports = $this->modx->virtunewsletter->sendQueuesToProvider($queues);
         }
 
         return $this->success('', $outputReports);

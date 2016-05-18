@@ -1,3 +1,8 @@
+virtuNewsletter dev
+=================================================
+- added email provider overriding by subscriber
+- replaced removeCollection on deactivating subscriber
+
 virtuNewsletter 2.0.3-pl (May 2, 2016)
 =================================================
 - remove setQueue from cron's process proccessor

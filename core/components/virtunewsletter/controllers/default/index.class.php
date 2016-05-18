@@ -69,6 +69,7 @@ class VirtunewsletterIndexManagerController extends modExtraManagerController {
         $version = str_replace(' ', '', $this->virtunewsletter->config['version']);
         $isJsCompressed = $this->modx->getOption('compress_js');
         $withVersion = $isJsCompressed? '' : '?v=' . $version;
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.status.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.subscriber.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.resources.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.templates.js' . $withVersion);

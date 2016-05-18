@@ -88,8 +88,9 @@ class vnewsSubscribers extends xPDOSimpleObject {
                 ));
             }
             if (isset($options['upcomingOnly']) && !empty($options['upcomingOnly'])) {
+                $time = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
                 $c->where(array(
-                    'vnewsNewsletters.scheduled_for:>' => time()
+                    'vnewsNewsletters.scheduled_for:>=' => $time
                 ));
             }
         }

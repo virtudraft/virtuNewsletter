@@ -1,4 +1,4 @@
-VirtuNewsletter.window.Subscriber = function(config) {
+VirtuNewsletter.window.Subscriber = function (config) {
     config = config || {};
 
     Ext.applyIf(config, {
@@ -21,6 +21,14 @@ VirtuNewsletter.window.Subscriber = function(config) {
                 xtype: 'textfield',
                 fieldLabel: _('email'),
                 name: 'email'
+            }, {
+                xtype: 'textfield',
+                fieldLabel: _('virtunewsletter.email_provider'),
+                name: 'email_provider'
+            }, {
+                xtype: 'displayfield',
+                cls: 'desc-under',
+                html: _('virtunewsletter.email_provider_desc'),
             }
         ]
     });

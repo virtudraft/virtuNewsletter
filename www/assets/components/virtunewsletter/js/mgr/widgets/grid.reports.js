@@ -68,27 +68,9 @@ VirtuNewsletter.grid.Reports = function(config) {
                 scope: this,
                 handler: this.sendAll
             }, '->', {
-                xtype: 'combo',
+                xtype: 'virtunewsletter-combo-status',
                 id: 'virtunewsletter-filterStatus-' + config.record.id,
                 width: 100,
-                typeAhead: false,
-                triggerAction: 'all',
-                lazyRender: true,
-                mode: 'local',
-                store: new Ext.data.ArrayStore({
-                    id: 0,
-                    fields: [
-                        'value',
-                        'displayText'
-                    ],
-                    data: [
-                        ['', _('virtunewsletter.all')],
-                        ['sent', _('virtunewsletter.sent')],
-                        ['queue', _('virtunewsletter.queue')]
-                    ]
-                }),
-                valueField: 'value',
-                displayField: 'displayText',
                 listeners: {
                     'select': {fn: this.filterStatus, scope: this}
                 }

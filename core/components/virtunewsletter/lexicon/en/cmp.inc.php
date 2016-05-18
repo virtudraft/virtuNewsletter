@@ -150,3 +150,6 @@ $_lang['virtunewsletter.detail'] = 'Detail';
 $_lang['virtunewsletter.subscriber_update'] = 'Update Subscriber';
 
 $_lang['virtunewsletter.TemplateGet_err_nfs'] = 'Could not find the specified template, try to create a new one.';
+
+$_lang['virtunewsletter.email_provider'] = 'Email Provider';
+$_lang['virtunewsletter.email_provider_desc'] = 'Email provider which generates the newsletter.<br>If this is not empty, then this will override the defined "Email provider" in System Settings.';

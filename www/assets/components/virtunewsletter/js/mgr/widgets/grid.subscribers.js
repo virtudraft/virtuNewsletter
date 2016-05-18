@@ -11,7 +11,8 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             action: 'mgr/subscribers/getList',
             newsletter_id: config.newsletter_id
         },
-        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'categories_text', 'categories', 'is_active'],
+        fields: ['id', 'user_id', 'email', 'name', 'usergroups','email_provider',
+            'categories_text', 'categories', 'is_active'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -24,11 +25,13 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 header: _('id'),
                 dataIndex: 'id',
                 sortable: true,
+                hidden: true,
                 width: 30
             }, {
                 header: _('virtunewsletter.user_id'),
                 dataIndex: 'user_id',
                 sortable: true,
+                hidden: true,
                 width: 30
             }, {
                 header: _('virtunewsletter.name'),
@@ -47,6 +50,10 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 header: _('virtunewsletter.usergroups'),
                 dataIndex: 'usergroups',
                 sortable: true
+            }, {
+                header: _('virtunewsletter.email_provider'),
+                dataIndex: 'email_provider',
+                sortable: false
             }, {
                 xtype: 'checkcolumn',
                 header: _('virtunewsletter.active'),
@@ -169,14 +176,14 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
     getMenu: function() {
         var menu = [
             {
-                text: _('virtunewsletter.remove'),
-                handler: this.removeSubscriber
-            }, {
                 text: _('virtunewsletter.subscriber_update'),
                 handler: this.updateSubscriber
             }, {
                 text: _('virtunewsletter.category_update'),
                 handler: this.updateCategory
+            }, '-', {
+                text: _('virtunewsletter.remove'),
+                handler: this.removeSubscriber
             }
         ];
 

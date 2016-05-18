@@ -38,11 +38,11 @@ class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
     public function afterSave() {
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
-            $this->modx->virtunewsletter->addSubscriberQueues($this->getProperty('id'));
+            $o = $this->modx->virtunewsletter->addSubscriberQueues($this->getProperty('id'));
         } else {
-            $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
+            $o = $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
         }
-        return true;
+        return $o;
     }
 
 }

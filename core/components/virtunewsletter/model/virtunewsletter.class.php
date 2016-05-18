@@ -663,7 +663,6 @@ class VirtuNewsletter {
                 'status' => 'queue',
                 'status_logged_on' => time(),
             ));
-
             $newReport = $this->modx->newObject('vnewsReports');
             $newReport->fromArray($params);
             $newReport->save();
@@ -682,7 +681,16 @@ class VirtuNewsletter {
             'subscriber_id' => $subscriberId,
             'status' => 'queue'
         ));
-        return $this->modx->removeCollection('vnewsReports', $c);
+        $queues = $this->modx->getCollection('vnewsReports', $c);
+        if ($queues) {
+            foreach ($queues as $queue) {
+                $queue->remove();
+            }
+        }
+        // why the hell is this not working???
+        // return $this->modx->removeCollection('vnewsReports', $c);
+
+        return true;
     }
 
     /**
@@ -816,16 +824,18 @@ class VirtuNewsletter {
     }
 
     /**
-     * Process queue
+     * Get queues
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @param   int     $limit      override limit of System Settings
-     * @return  array   reports' outputs in array
+     * @return  array   queues collection in array
      */
-    public function processQueue($todayOnly = FALSE, $limit = 0) {
+    public function getQueues($todayOnly = FALSE, $limit = 0) {
         $c = $this->modx->newQuery('vnewsReports');
         $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
+        $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
         $c->select(array(
             'vnewsReports.*',
+            'Subscribers.email_provider',
             'Newsletters.subject',
             'Newsletters.created_on',
             'Newsletters.scheduled_for',
@@ -857,99 +867,162 @@ class VirtuNewsletter {
         $c->sortby('Newsletters.id', 'asc');
         $c->sortby('vnewsReports.id', 'asc');
         $queues = $this->modx->getCollection('vnewsReports', $c);
-        $outputReports = array();
-        if ($queues) {
+
+        return $queues;
+    }
+
+    /**
+     * Switch queues among custom providers
+     *
+     * @param array     $queues getCollection's array
+     * @param string    $emailProvider
+     * @return boolean
+     */
+    public function sendQueuesToProvider($queues, $emailProvider = '') {
+        if (empty($queues)) {
+            return false;
+        }
+        if (empty($emailProvider)) {
             $emailProvider = $this->modx->getOption('virtunewsletter.email_provider');
-            if (!empty($emailProvider)) {
-                $queuesArray = array();
-                $newsletterIds = array();
-                foreach ($queues as $queue) {
-                    $queuesArray[] = $queue->toArray();
-                    $newsletterIds[$queue->get('newsletter_id')] = $queue->get('newsletter_id');
+        }
+        $emailProvider = trim($emailProvider);
+
+        $diffProviderQueues = array();
+        if (!empty($emailProvider)) {
+            $queuesArray = array();
+            $newsletterIds = array();
+            foreach ($queues as $queue) {
+                $queueArray = $queue->toArray('', false, true, true);
+                if ($queueArray['status'] !== 'queue') {
+                    continue;
                 }
-                foreach ($newsletterIds as $newsId) {
-                    $newsletterArray = $this->getNewsletter($newsId);
-                    $output = array(
-                        'newsletter_id' => $newsId,
-                        'subject' => $newsletterArray['subject'],
-                        'created_on' => $newsletterArray['created_on'],
-                        'scheduled_for' => $newsletterArray['scheduled_for'],
-                        'message' => '',
-                        'recipients' => array(),
-                    );
-                    $result = $this->sendToEmailProvider($emailProvider, $newsId, $queuesArray);
-                    if (!$result) {
-                        $output['message'] = $this->getError();
-                    } else {
-                        $output['recipients'] = $this->getResponses();
-                        foreach ($output['recipients'] as $item) {
-                            if (isset($item['email']) && isset($item['status'])) {
-                                $subscriber = $this->modx->getObject('vnewsSubscribers', array(
-                                    'email' => $item['email'],
-                                ));
-                                if (!$subscriber) {
-                                    continue;
-                                }
-                                $subscriberArray = $subscriber->toArray();
-                                $c = $this->modx->newQuery('vnewsReports');
-                                $c->where(array(
-                                    'newsletter_id' => $newsId,
-                                    'subscriber_id' => $subscriberArray['id'],
-                                ));
-                                $itemQueue = $this->modx->getObject('vnewsReports', $c);
-                                if (!$itemQueue) {
-                                    $itemQueue = $this->modx->newObject('vnewsReports');
-                                    $itemQueue->set('newsletter_id', $newsId);
-                                    $itemQueue->set('subscriber_id', $subscriberArray['id']);
-                                }
-                                $itemQueue->set('status_logged_on', time());
-                                $itemQueue->set('status', $item['status']);
-                                if ($itemQueue->save() === FALSE) {
-                                    $this->modx->setDebug();
-                                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($item, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                                    $this->modx->setDebug(FALSE);
-                                }
+                $queueArray['email_provider'] = trim($queueArray['email_provider']);
+                if ($queueArray['email_provider'] !== $emailProvider) {
+                    if (!isset($diffProviderQueues[$queueArray['email_provider']]) || !is_array($diffProviderQueues[$queueArray['email_provider']])) {
+                        $diffProviderQueues[$queueArray['email_provider']] = array();
+                    }
+                    $diffProviderQueues[$queueArray['email_provider']][] = $queue;
+                    continue;
+                }
+                $queuesArray[] = $queueArray;
+                $newsletterIds[$queueArray['newsletter_id']] = $queueArray['newsletter_id'];
+            }
+            foreach ($newsletterIds as $newsId) {
+                $newsletterArray = $this->getNewsletter($newsId);
+                $output = array(
+                    'newsletter_id' => $newsId,
+                    'subject' => $newsletterArray['subject'],
+                    'created_on' => $newsletterArray['created_on'],
+                    'scheduled_for' => $newsletterArray['scheduled_for'],
+                    'message' => '',
+                    'recipients' => array(),
+                );
+                $result = $this->sendToEmailProvider($emailProvider, $newsId, $queuesArray);
+                if (!$result) {
+                    $output['message'] = $this->getError();
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send queues! ' . print_r($queuesArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                } else {
+                    $output['recipients'] = $this->getResponses();
+                    foreach ($output['recipients'] as $item) {
+                        if (isset($item['email']) && isset($item['status'])) {
+                            $subscriber = $this->modx->getObject('vnewsSubscribers', array(
+                                'email' => $item['email'],
+                            ));
+                            if (!$subscriber) {
+                                continue;
+                            }
+                            $subscriberArray = $subscriber->toArray();
+                            $c = $this->modx->newQuery('vnewsReports');
+                            $c->where(array(
+                                'newsletter_id' => $newsId,
+                                'subscriber_id' => $subscriberArray['id'],
+                            ));
+                            $itemQueue = $this->modx->getObject('vnewsReports', $c);
+                            if (!$itemQueue) {
+                                $itemQueue = $this->modx->newObject('vnewsReports');
+                                $itemQueue->set('newsletter_id', $newsId);
+                                $itemQueue->set('subscriber_id', $subscriberArray['id']);
+                            }
+                            $itemQueue->set('status_logged_on', time());
+                            $itemQueue->set('status', $item['status']);
+                            if ($itemQueue->save() === FALSE) {
+                                $this->modx->setDebug();
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($item, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                                $this->modx->setDebug(FALSE);
                             }
                         }
                     }
-                    $outputReports[] = $output;
                 }
-            } else {
-                foreach ($queues as $queue) {
-                    $queueArray = $queue->toArray('', false, true, true);
-                    if ($queueArray['status'] !== 'queue') {
-                        continue;
+                $outputReports[] = $output;
+            }
+        } else {
+            foreach ($queues as $queue) {
+                $queueArray = $queue->toArray('', false, true, true);
+                if ($queueArray['status'] !== 'queue') {
+                    continue;
+                }
+                $queueArray['email_provider'] = trim($queueArray['email_provider']);
+                if ($queueArray['email_provider'] !== $emailProvider) {
+                    if (!isset($diffProviderQueues[$queueArray['email_provider']]) || !is_array($diffProviderQueues[$queueArray['email_provider']])) {
+                        $diffProviderQueues[$queueArray['email_provider']] = array();
                     }
-                    $newsletterArray = $this->getNewsletter($queueArray['newsletter_id']);
-                    $output = array(
-                        'newsletter_id' => $newsId,
-                        'subject' => $newsletterArray['subject'],
-                        'created_on' => $newsletterArray['created_on'],
-                        'scheduled_for' => $newsletterArray['scheduled_for'],
-                        'message' => '',
-                        'recipients' => array(),
-                    );
-                    $sent = $this->sendNewsletter($queueArray['newsletter_id'], $queueArray['subscriber_id']);
-                    if ($sent) {
-                        $queue->set('status_logged_on', $time);
-                        $queue->set('status', 'sent');
-                        if ($queue->save() === FALSE) {
-                            $this->modx->setDebug();
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                            $this->modx->setDebug(FALSE);
-                        } else {
-                            $output['recipients'] = $queueArray;
-                        }
-                    } else {
+                    $diffProviderQueues[$queueArray['email_provider']][] = $queue;
+                    continue;
+                }
+                $newsletterArray = $this->getNewsletter($queueArray['newsletter_id']);
+                $output = array(
+                    'newsletter_id' => $queueArray['newsletter_id'],
+                    'subject' => $newsletterArray['subject'],
+                    'created_on' => $newsletterArray['created_on'],
+                    'scheduled_for' => $newsletterArray['scheduled_for'],
+                    'message' => '',
+                    'recipients' => array(),
+                );
+                $sent = $this->sendNewsletter($queueArray['newsletter_id'], $queueArray['subscriber_id']);
+                if ($sent) {
+                    $queue->set('status_logged_on', time());
+                    $queue->set('status', 'sent');
+                    if ($queue->save() === FALSE) {
                         $this->modx->setDebug();
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
                         $this->modx->setDebug(FALSE);
-                        $output['message'] = 'Failed to send a queue! ' . print_r($queueArray, TRUE);
+                    } else {
+                        $output['recipients'] = $queueArray;
                     }
-                    $outputReports[] = $output;
+                } else {
+                    $this->modx->setDebug();
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(FALSE);
+                    $output['message'] = 'Failed to send a queue! ' . print_r($queueArray, TRUE);
                 }
+                $outputReports[] = $output;
             }
         }
+        if (!empty($diffProviderQueues)) {
+            foreach ($diffProviderQueues as $k => $v) {
+                $output = $this->sendQueuesToProvider($v, $k);
+                $outputReports = array_merge($outputReports, $output);
+            }
+        }
+
+        return $outputReports;
+    }
+
+    /**
+     * Process queue
+     * @param   boolean $todayOnly  strict to today's queue (default: false)
+     * @param   int     $limit      override limit of System Settings
+     * @return  array   reports' outputs in array
+     */
+    public function processQueue($todayOnly = FALSE, $limit = 0) {
+        $queues = $this->getQueues($todayOnly, $limit);
+        $outputReports = array();
+        if ($queues) {
+            $outputReports = $this->sendQueuesToProvider($queues);
+        }
+
         return $outputReports;
     }
 

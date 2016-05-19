@@ -25,9 +25,9 @@
  * @package virtunewsletter
  * @subpackage build
  */
-$mtime = microtime();
-$mtime = explode(" ", $mtime);
-$mtime = $mtime[1] + $mtime[0];
+$mtime  = microtime();
+$mtime  = explode(" ", $mtime);
+$mtime  = $mtime[1] + $mtime[0];
 $tstart = $mtime;
 set_time_limit(0);
 
@@ -36,22 +36,22 @@ define('PKG_NAME', 'virtuNewsletter');
 define('PKG_NAME_LOWER', 'virtunewsletter');
 
 /* override with your own defines here (see build.config.sample.php) */
-require_once dirname(__FILE__) . '/build.config.php';
-require_once realpath(MODX_CORE_PATH) . '/model/modx/modx.class.php';
+require_once dirname(__FILE__).'/build.config.php';
+require_once realpath(MODX_CORE_PATH).'/model/modx/modx.class.php';
 
 /* define sources */
-$root = dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR;
+$root    = dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR;
 $sources = array(
-    'root' => $root,
-    'build' => BUILD_PATH,
-    'resolvers' => realpath(BUILD_PATH . 'resolvers/') . DIRECTORY_SEPARATOR,
-    'validators' => realpath(BUILD_PATH . 'validators/') . DIRECTORY_SEPARATOR,
-    'data' => realpath(BUILD_PATH . 'data') . DIRECTORY_SEPARATOR,
-    'properties' => realpath(BUILD_PATH . 'data/properties/') . DIRECTORY_SEPARATOR,
-    'source_core' => realpath(MODX_CORE_PATH . 'components') . DIRECTORY_SEPARATOR . PKG_NAME_LOWER,
-    'source_assets' => realpath(MODX_ASSETS_PATH . 'components') . DIRECTORY_SEPARATOR . PKG_NAME_LOWER,
-    'docs' => realpath(MODX_CORE_PATH . 'components/' . PKG_NAME_LOWER . '/docs/') . DIRECTORY_SEPARATOR,
-    'lexicon' => realpath(MODX_CORE_PATH . 'components/' . PKG_NAME_LOWER . '/lexicon/') . DIRECTORY_SEPARATOR,
+    'root'          => $root,
+    'build'         => BUILD_PATH,
+    'resolvers'     => realpath(BUILD_PATH.'resolvers/').DIRECTORY_SEPARATOR,
+    'validators'    => realpath(BUILD_PATH.'validators/').DIRECTORY_SEPARATOR,
+    'data'          => realpath(BUILD_PATH.'data').DIRECTORY_SEPARATOR,
+    'properties'    => realpath(BUILD_PATH.'data/properties/').DIRECTORY_SEPARATOR,
+    'source_core'   => realpath(MODX_CORE_PATH.'components').DIRECTORY_SEPARATOR.PKG_NAME_LOWER,
+    'source_assets' => realpath(MODX_ASSETS_PATH.'components').DIRECTORY_SEPARATOR.PKG_NAME_LOWER,
+    'docs'          => realpath(MODX_CORE_PATH.'components/'.PKG_NAME_LOWER.'/docs/').DIRECTORY_SEPARATOR,
+    'lexicon'       => realpath(MODX_CORE_PATH.'components/'.PKG_NAME_LOWER.'/lexicon/').DIRECTORY_SEPARATOR,
 );
 unset($root);
 
@@ -61,7 +61,7 @@ $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
 echo '<pre>';
 
-$virtuNewsletter = $modx->getService('virtunewsletter', 'VirtuNewsletter', MODX_CORE_PATH . 'components/virtunewsletter/model/');
+$virtuNewsletter = $modx->getService('virtunewsletter', 'VirtuNewsletter', MODX_CORE_PATH.'components/virtunewsletter/model/');
 
 if (!($virtuNewsletter instanceof VirtuNewsletter))
     return '';
@@ -71,12 +71,12 @@ define('PKG_RELEASE', VirtuNewsletter::RELEASE);
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
 $builder = new modPackageBuilder($modx);
 $builder->createPackage(PKG_NAME_LOWER, PKG_VERSION, PKG_RELEASE);
-$builder->registerNamespace(PKG_NAME_LOWER, false, true, '{core_path}components/' . PKG_NAME_LOWER . '/');
+$builder->registerNamespace(PKG_NAME_LOWER, false, true, '{core_path}components/'.PKG_NAME_LOWER.'/');
 
 /**
  * MENU & ACTION
  */
-$menu = include $sources['data'] . 'transport.menu.php';
+$menu = include $sources['data'].'transport.menu.php';
 if (empty($menu)) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Could not package in menu.');
 } else {
@@ -84,7 +84,7 @@ if (empty($menu)) {
     $menuVehicle = $builder->createVehicle($menu, array(
         xPDOTransport::PRESERVE_KEYS => true,
         xPDOTransport::UPDATE_OBJECT => true,
-        xPDOTransport::UNIQUE_KEY => 'text',
+        xPDOTransport::UNIQUE_KEY    => 'text',
 //        xPDOTransport::RELATED_OBJECTS => true,
 //        xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
 //            'Action' => array(
@@ -103,13 +103,13 @@ if (empty($menu)) {
 /**
  * SYSTEM SETTINGS
  */
-$settings = include $sources['data'] . 'transport.settings.php';
+$settings = include $sources['data'].'transport.settings.php';
 if (!is_array($settings)) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Could not package in settings.');
 } else {
     $modx->log(modX::LOG_LEVEL_INFO, 'Packaging in System Settings...');
     $settingAttributes = array(
-        xPDOTransport::UNIQUE_KEY => 'key',
+        xPDOTransport::UNIQUE_KEY    => 'key',
         xPDOTransport::PRESERVE_KEYS => true,
         xPDOTransport::UPDATE_OBJECT => false,
     );
@@ -117,7 +117,7 @@ if (!is_array($settings)) {
         $settingVehicle = $builder->createVehicle($setting, $settingAttributes);
         $builder->putVehicle($settingVehicle);
     }
-    $modx->log(modX::LOG_LEVEL_INFO, 'Packaged in ' . count($settings) . ' System Settings done.');
+    $modx->log(modX::LOG_LEVEL_INFO, 'Packaged in '.count($settings).' System Settings done.');
     unset($settingVehicle, $settings, $setting, $settingAttributes);
 }
 
@@ -133,10 +133,10 @@ $category->set('category', 'virtuNewsletter');
  */
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in chunks...');
 flush();
-$chunks = include $sources['data'] . 'transport.chunks.php';
+$chunks = include $sources['data'].'transport.chunks.php';
 if (is_array($chunks)) {
     $category->addMany($chunks);
-    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in ' . count($chunks) . ' chunks done.');
+    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in '.count($chunks).' chunks done.');
 } else {
     $modx->log(modX::LOG_LEVEL_FATAL, 'Adding chunks failed.');
 }
@@ -144,7 +144,7 @@ if (is_array($chunks)) {
 /**
  * SNIPPETS
  */
-$snippets = include $sources['data'] . 'transport.snippets.php';
+$snippets = include $sources['data'].'transport.snippets.php';
 if (is_array($snippets)) {
     $modx->log(modX::LOG_LEVEL_INFO, 'Adding in snippets.');
     $category->addMany($snippets);
@@ -157,38 +157,43 @@ if (is_array($snippets)) {
  * PLUGINS
  */
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in plugins.');
-$plugins = include $sources['data'] . 'transport.plugins.php';
+$plugins = include $sources['data'].'transport.plugins.php';
 if (is_array($plugins)) {
-	$category->addMany($plugins);
-    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in ' . count($plugins) . ' plugins done.');
+    $category->addMany($plugins);
+    $modx->log(modX::LOG_LEVEL_INFO, 'Adding in '.count($plugins).' plugins done.');
 } else {
-	$modx->log(modX::LOG_LEVEL_FATAL, 'Adding plugins failed.');
+    $modx->log(modX::LOG_LEVEL_FATAL, 'Adding plugins failed.');
 }
 
 /**
  * Apply category to the elements
  */
 $elementsAttribute = array(
-    xPDOTransport::UNIQUE_KEY => 'category',
-    xPDOTransport::PRESERVE_KEYS => false,
-    xPDOTransport::UPDATE_OBJECT => true,
-    xPDOTransport::RELATED_OBJECTS => true,
+    xPDOTransport::UNIQUE_KEY                => 'category',
+    xPDOTransport::PRESERVE_KEYS             => false,
+    xPDOTransport::UPDATE_OBJECT             => true,
+    xPDOTransport::RELATED_OBJECTS           => true,
     xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
-        'Snippets' => array(
+        'Chunks'       => array(
             xPDOTransport::PRESERVE_KEYS => false,
             xPDOTransport::UPDATE_OBJECT => true,
-            xPDOTransport::UNIQUE_KEY => 'name',
+            xPDOTransport::UNIQUE_KEY    => 'name',
         ),
-		'Plugins' => array(
-			xPDOTransport::PRESERVE_KEYS => false,
-			xPDOTransport::UPDATE_OBJECT => true,
-			xPDOTransport::UNIQUE_KEY => 'name',
-		),
-		'PluginEvents' => array(
-			xPDOTransport::PRESERVE_KEYS => true,
-			xPDOTransport::UPDATE_OBJECT => false,
-			xPDOTransport::UNIQUE_KEY => array('pluginid', 'event'),
-		),
+        'Snippets'     => array(
+            xPDOTransport::PRESERVE_KEYS => false,
+            xPDOTransport::UPDATE_OBJECT => true,
+            xPDOTransport::UNIQUE_KEY    => 'name',
+        ),
+        'Plugins'      => array(
+            xPDOTransport::PRESERVE_KEYS => false,
+            xPDOTransport::UPDATE_OBJECT => true,
+            xPDOTransport::UNIQUE_KEY    => 'name',
+        ),
+        'PluginEvents' => array(
+            xPDOTransport::PRESERVE_KEYS => true,
+            xPDOTransport::UPDATE_OBJECT => false,
+            xPDOTransport::UNIQUE_KEY    => array('pluginid', 'event'),
+        ),
     )
 );
 
@@ -213,7 +218,7 @@ $modx->log(modX::LOG_LEVEL_INFO, 'Adding in files done.');
  */
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in PHP resolvers...');
 $elementsVehicle->resolve('php', array(
-    'source' => $sources['resolvers'] . 'tables.resolver.php',
+    'source' => $sources['resolvers'].'tables.resolver.php',
 ));
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in PHP resolvers done.');
 
@@ -222,7 +227,7 @@ $modx->log(modX::LOG_LEVEL_INFO, 'Adding in PHP resolvers done.');
  */
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in PHP validators...');
 $elementsVehicle->validate('php', array(
-    'source' => $sources['validators'] . 'tables.validator.php',
+    'source' => $sources['validators'].'tables.validator.php',
 ));
 $modx->log(modX::LOG_LEVEL_INFO, 'Adding in PHP validators done.');
 
@@ -235,23 +240,23 @@ flush();
  * license file, readme and setup options
  */
 $builder->setPackageAttributes(array(
-    'license' => file_get_contents($sources['docs'] . 'license.txt'),
-    'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
-    'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
+    'license'       => file_get_contents($sources['docs'].'license.txt'),
+    'readme'        => file_get_contents($sources['docs'].'readme.txt'),
+    'changelog'     => file_get_contents($sources['docs'].'changelog.txt'),
     'setup-options' => array(
-        'source' => $sources['build'] . 'setup.options.php'
+        'source' => $sources['build'].'setup.options.php'
     )
 ));
 
 $builder->pack();
 
-$mtime = microtime();
-$mtime = explode(" ", $mtime);
-$mtime = $mtime[1] + $mtime[0];
-$tend = $mtime;
+$mtime     = microtime();
+$mtime     = explode(" ", $mtime);
+$mtime     = $mtime[1] + $mtime[0];
+$tend      = $mtime;
 $totalTime = ($tend - $tstart);
 $totalTime = sprintf("%2.4f s", $totalTime);
 
-$modx->log(modX::LOG_LEVEL_INFO, "\n<br />" . PKG_NAME . " package was built.<br />\nExecution time: {$totalTime}\n");
+$modx->log(modX::LOG_LEVEL_INFO, "\n<br />".PKG_NAME." package was built.<br />\nExecution time: {$totalTime}\n");
 
 exit();

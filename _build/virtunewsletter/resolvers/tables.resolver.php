@@ -173,6 +173,9 @@ if ($modx = & $object->xpdo) {
                         $manager->addField('vnewsSubscribersHasCategories', 'subscribed_on', array('after' => 'category_id'));
                         $manager->addField('vnewsSubscribersHasCategories', 'unsubscribed_on', array('after' => 'subscribed_on'));
                     }
+                    if ($oldPackage->compareVersion('2.1.0-pl', '>')) {
+                        $manager->addField('vnewsSubscribers', 'email_provider', array('after' => 'name'));
+                    }
                 }
             }
             break;

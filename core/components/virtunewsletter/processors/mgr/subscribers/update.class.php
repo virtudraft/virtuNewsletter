@@ -36,13 +36,55 @@ class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
      * @return boolean
      */
     public function afterSave() {
+        $subId = $this->getProperty('id');
+        $categories = $this->getProperty('categories');
+        if (!empty($categories)) {
+            // remove diff first
+            $diffs = $this->modx->getCollection('vnewsSubscribersHasCategories', array(
+                'subscriber_id:=' => $subId,
+                'category_id:NOT IN' => $categories,
+            ));
+            if ($diffs) {
+                foreach ($diffs as $diff) {
+                    $diff->remove();
+                }
+            }
+
+            // categories to subscriber
+            $addCats = array();
+            foreach ($categories as $category) {
+                if (empty($category)) {
+                    continue;
+                }
+                $category = intval($category);
+                $subHasCat = $this->modx->getObject('vnewsSubscribersHasCategories', array(
+                    'subscriber_id' => $subId,
+                    'category_id' => $category,
+                ));
+                if (empty($subHasCat)) {
+                    $subHasCat = $this->modx->newObject('vnewsSubscribersHasCategories');
+                    $subHasCat->fromArray(array(
+                        'subscriber_id' => $subId,
+                        'category_id' => $category,
+                            ));
+                    $addCats[] = $subHasCat;
+                }
+            }
+            if (!empty($addCats)) {
+                $this->object->addMany($addCats);
+                $this->object->save();
+            }
+
+        }
+
         $isActive = $this->getProperty('is_active');
         if ($isActive) {
-            $o = $this->modx->virtunewsletter->addSubscriberQueues($this->getProperty('id'));
+            $this->modx->virtunewsletter->addSubscriberQueues($this->getProperty('id'));
         } else {
-            $o = $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
+            $this->modx->virtunewsletter->removeSubscriberQueues($this->getProperty('id'));
         }
-        return $o;
+
+        return true;
     }
 
 }

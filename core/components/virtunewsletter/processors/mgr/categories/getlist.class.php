@@ -39,14 +39,28 @@ class CategoriesGetListProcessor extends modObjectGetListProcessor {
      * @return xPDOQuery
      */
     public function prepareQueryBeforeCount(xPDOQuery $c) {
-        $props = $this->getProperties();
-        if (isset($props['ids'])) {
-            $ids = json_decode($props['ids']);
+        $ids = $this->getProperty('ids', false);
+        if ($ids) {
+            $ids = json_decode($ids);
             if (!empty($ids)) {
                 $c->where(array(
                     'id:IN' => $ids
                 ));
             }
+        }
+        $query = $this->getProperty('query', false);
+        $query = trim($query);
+        // SuperBoxSelect
+        $valuesqry = $this->getProperty('valuesqry', false);
+        if ($query && empty($valuesqry)) {
+            $c->where(array(
+                'name:LIKE' => "$query%"
+            ));
+        } elseif ($valuesqry && !empty($query)) {
+            $ids = @explode(',', $query);
+            $c->where(array(
+                'id:IN' => $ids
+            ));
         }
 
         return $c;

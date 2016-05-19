@@ -14,23 +14,30 @@ VirtuNewsletter.grid.Categories = function(config) {
             ids: JSON.stringify(ids)
         },
         autoHeight: true,
-        fields: ['id', 'name', 'categories'],
+        fields: ['id', 'name', 'description', 'categories'],
         paging: true,
         remoteSort: true,
         preventRender: true,
         margins: 15,
-        autoExpandColumn: 'name',
+        autoExpandColumn: 'description',
         columns: [
             {
                 header: _('id'),
                 dataIndex: 'id',
-                width: 40,
+                width: 80,
+                fixed: true,
                 sortable: true,
                 hidden: true
             }, {
                 header: _('virtunewsletter.name'),
                 dataIndex: 'name',
+                width: 100,
                 sortable: true
+            }, {
+                header: _('virtunewsletter.description'),
+                dataIndex: 'description',
+                width: 200,
+                sortable: false
             }, {
                 header: _('actions'),
                 xtype: 'actioncolumn',
@@ -161,6 +168,11 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
             record: record
         });
         newTab.getForm().setValues(record);
+        // SuperBoxSelect
+        var sb;
+        sb = newTab.getForm().findField('usergroups[]');
+        sb.setValue(record.usergroups);
+
         newTab.on('success', function(o) {
             if (o.result.success === true) {
                 this.refresh();

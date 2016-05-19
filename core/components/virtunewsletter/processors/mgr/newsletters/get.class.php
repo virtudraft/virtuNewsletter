@@ -50,19 +50,11 @@ class NewslettersGetProcessor extends modObjectGetProcessor {
                 $categoryId = $category->get('category_id');
                 $categoryObj = $this->modx->getObject('vnewsCategories', $categoryId);
                 if ($categoryObj) {
-                    $categoriesArray[] = array(
-                        'category_id' => $categoryId,
-                        'category' => $categoryObj->get('name')
-                    );
+                    $categoriesArray[] = $categoryId;
                 }
             }
-        } else {
-            $categoriesArray[] = array(
-                'category_id' => 0,
-                'category' => 'uncategorized'
-            );
         }
-        $objectArray['categories'] = $categoriesArray;
+        $objectArray['categories'] = @implode(',', $categoriesArray);
 
         return $this->success('', $objectArray);
     }

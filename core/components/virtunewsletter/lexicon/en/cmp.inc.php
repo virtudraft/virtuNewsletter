@@ -81,6 +81,7 @@ $_lang['virtunewsletter.please_wait'] = 'Please wait...';
 $_lang['virtunewsletter.number_of_times'] = 'Number of times';
 $_lang['virtunewsletter.by'] = 'By';
 $_lang['virtunewsletter.active'] = 'Active';
+$_lang['virtunewsletter.inactive'] = 'Inactive';
 $_lang['virtunewsletter.user_id'] = 'User ID';
 $_lang['virtunewsletter.sync_usergroups'] = 'Sync Usergroups';
 $_lang['virtunewsletter.sync_usergroups_confirm'] = 'Are you sure want to sync Usergroups? This could take a while.';
@@ -151,5 +152,9 @@ $_lang['virtunewsletter.subscriber_update'] = 'Update Subscriber';
 
 $_lang['virtunewsletter.TemplateGet_err_nfs'] = 'Could not find the specified template, try to create a new one.';
 
+$_lang['virtunewsletter.batch_update'] = 'Batch Update';
 $_lang['virtunewsletter.email_provider'] = 'Email Provider';
 $_lang['virtunewsletter.email_provider_desc'] = 'Email provider which generates the newsletter.<br>If this is not empty, then this will override the defined "Email provider" in System Settings.';
+$_lang['virtunewsletter.delete_email_provider'] = 'Delete email provider';
+$_lang['virtunewsletter.delete_categories'] = 'Delete categories';
+$_lang['virtunewsletter.keep'] = 'Keep';

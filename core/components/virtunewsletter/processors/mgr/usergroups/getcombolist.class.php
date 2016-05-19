@@ -41,11 +41,20 @@ class UsergroupsGetComboListProcessor extends modObjectGetListProcessor {
      */
     public function prepareQueryBeforeCount(xPDOQuery $c) {
         $query = $this->getProperty('query', false);
-        if (!empty($query)) {
+        $query = trim($query);
+        // SuperBoxSelect
+        $valuesqry = $this->getProperty('valuesqry', false);
+        if ($query && empty($valuesqry)) {
             $c->where(array(
-                'name:LIKE' => "%$query%"
+                'name:LIKE' => "$query%"
+            ));
+        } elseif ($valuesqry && !empty($query)) {
+            $ids = @explode(',', $query);
+            $c->where(array(
+                'id:IN' => $ids
             ));
         }
+
         return $c;
     }
 

@@ -71,17 +71,16 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
         $subscribersHasCategories = $object->getMany('SubscribersHasCategories');
         $objectArray['categories'] = '';
         if ($subscribersHasCategories) {
-            $categories = array();
+            $categoryNames = array();
+            $categoryIds = array();
             $objectArray['categories'] = array();
             foreach ($subscribersHasCategories as $subsHasCats) {
                 $category = $subsHasCats->getOne('Categories');
-                $categories[] = $category->get('name');
-                $objectArray['categories'][] = array(
-                    'category_id' => $category->get('id'),
-                    'category' => $category->get('name'),
-                );
+                $categoryNames[] = $category->get('name');
+                $categoryIds[] = $category->get('id');
             }
-            $objectArray['categories_text'] = @implode(', ', $categories);
+            $objectArray['categories_text'] = @implode(', ', $categoryNames);
+            $objectArray['categories'] = @implode(', ', $categoryIds);
         }
 
         return $objectArray;

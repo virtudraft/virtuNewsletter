@@ -46,6 +46,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
 //            id: config.record && config.record.id ? config.record.id : 0
         },
         baseCls: 'modx-formpanel',
+        bodyStyle: 'overflow: hidden;',
         border: false,
         dateFormat: config.dateFormat || 'U',
         displayFormat: config.displayFormat || 'Y-m-d',
@@ -59,10 +60,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 fieldLabel: _('id'),
                 name: 'id',
                 value: config.record && config.record.id ? config.record.id : 0
-            }, {
-                // will be used for the grid below
-                xtype: 'hidden',
-                name: 'categories'
             }, {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.subject'),
@@ -125,15 +122,13 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                     }
                 ]
             }, {
-                columnWidth: 1,
+                fieldLabel: _('virtunewsletter.is_recurring'),
                 layout: 'hbox',
-                defaults: {
-                    flex: 1
-                },
                 items: [
                     {
+                        flex: 0,
                         xtype: 'xcheckbox',
-                        boxLabel: _('virtunewsletter.is_recurring'),
+                        boxLabel: _('yes'),
                         name: 'is_recurring',
                         checked: config.record && config.record.is_recurring ? config.record.is_recurring : 0,
                         listeners: {
@@ -167,11 +162,13 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                             }
                         }
                     }, {
+                        flex: 0,
                         xtype: 'numberfield',
                         fieldLabel: _('virtunewsletter.number_of_times'),
                         name: 'recurrence_number',
                         value: config.record && config.record.recurrence_number ? config.record.recurrence_number : ''
                     }, {
+                        flex: 0,
                         xtype: 'virtunewsletter-combo-recurrence-range',
                         fieldLabel: _('virtunewsletter.by'),
                         name: 'recurrence_range',
@@ -212,13 +209,10 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 }
             }, {
                 fieldLabel: _('virtunewsletter.categories'),
-                items: [
-                    {
-                        xtype: 'virtunewsletter-grid-localcategories',
-                        record: config.record ? config.record : {},
-                        anchor: '100%'
-                    }
-                ]
+                xtype: 'virtunewsletter-combo-sbcategories',
+                name: 'categories[]',
+                value: config.record && config.record.categories ? config.record.categories : '',
+                originalValue: config.record && config.record.categories ? config.record.categories : ''
             }, {
                 xtype: 'xcheckbox',
                 boxLabel: _('virtunewsletter.active'),
@@ -231,20 +225,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
     });
 
     VirtuNewsletter.panel.NewsletterConfiguration.superclass.constructor.call(this, config);
-
-    this.on('beforeSubmit', function (form, options, config) {
-        var grid = Ext.getCmp('virtunewsletter-grid-localcategories');
-        var store = grid.getStore();
-        var categories = [];
-        for (var i = 0, l = store.data.items.length; i < l; i++) {
-            if (store.data.items[i].data.category_id !== 0) {
-                categories.push(store.data.items[i].data.category_id);
-            }
-        }
-        this.getForm().findField('categories').setValue(categories.join(','));
-
-        return true;
-    }, this);
 
     this.on('success', function(response) {
         var grid = Ext.getCmp('virtunewsletter-grid-newsletters');

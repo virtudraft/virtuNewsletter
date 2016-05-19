@@ -56,10 +56,6 @@ class CategoriesGetProcessor extends modObjectGetProcessor {
 
                 $modUserGroup = $this->modx->getObject('modUserGroup', $c);
                 if ($modUserGroup) {
-//                    $usergroupsArray[] = array(
-//                        'usergroup_id' => $usergroupId,
-//                        'usergroup' => $modUserGroup->get('name')
-//                    );
                     $usergroupsArray[] = $usergroupId;
                     $usergroupsObjects[$usergroupId] = $modUserGroup->get('name');
                     $usergroupsGrid[] = array(

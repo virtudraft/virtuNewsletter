@@ -29,6 +29,10 @@ VirtuNewsletter.window.Subscriber = function (config) {
                 xtype: 'displayfield',
                 cls: 'desc-under',
                 html: _('virtunewsletter.email_provider_desc'),
+            }, {
+                fieldLabel: _('virtunewsletter.categories'),
+                xtype: 'virtunewsletter-combo-sbcategories',
+                name: 'categories[]'
             }
         ]
     });

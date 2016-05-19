@@ -25,13 +25,13 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-class UpdateCategoryProcessor extends modProcessor {
+class SubscribersBatchUpdateProcessor extends modProcessor {
 
     /** @var xPDOObject|modAccessibleObject $object The object being grabbed */
     public $object;
 
     /** @var string $objectType The object "type", this will be used in various lexicon error strings */
-    public $objectType = 'virtunewsletter.UpdateCategoryProcessor';
+    public $objectType = 'virtunewsletter.SubscribersBatchUpdateProcessor';
 
     /** @var string $classKey The class key of the Object to iterate */
     public $classKey = 'vnewsSubscribers';
@@ -50,43 +50,68 @@ class UpdateCategoryProcessor extends modProcessor {
      * @return boolean
      */
     public function initialize() {
-        $scriptProperties = $this->getProperties();
+        $props = $this->getProperties();
 
-        if (empty($scriptProperties['subscriberIds'])) {
+        if (empty($props['subscriberIds'])) {
             return $this->modx->lexicon('virtunewsletter.newsletter_err_ns_resource_id');
-        }
-
-        if (empty($scriptProperties['categories'])) {
-            return $this->modx->lexicon('virtunewsletter.newsletter_err_ns_categories');
         }
 
         return parent::initialize();
     }
 
     function process() {
-        $scriptProperties = $this->getProperties();
+        $props = $this->getProperties();
 
-        $subscriberIds = @explode(',', $scriptProperties['subscriberIds']);
-        $categories = @explode(',', $scriptProperties['categories']);
+        $subscriberIds = array_map('trim', @explode(',', $props['subscriberIds']));
+        $categories = $this->getProperty('categories', false);
+        $emailProvider = $this->getProperty('email_provider', false);
+        $deleteEmailProvider = $this->getProperty('delete_email_provider', false);
+        $active = $this->getProperty('active', false);
         foreach ($subscriberIds as $subscriberId) {
-            if(empty($subscriberId) || empty($categories[0])) {
+            if(empty($subscriberId)) {
                 continue;
             }
-            // diff
-            $this->modx->removeCollection('vnewsSubscribersHasCategories', array(
-                'subscriber_id:=' => $subscriberId,
-                'category_id:NOT IN' => $categories
-            ));
             $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
-            if ($subscriber) {
+            if (!$subscriber) {
+                continue;
+            }
+            if (!empty($categories)) {
+                // diff
+                $this->modx->removeCollection('vnewsSubscribersHasCategories', array(
+                    'subscriber_id:=' => $subscriberId,
+                    'category_id:NOT IN' => $categories
+                ));
                 foreach ($categories as $category) {
                     $subscriber->setCategory($category);
                 }
             }
+            $saveObj = false;
+            if (!empty($deleteEmailProvider)) {
+                $subscriber->set('email_provider', null);
+                $saveObj = true;
+            } elseif(!empty($emailProvider)) {
+                $subscriber->set('email_provider', $emailProvider);
+                $saveObj = true;
+            }
+            if (!empty($active)) {
+                if ($active === '1') {
+                    $subscriber->set('is_active', 1);
+                    $this->modx->virtunewsletter->addSubscriberQueues($subscriberId);
+                    $saveObj = true;
+                } elseif ($active === '2') {
+                    $subscriber->set('is_active', 0);
+                    $this->modx->virtunewsletter->removeSubscriberQueues($subscriberId);
+                    $saveObj = true;
+                }
+            }
+            if ($saveObj) {
+                $subscriber->save();
+            }
         }
+
         return $this->success();
     }
 
 }
 
-return 'UpdateCategoryProcessor';
+return 'SubscribersBatchUpdateProcessor';

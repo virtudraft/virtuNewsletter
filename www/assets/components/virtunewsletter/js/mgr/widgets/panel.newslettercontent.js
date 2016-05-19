@@ -29,7 +29,6 @@ VirtuNewsletter.panel.NewsletterContent = function (config) {
         defaults: {
             border: false
         },
-        bodyStyle: 'padding:20px;',
         border: true,
         autoHeight: true,
         items: tabItems

@@ -1,7 +1,9 @@
-virtuNewsletter dev
+virtuNewsletter 2.1.0-pl (May 19, 2016)
 =================================================
 - added email provider overriding by subscriber
 - replaced removeCollection on deactivating subscriber
+- changed local grid selectors to SuperBoxSelect type
+- updated Batch Update in Subscribers page
 
 virtuNewsletter 2.0.3-pl (May 2, 2016)
 =================================================

@@ -7,7 +7,7 @@ VirtuNewsletter.grid.Reports = function(config) {
             action: 'mgr/reports/getList',
             newsletter_id: config.record.id
         },
-        fields: ['newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_text', 'status_logged_on'],
+        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_text', 'status_logged_on'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -16,6 +16,13 @@ VirtuNewsletter.grid.Reports = function(config) {
         displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
+                header: _('id'),
+                dataIndex: 'id',
+                sortable: true,
+                width: 80,
+                fixed: true,
+                hidden: true
+            }, {
                 header: _('virtunewsletter.news_id'),
                 dataIndex: 'newsletter_id',
                 sortable: true,
@@ -106,13 +113,13 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
     search: function(tf, nv, ov) {
         var s = this.getStore();
         s.baseParams.query = tf.getValue();
-        this.getBottomToolbar().changePage(1);
+//        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     filterStatus: function(combo, record, index) {
         var s = this.getStore();
-        s.baseParams.status = record.data.value;
-        this.getBottomToolbar().changePage(1);
+        s.baseParams.status = record.data.status;
+//        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     clearFilter: function() {
@@ -121,7 +128,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
         s.baseParams.query = '';
         Ext.getCmp('virtunewsletter-filterStatus-' + this.config.record.id).reset();
         Ext.getCmp('virtunewsletter-search-' + this.config.record.id).reset();
-        this.getBottomToolbar().changePage(1);
+//        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     getMenu: function() {

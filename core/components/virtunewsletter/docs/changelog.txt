@@ -1,3 +1,7 @@
+virtuNewsletter 2.1.1-pl (May 20, 2016)
+=================================================
+- fixed drop down filter on Reports
+
 virtuNewsletter 2.1.0-pl (May 19, 2016)
 =================================================
 - added email provider overriding by subscriber

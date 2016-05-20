@@ -43,6 +43,7 @@ class StatusGetComboListProcessor extends modObjectGetListProcessor
         $data    = array();
         $results = $this->modx->query("SELECT DISTINCT `status` FROM {$this->modx->getTableName($this->classKey)}");
 
+        $data['results'] = array();
         while ($r = $results->fetch(PDO::FETCH_ASSOC)) {
             $data['results'][] = $r;
         }

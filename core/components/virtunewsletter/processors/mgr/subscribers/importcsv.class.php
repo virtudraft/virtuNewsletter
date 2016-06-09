@@ -99,15 +99,16 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
                     if (empty($data[$emailFieldIdx]) || !filter_var($data[$emailFieldIdx], FILTER_VALIDATE_EMAIL)) {
                         continue;
                     }
+                    $subscriberEmail = strtolower($data[$emailFieldIdx]);
                     $subscriber = $this->modx->getObject('vnewsSubscribers', array(
-                        'email' => $data[$emailFieldIdx],
+                        'email:LIKE' => $subscriberEmail,
                     ));
                     if ($subscriber) {
                         continue;
                     }
                     $subscriber = $this->modx->newObject('vnewsSubscribers');
                     $userProfile = $this->modx->getObject('modUserProfile', array(
-                        'email' => $data[$emailFieldIdx],
+                        'email:LIKE' => $subscriberEmail,
                     ));
                     if ($userProfile) {
                         $userProfileArray = $userProfile->toArray();
@@ -120,9 +121,9 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
                     $params = array(
                         'user_id' => $userId,
                         'name' => $name,
-                        'email' => $data[$emailFieldIdx],
+                        'email' => $subscriberEmail,
                         'is_active' => $props['is_active'],
-                        'hash' => $this->modx->virtunewsletter->setHash($data[$emailFieldIdx])
+                        'hash' => $this->modx->virtunewsletter->setHash($subscriberEmail)
                     );
                     $subscriber->fromArray($params);
                     if ($subscriber->save() === false) {

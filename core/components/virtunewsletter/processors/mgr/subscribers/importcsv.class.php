@@ -47,7 +47,7 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
         $this->modx->setOption('base_path', $this->modx->virtunewsletter->config['corePath']);
         $path = 'imports/';
         $this->setProperty('path', $path);
-        $this->setProperty('source', 0);
+        $this->setProperty('source', 1);
         return parent::initialize();
     }
 

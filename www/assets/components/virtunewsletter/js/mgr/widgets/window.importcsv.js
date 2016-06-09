@@ -62,10 +62,10 @@ VirtuNewsletter.window.ImportCsv = function(config) {
                 name: 'email',
                 anchor: '100%'
             }, {
-                xtype: 'virtunewsletter-combo-categories',
+                xtype: 'virtunewsletter-combo-sbcategories',
                 fieldLabel: _('virtunewsletter.category'),
-                name: 'category_id',
-                hiddenName: 'category_id',
+                name: 'categories[]',
+                hiddenName: 'categories[]',
                 allowBlank: false,
                 anchor: '100%'
             }, {

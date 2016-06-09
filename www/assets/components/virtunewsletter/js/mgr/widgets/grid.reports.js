@@ -113,13 +113,13 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
     search: function(tf, nv, ov) {
         var s = this.getStore();
         s.baseParams.query = tf.getValue();
-//        this.getBottomToolbar().changePage(1);
+        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     filterStatus: function(combo, record, index) {
         var s = this.getStore();
         s.baseParams.status = record.data.status;
-//        this.getBottomToolbar().changePage(1);
+        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     clearFilter: function() {
@@ -128,7 +128,7 @@ Ext.extend(VirtuNewsletter.grid.Reports, MODx.grid.Grid, {
         s.baseParams.query = '';
         Ext.getCmp('virtunewsletter-filterStatus-' + this.config.record.id).reset();
         Ext.getCmp('virtunewsletter-search-' + this.config.record.id).reset();
-//        this.getBottomToolbar().changePage(1);
+        this.getBottomToolbar().changePage(1);
         this.refresh();
     },
     getMenu: function() {

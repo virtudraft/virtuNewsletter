@@ -34,6 +34,15 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
     }
 
     public function initialize() {
+        $file = $this->getProperty('file');
+        if (empty($file) || !isset($file['tmp_name']) || empty($file['tmp_name'])) {
+            return $this->modx->lexicon('virtunewsletter.import_err_file_empty');
+        }
+        $categories = $this->getProperty('categories');
+        if (empty($categories)) {
+            return $this->modx->lexicon('virtunewsletter.import_err_categories_empty');
+        }
+
         $this->modx->setOption('upload_files', 'csv');
         $this->modx->setOption('base_path', $this->modx->virtunewsletter->config['corePath']);
         $path = 'imports/';
@@ -69,6 +78,7 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
         $emailField = !empty($props['email']) ? trim($props['email']) : 'email';
         $filepath = $this->modx->getOption('base_path') . $props['path'] . $filename;
         $row = 1;
+        $time = time();
         if (($handle = fopen($filepath, "r")) !== FALSE) {
             while (($data = fgetcsv($handle, 0, $props['delimiter'], $props['enclosure'], $props['escape'])) !== FALSE) {
                 $num = count($data);
@@ -122,17 +132,21 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
                         continue;
                     }
 
-                    $subCat = $this->modx->newObject('vnewsSubscribersHasCategories');
-                    $params = array(
-                        'subscriber_id' => $subscriber->getPrimaryKey(),
-                        'category_id' => $props['category_id']
-                    );
-                    $subCat->fromArray($params);
-                    if ($subCat->save() === false) {
-                        $this->modx->setDebug();
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to save vnewsSubscribersHasCategories: ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                        $this->modx->setDebug(FALSE);
-                        continue;
+                    $subscriberId = $subscriber->getPrimaryKey();
+                    foreach ($props['categories'] as $catId) {
+                        $subCat = $this->modx->newObject('vnewsSubscribersHasCategories');
+                        $params = array(
+                            'subscriber_id' => $subscriberId,
+                            'category_id' => $catId,
+                            'subscribed_on' => $time
+                        );
+                        $subCat->fromArray($params);
+                        if ($subCat->save() === false) {
+                            $this->modx->setDebug();
+                            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to save vnewsSubscribersHasCategories: ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
+                            $this->modx->setDebug(FALSE);
+                            continue;
+                        }
                     }
                 }
                 $row++;

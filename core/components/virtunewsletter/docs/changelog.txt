@@ -1,5 +1,6 @@
 virtuNewsletter
 =================================================
+- added recursive sync
 - fixed usergroups on category
 
 virtuNewsletter 2.1.2-pl (June 9, 2016)

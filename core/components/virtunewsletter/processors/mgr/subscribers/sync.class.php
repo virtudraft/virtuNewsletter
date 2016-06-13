@@ -69,6 +69,9 @@ class SyncSubscribersProcessor extends modProcessor {
         $userIds = array();
         $includeInactive = (boolean) $this->modx->getOption('virtunewsletter.sync_include_inactive_users', null, true);
         $defaultActivation = (int) $this->modx->getOption('virtunewsletter.sync_default_activation', null, 0);
+        $start = (int) $this->getProperty('start', 0);
+        $limit = (int) $this->getProperty('limit', 20);
+        $i = 0;
         foreach ($this->usergroups as $usergroup) {
             $usergroupObj = $this->modx->getObject('modUserGroup', array(
                 'name' => $usergroup
@@ -79,7 +82,10 @@ class SyncSubscribersProcessor extends modProcessor {
                 $this->modx->setDebug(false);
                 continue;
             }
-            $users = $usergroupObj->getUsersIn();
+            $users = $usergroupObj->getUsersIn(array(
+                'start' => $start,
+                'limit' => $limit,
+            ));
             if ($users) {
                 foreach ($users as $user) {
                     $userArray = $user->toArray();
@@ -105,6 +111,7 @@ class SyncSubscribersProcessor extends modProcessor {
                         'usergroups' => $user->getUserGroups(),
                         'is_active' => $isActive,
                     );
+                    ++$i;
                 }
             }
         }
@@ -195,7 +202,10 @@ class SyncSubscribersProcessor extends modProcessor {
             }
         }
 
-        return $this->success();
+        return $this->success('', array(
+            'count' => $i,
+            'start' => $start + $limit,
+        ));
     }
 
 }

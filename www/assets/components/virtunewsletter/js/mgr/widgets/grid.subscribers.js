@@ -156,6 +156,12 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
         this.refresh();
     },
     syncUsergroups: function() {
+        if (!this.pageMask) {
+            this.pageMask = new Ext.LoadMask(Ext.getBody(), {
+                msg: _('virtunewsletter.please_wait')
+            });
+        }
+        this.pageMask.show();
         MODx.msg.confirm({
             title: _('virtunewsletter.sync_usergroups'),
             text: _('virtunewsletter.sync_usergroups_confirm'),
@@ -165,8 +171,56 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
+                    fn: function(r) {
+                        if (r.success) {
+                            if (r.object && r.object.count && r.object.start) {
+                                this.resyncUsergroups(r.object.start);
+                            }
+                            if (!r.object.count) {
+                                this.pageMask.hide();
+                                return this.refresh();
+                            }
+                        }
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function(r) {
+                    },
+                    scope: this
+                },
+                'cancel': {
                     fn: function() {
-                        return this.refresh();
+                        this.pageMask.hide();
+                    },
+                    scope: this
+                }
+            }
+        });
+    },
+    resyncUsergroups: function(start) {
+        start = start || 0;
+
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/subscribers/sync',
+                start: start
+            },
+            listeners: {
+                'success': {
+                    fn: function(r) {
+                        if (r.success) {
+                            if (r.object && r.object.count && r.object.start) {
+                                this.resyncUsergroups(r.object.start);
+                            }
+                            if (!r.object.count) {
+                                if (this.pageMask) {
+                                    this.pageMask.hide();
+                                }
+                                return this.refresh();
+                            }
+                        }
                     },
                     scope: this
                 }

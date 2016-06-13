@@ -15,7 +15,8 @@ class vnewsNewsletters extends xPDOSimpleObject {
         ));
         if (empty($includeInactive)) {
             $c->where(array(
-                'vnewsSubscribers.is_active' => 1,
+                'SubscribersHasCategories.unsubscribed_on:=' => NULL,
+                'vnewsSubscribers.is_active:=' => 1,
             ));
         }
 
@@ -42,7 +43,8 @@ class vnewsNewsletters extends xPDOSimpleObject {
         ));
         if (empty($includeInactive)) {
             $c->where(array(
-                'vnewsSubscribers.is_active' => 1,
+                'SubscribersHasCategories.unsubscribed_on:=' => NULL,
+                'vnewsSubscribers.is_active:=' => 1,
             ));
         }
 

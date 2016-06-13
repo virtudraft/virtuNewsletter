@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '2.1.2';
+    const VERSION = '2.2.0';
     const RELEASE = 'pl';
 
     /**
@@ -671,6 +671,32 @@ class VirtuNewsletter {
     }
 
     /**
+     * Remove this user from newletters' queues in a specified cateogry
+     * @param   int     $subscriberId   subscriber's ID
+     * @param   int     $catId          category ID
+     * @return  boolean
+     */
+    public function removeSubscriberCategoryQueues($subscriberId, $catId) {
+        $c = $this->modx->newQuery('vnewsReports');
+        $c->leftJoin('vnewsNewsletters', 'Newsletter', 'Newsletter.id = vnewsReports.newsletter_id');
+        $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.newsletter_id = Newsletter.id');
+        $c->leftJoin('vnewsCategories', 'Category', 'Category.id = NewslettersHasCategories.category_id');
+        $c->where(array(
+            'vnewsReports.subscriber_id' => $subscriberId,
+            'vnewsReports.status' => 'queue',
+            'Category.id' => $catId,
+        ));
+        $queues = $this->modx->getCollection('vnewsReports', $c);
+        if ($queues) {
+            foreach ($queues as $queue) {
+                $queue->remove();
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Remove this user from all newletters' queues
      * @param   int     $subscriberId   subscriber's ID
      * @return  boolean
@@ -1258,9 +1284,23 @@ class VirtuNewsletter {
                 $this->setOutput($msg);
                 break;
             case 'unsubscribe':
-                $subscriber->set('is_active', 0);
-                $subscriber->save();
-                $this->removeSubscriberQueues($subscriber->get('id'));
+                if (isset($arguments['category']) && !empty($arguments['category'])) {
+                    $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
+                    $c->where(array(
+                        'subscriber_id' => $subscriber->get('id'),
+                        'category_id' => $arguments['category'],
+                    ));
+                    $subCat = $this->modx->getObject('vnewsSubscribersHasCategories', $c);
+                    if ($subCat) {
+                        $subCat->set('unsubscribed_on', time());
+                        $subCat->save();
+                        $this->removeSubscriberCategoryQueues($subscriber->get('id'), $arguments['category']);
+                    }
+                } else {
+                    $subscriber->set('is_active', 0);
+                    $subscriber->save();
+                    $this->removeSubscriberQueues($subscriber->get('id'));
+                }
                 $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_deactivated');
                 $this->setOutput($msg);
                 break;

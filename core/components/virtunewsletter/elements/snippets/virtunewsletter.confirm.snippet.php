@@ -50,7 +50,8 @@ if (!($virtuNewsletter instanceof VirtuNewsletter))
 $result = $virtuNewsletter->confirmAction(array(
     'id' => intval($_GET['subid']),
     'hash' => $_GET['h'],
-    'action' => $_GET['act']
+    'action' => $_GET['act'],
+    'category' => isset($_GET['cat']) && !empty($_GET['cat']) ? $_GET['cat'] : ''
 ));
 
 $output = '';
@@ -89,7 +90,7 @@ if ($result === FALSE) {
             $resourceId = $modx->getOption('virtunewsletter.unsubscribe_succeeded_tpl');
         }
     }
-    
+
     if ($template) {
         $subject = $virtuNewsletter->processElementTags($template->get('subject'));
         $message = $template->get('content');

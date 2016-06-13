@@ -1,5 +1,6 @@
-virtuNewsletter
+virtuNewsletter 2.2.0-pl (June 14, 2016)
 =================================================
+- added unsubscription by category
 - added recursive sync
 - fixed usergroups on category
 

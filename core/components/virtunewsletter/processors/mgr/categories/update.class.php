@@ -53,7 +53,6 @@ class CategoriesUpdateProcessor extends modObjectUpdateProcessor {
         $catId = $this->getProperty('id');
 
         $usergroups = $this->getProperty('usergroups');
-        $usergroups = @explode(',', $usergroups);
         if (!empty($usergroups)) {
             // remove diff first
             $diffs = $this->modx->getCollection('vnewsCategoriesHasUsergroups', array(

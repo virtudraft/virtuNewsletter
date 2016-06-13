@@ -1,3 +1,7 @@
+virtuNewsletter
+=================================================
+- fixed usergroups on category
+
 virtuNewsletter 2.1.2-pl (June 9, 2016)
 =================================================
 - fixed categories on Import CSV

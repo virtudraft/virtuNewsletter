@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '2.2.0';
+    const VERSION = '2.2.1';
     const RELEASE = 'pl';
 
     /**

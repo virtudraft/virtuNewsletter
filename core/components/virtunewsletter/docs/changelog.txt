@@ -1,4 +1,4 @@
-virtuNewsletter
+virtuNewsletter 2.2.1-pl (June 21, 2016)
 =================================================
 - applied comma separated values for category's link
 

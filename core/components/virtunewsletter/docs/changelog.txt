@@ -1,3 +1,7 @@
+virtuNewsletter
+=================================================
+- applied comma separated values for category's link
+
 virtuNewsletter 2.2.0-pl (June 14, 2016)
 =================================================
 - added unsubscription by category

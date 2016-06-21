@@ -51,7 +51,7 @@ $result = $virtuNewsletter->confirmAction(array(
     'id' => intval($_GET['subid']),
     'hash' => $_GET['h'],
     'action' => $_GET['act'],
-    'category' => isset($_GET['cat']) && !empty($_GET['cat']) ? $_GET['cat'] : ''
+    'categories' => isset($_GET['cat']) && !empty($_GET['cat']) ? $_GET['cat'] : ''
 ));
 
 $output = '';

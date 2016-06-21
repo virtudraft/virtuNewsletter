@@ -1284,17 +1284,22 @@ class VirtuNewsletter {
                 $this->setOutput($msg);
                 break;
             case 'unsubscribe':
-                if (isset($arguments['category']) && !empty($arguments['category'])) {
-                    $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
-                    $c->where(array(
-                        'subscriber_id' => $subscriber->get('id'),
-                        'category_id' => $arguments['category'],
-                    ));
-                    $subCat = $this->modx->getObject('vnewsSubscribersHasCategories', $c);
-                    if ($subCat) {
-                        $subCat->set('unsubscribed_on', time());
-                        $subCat->save();
-                        $this->removeSubscriberCategoryQueues($subscriber->get('id'), $arguments['category']);
+                if (isset($arguments['categories']) && !empty($arguments['categories'])) {
+                    $categories = array_map('trim', @explode(',', $arguments['categories']));
+                    if (!empty($categories)) {
+                        foreach ($categories as $category) {
+                            $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
+                            $c->where(array(
+                                'subscriber_id' => $subscriber->get('id'),
+                                'category_id' => $category,
+                            ));
+                            $subCat = $this->modx->getObject('vnewsSubscribersHasCategories', $c);
+                            if ($subCat) {
+                                $subCat->set('unsubscribed_on', time());
+                                $subCat->save();
+                                $this->removeSubscriberCategoryQueues($subscriber->get('id'), $category);
+                            }
+                        }
                     }
                 } else {
                     $subscriber->set('is_active', 0);
@@ -1384,14 +1389,26 @@ class VirtuNewsletter {
             return FALSE;
         }
         $subscriberArray = $subscriber->toArray();
-
+        // vnewsNewslettersHasCategories
+        $c = $this->modx->newQuery('vnewsNewslettersHasCategories');
+        $c->where(array(
+            'newsletter_id' => $newsId,
+        ));
+        $newsCats = $this->modx->getCollection('vnewsNewslettersHasCategories', $c);
+        $categories = array();
+        if ($newsCats) {
+            foreach($newsCats as $newsCat) {
+                $categories[] = $newsCat->get('category_id');
+            }
+        }
         $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
         $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
         $phs = array_merge($subscriberArray, $confirmLinkArgs, array(
             // to avoid confusion on template
             'id' => $newsId,
             'newsid' => $newsId,
-            'subid' => $subscriberArray['id']
+            'subid' => $subscriberArray['id'],
+            'categories' => @implode(',', $categories),
         ));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $this->setPlaceholders($phs, $systemEmailPrefix);

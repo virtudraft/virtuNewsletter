@@ -1,3 +1,7 @@
+virtuNewsletter
+=================================================
+- fixed bug of categorization when creating new newsletter
+
 virtuNewsletter 2.2.1-pl (June 21, 2016)
 =================================================
 - applied comma separated values for category's link

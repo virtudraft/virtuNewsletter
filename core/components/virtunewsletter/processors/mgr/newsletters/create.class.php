@@ -96,7 +96,6 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         $newsId = $this->object->getPrimaryKey();
         $categories = $this->getProperty('categories');
         if (!empty($categories)) {
-            $categories = @explode(',', $categories);
             $addCats = array();
             foreach ($categories as $category) {
                 $category = intval($category);

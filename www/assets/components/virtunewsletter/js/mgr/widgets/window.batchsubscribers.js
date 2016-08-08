@@ -1,6 +1,21 @@
 VirtuNewsletter.window.BatchSubscribers = function (config) {
     config = config || {};
 
+    var allCategories = [];
+    if (config.record && config.record.allCategories) {
+        for (var key in config.record.allCategories) {
+            key = Number(key);
+            if (config.record.allCategories.hasOwnProperty(key)) {
+                allCategories.push({
+                    xtype: 'xcheckbox',
+                    boxLabel: config.record.allCategories[key],
+                    name: 'categories['+key+']',
+                    value: key
+                });
+            }
+        }
+    }
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         autoHeight: true,
@@ -8,9 +23,14 @@ VirtuNewsletter.window.BatchSubscribers = function (config) {
         labelAlign: 'left',
         fields: [
             {
-                fieldLabel: _('virtunewsletter.categories'),
-                xtype: 'virtunewsletter-combo-sbcategories',
-                name: 'categories[]'
+                xtype: 'fieldset',
+                items: [
+                    {
+                        fieldLabel: _('virtunewsletter.categories'),
+                        itemCls: 'x-check-group-alt',
+                        items: allCategories
+                    }
+                ]
             }, {
                 xtype: 'xcheckbox',
                 fieldLabel: '',

@@ -49,8 +49,17 @@ class CategoriesCreateProcessor extends modObjectCreateProcessor {
      */
     public function afterSave() {
         $catId = $this->object->getPrimaryKey();
-        $usergroups = $this->getProperty('usergroups');
-        $usergroups = @explode(',', $usergroups);
+
+        $usergroups = array();
+        $cbUsergroups = $this->getProperty('usergroups');
+        if (!empty($cbUsergroups)) {
+            foreach($cbUsergroups as $k => $v) {
+                if ($v > 0) {
+                    $usergroups[] = $k;
+                }
+            }
+        }
+
         if ($usergroups) {
             $addUsergroups = array();
             $catId = $this->object->getPrimaryKey();

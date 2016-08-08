@@ -32,6 +32,16 @@ VirtuNewsletter.panel.Home = function (config) {
                             }
                         }
                     }, {
+                        text: _('virtunewsletter.categories'),
+                        listeners: {
+                            'click': {
+                                fn: function () {
+                                    return this.openPage('categories');
+                                },
+                                scope: this
+                            }
+                        }
+                    }, {
                         text: _('virtunewsletter.subscribers'),
                         listeners: {
                             'click': {
@@ -81,7 +91,7 @@ VirtuNewsletter.panel.Home = function (config) {
                 bodyStyle: 'background-color: transparent;',
                 items: [
                     {
-                        xtype: 'virtunewsletter-panel-dashboard'
+                        xtype: 'virtunewsletter-page-dashboard'
                     }
                 ]
             }
@@ -99,7 +109,7 @@ Ext.extend(VirtuNewsletter.panel.Home, MODx.Panel, {
         });
 
         contentPanel.add({
-            xtype: 'virtunewsletter-panel-' + page
+            xtype: 'virtunewsletter-page-' + page
         });
 
         var container = Ext.getCmp('modx-content');

@@ -42,19 +42,18 @@ class NewslettersGetProcessor extends modObjectGetProcessor {
      */
     public function cleanup() {
         $objectArray = $this->object->toArray();
-
-        $categories = $this->object->getMany('NewslettersHasCategories');
-        $categoriesArray = array();
-        if ($categories) {
-            foreach ($categories as $category) {
-                $categoryId = $category->get('category_id');
+        $newsCats = $this->object->getMany('NewslettersHasCategories');
+        $newsCatsArray = array();
+        if ($newsCats) {
+            foreach ($newsCats as $newsCat) {
+                $categoryId = $newsCat->get('category_id');
                 $categoryObj = $this->modx->getObject('vnewsCategories', $categoryId);
                 if ($categoryObj) {
-                    $categoriesArray[] = $categoryId;
+                    $newsCatsArray[] = $categoryId;
                 }
             }
         }
-        $objectArray['categories'] = @implode(',', $categoriesArray);
+        $objectArray['categories'] = $newsCatsArray;
 
         return $this->success('', $objectArray);
     }

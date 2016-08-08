@@ -63,7 +63,15 @@ class SubscribersBatchUpdateProcessor extends modProcessor {
         $props = $this->getProperties();
 
         $subscriberIds = array_map('trim', @explode(',', $props['subscriberIds']));
-        $categories = $this->getProperty('categories', false);
+        $cbCategories = $this->getProperty('categories');
+        $categories = array();
+        foreach($cbCategories as $k => $v) {
+            if(empty($v)) {
+                continue;
+            }
+            $categories[] = $k;
+        }
+
         $emailProvider = $this->getProperty('email_provider', false);
         $deleteEmailProvider = $this->getProperty('delete_email_provider', false);
         $active = $this->getProperty('active', false);

@@ -184,15 +184,39 @@ Ext.extend(VirtuNewsletter.grid.Newsletters, MODx.grid.Grid, {
         if (typeof(tabs) === 'undefined') {
             return false;
         }
-        var newTab = MODx.load({
-            title: record.id ? _('virtunewsletter.schedule_update') : _('virtunewsletter.schedule_create'),
-            closable: true,
-            xtype: 'virtunewsletter-panel-newsletter-content',
-            id: 'virtunewsletter-panel-newsletter-content-tab-' + (record.id ? record.id : 'new'),
-            record: record
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/categories/getList'
+            },
+            listeners: {
+                'success': {
+                    fn: function(res) {
+                        if (res.success === true) {
+                            record.allCategories = {};
+                            Ext.each(res.results, function(value) {
+                                record.allCategories[value.id] = value.name;
+                            });
+                            var newTab = MODx.load({
+                                title: record.id ? _('virtunewsletter.schedule_update') : _('virtunewsletter.schedule_create'),
+                                closable: true,
+                                xtype: 'virtunewsletter-panel-newsletter-content',
+                                id: 'virtunewsletter-panel-newsletter-content-tab-' + (record.id ? record.id : 'new'),
+                                record: record
+                            });
+                            tabs.add(newTab);
+                            tabs.setActiveTab(newTab);
+                        }
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function() {
+                    },
+                    scope: this
+                }
+            }
         });
-        tabs.add(newTab);
-        tabs.setActiveTab(newTab);
     },
     processMouseEvent: function (name, e, grid, rowIndex, colIndex) {
         if (name === 'mousedown') {

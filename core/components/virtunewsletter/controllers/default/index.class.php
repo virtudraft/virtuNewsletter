@@ -73,7 +73,7 @@ class VirtunewsletterIndexManagerController extends modExtraManagerController {
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.batchsubscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.subscriber.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.resources.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.templates.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/page.templates.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/CheckColumn.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'ux/fileuploadfield/FileUploadField.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.importcsv.js' . $withVersion);
@@ -82,18 +82,17 @@ class VirtunewsletterIndexManagerController extends modExtraManagerController {
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/window.newsletter.test.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.recurrence.range.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.categories.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.sbusergroups.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newsletterconfiguration.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.reports.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.category.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newslettercontent.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/combo.sbcategories.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.subscribers.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/page.subscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/grid.newsletters.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.newsletters.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/page.categories.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/page.newsletters.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardsubscribers.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboardnewsletters.js' . $withVersion);
-        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.dashboard.js' . $withVersion);
+        $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/page.dashboard.js' . $withVersion);
         $this->addJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/widgets/panel.home.js' . $withVersion);
         $this->addLastJavascript($this->virtunewsletter->config['jsUrl'] . 'mgr/sections/index.js' . $withVersion);
     }

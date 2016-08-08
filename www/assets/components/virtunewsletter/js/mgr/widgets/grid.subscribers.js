@@ -12,7 +12,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             newsletter_id: config.newsletter_id
         },
         fields: ['id', 'user_id', 'email', 'name', 'usergroups','email_provider',
-            'categories_text', 'categories', 'is_active'],
+            'categories_text', 'categories', 'is_active', 'allCategories'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
@@ -130,10 +130,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             }, '->', {
                 text: _('virtunewsletter.import_csv'),
                 icon: '../assets/components/virtunewsletter/img/table_import.png',
-                handler: {
-                    xtype: 'virtunewsletter-window-importcsv',
-                    blankValues: true
-                }
+                handler: this.importCsv
             }, {
                 text: _('virtunewsletter.export_csv'),
                 icon: '../assets/components/virtunewsletter/img/table_export.png',
@@ -257,6 +254,37 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             }
         });
     },
+    importCsv: function() {
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/categories/getList'
+            },
+            listeners: {
+                'success': {
+                    fn: function(res) {
+                        if (res.success === true) {
+                            var record = {};
+                            record.allCategories = {};
+                            Ext.each(res.results, function(value) {
+                                record.allCategories[value.id] = value.name;
+                            });
+                            var importCsvWin = MODx.load({
+                                xtype: 'virtunewsletter-window-importcsv',
+                                record: record
+                            });
+                            importCsvWin.show();
+                        }
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function(r) {},
+                    scope: this
+                }
+            }
+        });
+    },
     exportCsv: function() {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
@@ -268,6 +296,10 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                     fn: function(r) {
                         location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
                     },
+                    scope: this
+                },
+                'failure': {
+                    fn: function(r) {},
                     scope: this
                 }
             }
@@ -303,6 +335,10 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                         return this.refresh();
                     },
                     scope: this
+                },
+                'failure': {
+                    fn: function() {},
+                    scope: this
                 }
             }
         });
@@ -312,30 +348,61 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
         if (!ids) {
             return false;
         }
-        var win = new VirtuNewsletter.window.BatchSubscribers({
-            title: _('virtunewsletter.batch_update'),
-            baseParams: {
-                action: 'mgr/subscribers/batchupdate',
-                subscriberIds: ids
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/categories/getList'
+            },
+            listeners: {
+                'success': {
+                    fn: function(res) {
+                        if (res.success === true) {
+                            var record = {};
+                            record.allCategories = {};
+                            Ext.each(res.results, function(value) {
+                                record.allCategories[value.id] = value.name;
+                            });
+                            var win = new VirtuNewsletter.window.BatchSubscribers({
+                                title: _('virtunewsletter.batch_update'),
+                                baseParams: {
+                                    action: 'mgr/subscribers/batchupdate',
+                                    subscriberIds: ids
+                                },
+                                record: record
+                            });
+                            win.reset();
+                            win.show();
+                            win.on('success', this.refresh, this);
+                        }
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function() {},
+                    scope: this
+                }
             }
         });
-        win.reset();
-        win.show();
-        win.on('success', this.refresh, this);
     },
     updateSubscriber: function() {
         var win = new VirtuNewsletter.window.Subscriber({
             title: _('virtunewsletter.subscriber_update'),
             baseParams: {
                 action: 'mgr/subscribers/update'
-            }
+            },
+            record: this.menu.record
         });
         win.reset();
-        win.setValues(this.menu.record);
-        // SuperBoxSelect
-        var sb;
-        sb = win.fp.getForm().findField('categories[]');
-        sb.setValue(this.menu.record.categories);
+        var record = this.menu.record;
+        win.setValues(record);
+        var cb;
+        Ext.each(record.categories, function(item) {
+            cb = win.fp.getForm().findField('categories['+item+']');
+            if (cb) {
+                cb.checked = true;
+                cb.addClass('x-form-cb-checked x-form-dirty');
+            }
+        });
 
         win.show();
         win.on('success', this.refresh, this);

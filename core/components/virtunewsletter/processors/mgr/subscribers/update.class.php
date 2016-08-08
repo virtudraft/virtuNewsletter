@@ -37,7 +37,15 @@ class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
      */
     public function afterSave() {
         $subId = $this->getProperty('id');
-        $categories = $this->getProperty('categories');
+        $cbCategories = $this->getProperty('categories');
+        $categories = array();
+        foreach($cbCategories as $k => $v) {
+            if(empty($v)) {
+                continue;
+            }
+            $categories[] = $k;
+        }
+
         if (!empty($categories)) {
             // remove diff first
             $diffs = $this->modx->getCollection('vnewsSubscribersHasCategories', array(
@@ -66,6 +74,7 @@ class SubscribersUpdateProcessor extends modObjectUpdateProcessor {
                     $subHasCat->fromArray(array(
                         'subscriber_id' => $subId,
                         'category_id' => $category,
+                        'subscribed_on' => time()
                             ));
                     $addCats[] = $subHasCat;
                 }

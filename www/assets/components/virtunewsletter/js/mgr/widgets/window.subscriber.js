@@ -1,6 +1,21 @@
 VirtuNewsletter.window.Subscriber = function (config) {
     config = config || {};
 
+    var allCategories = [];
+    if (config.record && config.record.allCategories) {
+        for (var key in config.record.allCategories) {
+            key = Number(key);
+            if (config.record.allCategories.hasOwnProperty(key)) {
+                allCategories.push({
+                    xtype: 'xcheckbox',
+                    boxLabel: config.record.allCategories[key],
+                    name: 'categories['+key+']',
+                    value: key
+                });
+            }
+        }
+    }
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         autoHeight: true,
@@ -12,27 +27,31 @@ VirtuNewsletter.window.Subscriber = function (config) {
                 name: 'id'
             }, {
                 xtype: 'hidden',
-                name: 'is_active'
+                name: 'is_active',
+                anchor: '100%'
             }, {
                 xtype: 'textfield',
                 fieldLabel: _('name'),
-                name: 'name'
+                name: 'name',
+                anchor: '100%'
             }, {
                 xtype: 'textfield',
                 fieldLabel: _('email'),
-                name: 'email'
+                name: 'email',
+                anchor: '100%'
             }, {
                 xtype: 'textfield',
                 fieldLabel: _('virtunewsletter.email_provider'),
-                name: 'email_provider'
+                name: 'email_provider',
+                anchor: '100%'
             }, {
                 xtype: 'displayfield',
                 cls: 'desc-under',
                 html: _('virtunewsletter.email_provider_desc'),
             }, {
                 fieldLabel: _('virtunewsletter.categories'),
-                xtype: 'virtunewsletter-combo-sbcategories',
-                name: 'categories[]'
+                itemCls: 'x-check-group-alt',
+                items: allCategories
             }
         ]
     });

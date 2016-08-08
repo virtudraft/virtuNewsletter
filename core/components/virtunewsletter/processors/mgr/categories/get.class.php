@@ -45,7 +45,6 @@ class CategoriesGetProcessor extends modObjectGetProcessor {
 
         $usergroups = $this->object->getMany('CategoriesHasUsergroups');
         $usergroupsArray = array();
-        $usergroupsGrid = array();
         if ($usergroups) {
             foreach ($usergroups as $usergroup) {
                 $usergroupId = $usergroup->get('usergroup_id');
@@ -57,17 +56,10 @@ class CategoriesGetProcessor extends modObjectGetProcessor {
                 $modUserGroup = $this->modx->getObject('modUserGroup', $c);
                 if ($modUserGroup) {
                     $usergroupsArray[] = $usergroupId;
-                    $usergroupsObjects[$usergroupId] = $modUserGroup->get('name');
-                    $usergroupsGrid[] = array(
-                        $usergroupId,
-                        $modUserGroup->get('name')
-                    );
                 }
             }
         }
-        $objectArray['usergroups'] = @implode(',', $usergroupsArray);
-        $objectArray['usergroups_grid'] = $usergroupsGrid;
-        $objectArray['usergroups_objects'] = $usergroupsObjects;
+        $objectArray['usergroups'] = $usergroupsArray;
 
         return $this->success('', $objectArray);
     }

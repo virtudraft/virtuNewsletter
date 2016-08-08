@@ -20,7 +20,6 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
-
 /**
  * @package virtunewsletter
  * @subpackage processor
@@ -94,7 +93,17 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
      */
     public function afterSave() {
         $newsId = $this->object->getPrimaryKey();
-        $categories = $this->getProperty('categories');
+
+        $categories = array();
+        $cbCategories = $this->getProperty('categories');
+        if (!empty($cbCategories)) {
+            foreach($cbCategories as $k => $v) {
+                if ($v > 0) {
+                    $categories[] = $k;
+                }
+            }
+        }
+
         if (!empty($categories)) {
             $addCats = array();
             foreach ($categories as $category) {

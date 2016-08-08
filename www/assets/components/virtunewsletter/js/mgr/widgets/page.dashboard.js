@@ -1,8 +1,8 @@
-VirtuNewsletter.panel.Dashboard = function (config) {
+VirtuNewsletter.page.Dashboard = function (config) {
     config = config || {};
 
     Ext.applyIf(config, {
-        id: 'virtunewsletter-panel-dashboard',
+        id: 'virtunewsletter-page-dashboard',
         preventRender: true,
         defaults: {
         },
@@ -70,9 +70,9 @@ VirtuNewsletter.panel.Dashboard = function (config) {
         }
     });
 
-    VirtuNewsletter.panel.Dashboard.superclass.constructor.call(this, config);
+    VirtuNewsletter.page.Dashboard.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
+Ext.extend(VirtuNewsletter.page.Dashboard, MODx.Panel, {
     getNewsletters: function () {
         var _this = this;
         MODx.Ajax.request({
@@ -136,4 +136,4 @@ Ext.extend(VirtuNewsletter.panel.Dashboard, MODx.Panel, {
         });
     }
 });
-Ext.reg('virtunewsletter-panel-dashboard', VirtuNewsletter.panel.Dashboard);
+Ext.reg('virtunewsletter-page-dashboard', VirtuNewsletter.page.Dashboard);

@@ -1,8 +1,8 @@
-VirtuNewsletter.panel.Templates = function(config) {
+VirtuNewsletter.page.Templates = function(config) {
     config = config || {};
 
     Ext.applyIf(config, {
-        id: 'virtunewsletter-panel-templates',
+        id: 'virtunewsletter-page-templates',
         border: false,
         defaults: {
             border: false
@@ -197,9 +197,9 @@ VirtuNewsletter.panel.Templates = function(config) {
             }
         ]
     });
-    VirtuNewsletter.panel.Templates.superclass.constructor.call(this, config);
+    VirtuNewsletter.page.Templates.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.panel.Templates, MODx.Panel, {
+Ext.extend(VirtuNewsletter.page.Templates, MODx.Panel, {
     getTemplate: function(name, lang) {
         this.loadMask();
         return MODx.Ajax.request({
@@ -275,7 +275,7 @@ Ext.extend(VirtuNewsletter.panel.Templates, MODx.Panel, {
     },
     loadMask: function() {
         if (!this.loadConverterMask) {
-            var domHandler = Ext.getCmp('virtunewsletter-panel-templates').body.dom;
+            var domHandler = Ext.getCmp('virtunewsletter-page-templates').body.dom;
             this.loadConverterMask = new Ext.LoadMask(domHandler, {
                 msg: _('virtunewsletter.please_wait')
             });
@@ -288,4 +288,4 @@ Ext.extend(VirtuNewsletter.panel.Templates, MODx.Panel, {
         }
     }
 });
-Ext.reg('virtunewsletter-panel-templates', VirtuNewsletter.panel.Templates);
+Ext.reg('virtunewsletter-page-templates', VirtuNewsletter.page.Templates);

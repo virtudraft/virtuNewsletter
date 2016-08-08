@@ -39,6 +39,24 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         scope: this
     });
 
+    var allCategories = [];
+    if (config.record && config.record.allCategories) {
+        for (var key in config.record.allCategories) {
+            if (config.record.allCategories.hasOwnProperty(key)) {
+                key = Number(key);
+                allCategories.push({
+                    xtype: 'xcheckbox',
+                    boxLabel: config.record.allCategories[key],
+                    name: 'categories['+key+']',
+                    value: key,
+                    checked: config.record &&
+                            config.record.categories &&
+                            config.record.categories.indexOf(key) > -1 ? true : false
+                });
+            }
+        }
+    }
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseParams: {
@@ -209,10 +227,9 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 }
             }, {
                 fieldLabel: _('virtunewsletter.categories'),
-                xtype: 'virtunewsletter-combo-sbcategories',
-                name: 'categories[]',
-                value: config.record && config.record.categories ? config.record.categories : '',
-                originalValue: config.record && config.record.categories ? config.record.categories : ''
+                itemCls: 'x-check-group-alt',
+                layout: 'hbox',
+                items: allCategories
             }, {
                 xtype: 'xcheckbox',
                 boxLabel: _('virtunewsletter.active'),
@@ -240,6 +257,7 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
             }
         }
     });
+
 };
 
 Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {

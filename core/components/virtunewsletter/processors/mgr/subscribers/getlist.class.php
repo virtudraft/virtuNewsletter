@@ -32,6 +32,22 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
     public $objectType = 'virtunewsletter.SubscribersGetList';
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'DESC';
+    private $allCategories = array();
+
+    /**
+     * {@inheritDoc}
+     * @return boolean
+     */
+    public function initialize() {
+        $categories = $this->modx->getCollection('vnewsCategories');
+        if ($categories) {
+            foreach ($categories as $category) {
+                $this->allCategories[$category->get('id')] = $category->get('name');
+            }
+        }
+
+        return parent::initialize();
+    }
 
     /**
      * Can be used to adjust the query prior to the COUNT statement
@@ -80,7 +96,8 @@ class SubscribersGetListProcessor extends modObjectGetListProcessor {
                 $categoryIds[] = $category->get('id');
             }
             $objectArray['categories_text'] = @implode(', ', $categoryNames);
-            $objectArray['categories'] = @implode(', ', $categoryIds);
+            $objectArray['categories'] = $categoryIds;
+            $objectArray['allCategories'] = $this->allCategories;
         }
 
         return $objectArray;

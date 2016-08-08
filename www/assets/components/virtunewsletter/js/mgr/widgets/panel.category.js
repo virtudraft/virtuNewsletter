@@ -1,6 +1,24 @@
 VirtuNewsletter.panel.Category = function (config) {
     config = config || {};
 
+    var allUsergroups = [];
+    if (config.record && config.record.allUsergroups) {
+        for (var key in config.record.allUsergroups) {
+            if (config.record.allUsergroups.hasOwnProperty(key)) {
+                key = Number(key);
+                allUsergroups.push({
+                    xtype: 'xcheckbox',
+                    boxLabel: config.record.allUsergroups[key],
+                    name: 'usergroups['+key+']',
+                    value: key,
+                    checked: config.record &&
+                            config.record.usergroups &&
+                            config.record.usergroups.indexOf(key) > -1 ? true : false
+                });
+            }
+        }
+    }
+
     Ext.applyIf(config, {
         url: VirtuNewsletter.config.connectorUrl,
         baseCls: 'modx-formpanel',
@@ -26,9 +44,10 @@ VirtuNewsletter.panel.Category = function (config) {
                 name: 'description'
             }, {
                 anchor: '100%',
-                xtype: 'virtunewsletter-combo-sbusergroups',
                 fieldLabel: _('virtunewsletter.usergroups'),
-                name: 'usergroups[]'
+                itemCls: 'x-check-group-alt',
+                layout: 'hbox',
+                items: allUsergroups
             }
         ],
         tbar: [

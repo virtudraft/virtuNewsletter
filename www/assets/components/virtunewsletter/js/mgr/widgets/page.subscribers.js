@@ -1,8 +1,8 @@
-VirtuNewsletter.panel.Subscribers = function(config) {
+VirtuNewsletter.page.Subscribers = function(config) {
     config = config || {};
 
     Ext.applyIf(config, {
-        id: 'virtunewsletter-panel-subscribers',
+        id: 'virtunewsletter-page-subscribers',
         border: false,
         autoHeight: true,
         defaults: {
@@ -21,7 +21,7 @@ VirtuNewsletter.panel.Subscribers = function(config) {
             }
         ]
     });
-    VirtuNewsletter.panel.Subscribers.superclass.constructor.call(this, config);
+    VirtuNewsletter.page.Subscribers.superclass.constructor.call(this, config);
 };
-Ext.extend(VirtuNewsletter.panel.Subscribers, MODx.Panel);
-Ext.reg('virtunewsletter-panel-subscribers', VirtuNewsletter.panel.Subscribers);
+Ext.extend(VirtuNewsletter.page.Subscribers, MODx.Panel);
+Ext.reg('virtunewsletter-page-subscribers', VirtuNewsletter.page.Subscribers);

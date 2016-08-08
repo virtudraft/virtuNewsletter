@@ -72,3 +72,7 @@
     z-index: 3;
     color: #777;
 }
+
+.x-check-group-alt .x-form-cb-label {
+    margin-right: 10px;
+}

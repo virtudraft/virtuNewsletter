@@ -134,7 +134,15 @@ class vnewsSubscribersImportCsv extends modBrowserFileUploadProcessor {
                     }
 
                     $subscriberId = $subscriber->getPrimaryKey();
-                    foreach ($props['categories'] as $catId) {
+                    $categories = array();
+                    if (isset($props['categories']) && !empty($props['categories'])) {
+                        foreach($props['categories'] as $k => $v) {
+                            if ($v > 0) {
+                                $categories[] = $k;
+                            }
+                        }
+                    }
+                    foreach ($categories as $catId) {
                         $subCat = $this->modx->newObject('vnewsSubscribersHasCategories');
                         $params = array(
                             'subscriber_id' => $subscriberId,

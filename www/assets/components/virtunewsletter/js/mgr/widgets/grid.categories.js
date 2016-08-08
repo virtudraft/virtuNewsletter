@@ -157,33 +157,54 @@ Ext.extend(VirtuNewsletter.grid.Categories, MODx.grid.Grid, {
             id = record['id'];
             action = 'update';
         }
-        var newTab = MODx.load({
-            title: record.id ? _('virtunewsletter.category_update') : _('virtunewsletter.category_create'),
-            closable: true,
-            xtype: 'virtunewsletter-panel-category',
-            baseParams: {
-                action: 'mgr/categories/' + action,
-                id: id
-            },
-            record: record
-        });
-        newTab.getForm().setValues(record);
-        // SuperBoxSelect
-        var sb;
-        sb = newTab.getForm().findField('usergroups[]');
-        sb.setValue(record.usergroups);
 
-        newTab.on('success', function(o) {
-            if (o.result.success === true) {
-                this.refresh();
-                if (typeof(record.id) === 'undefined') {
-                    newTab.destroy();
-                    this.loadCategory(o.result.object.id);
+        MODx.Ajax.request({
+            url: VirtuNewsletter.config.connectorUrl,
+            params: {
+                action: 'mgr/usergroups/getList'
+            },
+            listeners: {
+                'success': {
+                    fn: function(res) {
+                        if (res.success === true) {
+                            record.allUsergroups = {};
+                            Ext.each(res.results, function(value) {
+                                record.allUsergroups[value.id] = value.name;
+                            });
+                            var newTab = MODx.load({
+                                title: record.id ? _('virtunewsletter.category_update') : _('virtunewsletter.category_create'),
+                                closable: true,
+                                xtype: 'virtunewsletter-panel-category',
+                                baseParams: {
+                                    action: 'mgr/categories/' + action,
+                                    id: id
+                                },
+                                record: record
+                            });
+                            newTab.getForm().setValues(record);
+                            newTab.on('success', function(o) {
+                                if (o.result.success === true) {
+                                    this.refresh();
+                                    if (typeof(record.id) === 'undefined') {
+                                        newTab.destroy();
+                                        this.loadCategory(o.result.object.id);
+                                    }
+                                }
+                            }, this);
+                            tabs.add(newTab);
+                            tabs.setActiveTab(newTab);
+                        }
+                    },
+                    scope: this
+                },
+                'failure': {
+                    fn: function() {
+                        alert('Unable to get usergroups');
+                    },
+                    scope: this
                 }
             }
-        }, this);
-        tabs.add(newTab);
-        tabs.setActiveTab(newTab);
+        });
     }
 });
 Ext.reg('virtunewsletter-grid-categories', VirtuNewsletter.grid.Categories);

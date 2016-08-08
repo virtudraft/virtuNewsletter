@@ -1,4 +1,4 @@
-virtuNewsletter
+virtuNewsletter 2.3.0-pl (August 8, 2016)
 =================================================
 - replaced superboxselect with checkbox for categories and usergroups
 - fixed bug of categorization when creating new newsletter

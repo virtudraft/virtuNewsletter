@@ -150,10 +150,7 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         if ($newsHasCats) {
             foreach ($newsHasCats as $newsHasCat) {
                 $category = $newsHasCat->getOne('Categories');
-                $objectArray['categories'][] = array(
-                    'category_id' => $newsHasCat->get('id'),
-                    'category' => $category->get('name'),
-                );
+                $objectArray['categories'][] = $category->get('id');
             }
         }
 

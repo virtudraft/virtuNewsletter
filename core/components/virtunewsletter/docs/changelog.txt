@@ -1,4 +1,4 @@
-virtuNewsletter
+virtuNewsletter 2.3.1-pl (August 10, 2016)
 =================================================
 - fixed bug to close tab when deleting newsletter
 - fixed bug of categorization when creating new newsletter

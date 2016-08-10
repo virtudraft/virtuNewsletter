@@ -272,9 +272,18 @@ Ext.extend(VirtuNewsletter.panel.NewsletterConfiguration, MODx.FormPanel, {
             listeners: {
                 'success': {
                     fn: function () {
+                        this.closeTab();
+                        var grid = Ext.getCmp('virtunewsletter-grid-newsletters');
+                        if (grid) {
+                            grid.refresh();
+                        }
                         var container = Ext.getCmp('modx-content');
                         return container.doLayout();
                     },
+                    scope: this
+                },
+                'failure': {
+                    fn: function () {},
                     scope: this
                 }
             }

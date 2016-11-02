@@ -228,11 +228,11 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
             }, {
                 fieldLabel: _('virtunewsletter.categories'),
                 itemCls: 'x-check-group-alt',
-                layout: 'hbox',
                 items: allCategories
             }, {
+                fieldLabel: _('virtunewsletter.active'),
                 xtype: 'xcheckbox',
-                boxLabel: _('virtunewsletter.active'),
+                boxLabel: _('yes'),
                 name: 'is_active',
                 anchor: '100%',
                 checked: config.record && config.record.is_active ? 1 : 0

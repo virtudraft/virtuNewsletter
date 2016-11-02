@@ -46,7 +46,6 @@ VirtuNewsletter.panel.Category = function (config) {
                 anchor: '100%',
                 fieldLabel: _('virtunewsletter.usergroups'),
                 itemCls: 'x-check-group-alt',
-                layout: 'hbox',
                 items: allUsergroups
             }
         ],

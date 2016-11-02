@@ -1,3 +1,8 @@
+virtuNewsletter 2.3.2-pl (October 12, 2016)
+=================================================
+- changed usergroups layout in category panel
+- changed categories layout in newsletter panel
+
 virtuNewsletter 2.3.1-pl (August 10, 2016)
 =================================================
 - fixed bug to close tab when deleting newsletter

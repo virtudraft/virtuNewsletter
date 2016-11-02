@@ -13,6 +13,7 @@ $xpdo_meta_map['vnewsNewsletters']= array (
     'created_on' => NULL,
     'created_by' => NULL,
     'scheduled_for' => NULL,
+    'stopped_at' => 0,
     'is_recurring' => 0,
     'recurrence_range' => NULL,
     'recurrence_number' => NULL,
@@ -75,6 +76,15 @@ $xpdo_meta_map['vnewsNewsletters']= array (
       'attributes' => 'unsigned',
       'phptype' => 'integer',
       'null' => true,
+    ),
+    'stopped_at' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
     ),
     'is_recurring' => 
     array (

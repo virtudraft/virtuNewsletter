@@ -25,7 +25,7 @@
  */
 class VirtuNewsletter {
 
-    const VERSION = '2.3.1';
+    const VERSION = '2.3.2';
     const RELEASE = 'pl';
 
     /**
@@ -871,10 +871,10 @@ class VirtuNewsletter {
             'vnewsReports.status:=' => 'queue',
             'Newsletters.is_active:=' => 1,
         ));
+        date_default_timezone_set('UTC');
         $time = time();
 //        $todayOnly = TRUE;
         if ($todayOnly) {
-            date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $tomorrow = mktime(0, 0, 0, date('n'), date('j') + 1, date('Y'));
             $c->where(array(
@@ -886,6 +886,10 @@ class VirtuNewsletter {
                 'Newsletters.scheduled_for:<' => $time + 1,
             ));
         }
+        $c->where(array(
+            'Newsletters.stopped_at:=' => 0,
+            'OR:Newsletters.stopped_at:>' => $time,
+        ));
         $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
         if (!empty($limit)) {
             $c->limit($limit);
@@ -893,6 +897,80 @@ class VirtuNewsletter {
         $c->sortby('Newsletters.id', 'asc');
         $c->sortby('vnewsReports.id', 'asc');
         $queues = $this->modx->getCollection('vnewsReports', $c);
+
+        return $queues;
+    }
+
+    /**
+     * Get multithreaded queues
+     * @param   boolean $todayOnly  strict to today's queue (default: false)
+     * @param   int     $limit      override limit of System Settings
+     * @return  array   queues collection in array
+     */
+    public function getMultiThreadedQueues($todayOnly = FALSE, $limit = 0) {
+        $c = $this->modx->newQuery('vnewsNewsletters');
+        $c->leftJoin('vnewsReports', 'Reports', 'Reports.newsletter_id = vnewsNewsletters.id');
+        $c->select(array(
+            'vnewsNewsletters.id',
+            'count_queue' => "(SELECT COUNT(*) FROM {$this->modx->getTableName('vnewsReports')} WHERE newsletter_id = vnewsNewsletters.id)"
+        ));
+        $c->where(array(
+            'vnewsNewsletters.is_active:=' => 1,
+        ));
+        $c->having("count_queue > 0");
+        date_default_timezone_set('UTC');
+        $time = time();
+//        $todayOnly = TRUE;
+        if ($todayOnly) {
+            $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $tomorrow = mktime(0, 0, 0, date('n'), date('j') + 1, date('Y'));
+            $c->where(array(
+                'vnewsNewsletters.scheduled_for:>' => $today,
+                'vnewsNewsletters.scheduled_for:<' => $tomorrow,
+            ));
+        } else {
+            $c->where(array(
+                'vnewsNewsletters.scheduled_for:<' => $time + 1,
+            ));
+        }
+        $c->where(array(
+            'vnewsNewsletters.stopped_at:=' => 0,
+            'OR:vnewsNewsletters.stopped_at:>' => $time,
+        ));
+        $c->sortby('vnewsNewsletters.id', 'asc');
+        $c->groupby('vnewsNewsletters.id');
+
+        $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
+        if (!$newsletters) {
+            return;
+        }
+        $queues = array();
+        foreach ($newsletters as $newsletter) {
+            unset($c);
+            $c = $this->modx->newQuery('vnewsReports');
+            $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
+            $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
+            $c->select(array(
+                'vnewsReports.*',
+                'Subscribers.email_provider',
+                'Newsletters.subject',
+                'Newsletters.created_on',
+                'Newsletters.scheduled_for',
+                'Newsletters.is_recurring',
+            ));
+            $c->where(array(
+                'vnewsReports.status'   => 'queue',
+                'Newsletters.id' => $newsletter->get('id'),
+            ));
+            $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
+            if (!empty($limit)) {
+                $c->limit($limit);
+            }
+            $c->sortby('Newsletters.id', 'asc');
+            $c->sortby('vnewsReports.id', 'asc');
+            $nQueues = $this->modx->getCollection('vnewsReports', $c);
+            $queues = array_merge($queues, $nQueues);
+        }
 
         return $queues;
     }
@@ -1043,7 +1121,12 @@ class VirtuNewsletter {
      * @return  array   reports' outputs in array
      */
     public function processQueue($todayOnly = FALSE, $limit = 0) {
-        $queues = $this->getQueues($todayOnly, $limit);
+        $isMultiThreaded = $this->modx->getOption('virtunewsletter.send_multithreaded');
+        if ($isMultiThreaded) {
+            $queues = $this->getMultiThreadedQueues($todayOnly, $limit);
+        } else {
+            $queues = $this->getQueues($todayOnly, $limit);
+        }
         $outputReports = array();
         if ($queues) {
             $outputReports = $this->sendQueuesToProvider($queues);

@@ -90,3 +90,6 @@ $_lang['setting_virtunewsletter.cronreport.itemTpl'] = 'Item tpl for cron report
 $_lang['setting_virtunewsletter.cronreport.itemTpl_desc'] = 'If you enable getItems, this chunk will render each newsletter\'s report. Default: cronreport.item';
 $_lang['setting_virtunewsletter.cronreport.wrapperTpl'] = 'Wrapper tpl for cron reports';
 $_lang['setting_virtunewsletter.cronreport.wrapperTpl_desc'] = 'If you enable cron report, this chunk will wrap newsletter\'s reports. Default: cronreport.wrapper';
+$_lang['setting_virtunewsletter.send_multithreaded'] = 'Multithreaded';
+$_lang['setting_virtunewsletter.send_multithreaded_desc'] = 'Send the multiple newsletters in parallel (multithreaded).';
+

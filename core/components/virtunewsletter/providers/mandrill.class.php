@@ -108,7 +108,6 @@ class VirtuNewsletterMandrillController extends VirtuNewsletterEmailProvider {
             );
             $async = false;
             $ip_pool = 'Main Pool';
-            date_default_timezone_set('UTC');
             $send_at = date('Y-m-d H:i:s');
             $result = $mandrill->messages->send($message, $async, $ip_pool/* , $send_at */);
 

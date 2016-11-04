@@ -762,7 +762,6 @@ class VirtuNewsletter {
             'is_active' => 1,
         ));
         if ($todayOnly) {
-            date_default_timezone_set('UTC');
             $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $c->where(array(
                 'scheduled_for' => $today,
@@ -871,7 +870,6 @@ class VirtuNewsletter {
             'vnewsReports.status:=' => 'queue',
             'Newsletters.is_active:=' => 1,
         ));
-        date_default_timezone_set('UTC');
         $time = time();
 //        $todayOnly = TRUE;
         if ($todayOnly) {
@@ -918,7 +916,6 @@ class VirtuNewsletter {
             'vnewsNewsletters.is_active:=' => 1,
         ));
         $c->having("count_queue > 0");
-        date_default_timezone_set('UTC');
         $time = time();
 //        $todayOnly = TRUE;
         if ($todayOnly) {

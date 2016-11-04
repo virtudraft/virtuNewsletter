@@ -74,7 +74,6 @@ class SendAllNewslettersProcessor extends modProcessor {
             'Subscribers.email_provider',
         ));
 
-        date_default_timezone_set('UTC');
         $c->where(array(
             'vnewsReports.status' => 'queue',
         ));

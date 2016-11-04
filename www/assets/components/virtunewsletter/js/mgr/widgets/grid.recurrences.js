@@ -7,13 +7,13 @@ VirtuNewsletter.grid.Recurrences = function(config) {
             action: 'mgr/newsletters/getList',
             parentId: config.record.id || 0
         },
-        fields: ['id', 'parent_id', 'resource_id', 'subject', 'content', 'created_on', 'created_by', 'scheduled_for',
+        fields: ['id', 'parent_id', 'resource_id', 'subject', 'content',
+            'created_on', 'created_on_formatted', 'created_by',
+            'scheduled_for', 'scheduled_for_formatted',
             'is_recurring', 'recurrence_range', 'recurrence_number', 'is_active'],
         paging: true,
         remoteSort: true,
         autoExpandColumn: 'subject',
-        dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
                 header: _('id'),
@@ -36,22 +36,12 @@ VirtuNewsletter.grid.Recurrences = function(config) {
                 sortable: true
             }, {
                 header: _('virtunewsletter.created_on'),
-                dataIndex: 'created_on',
-                sortable: true,
-                renderer: function(value) {
-                    var date = Date.parseDate(value, config.dateFormat);
-                    return date.format(config.displayFormat);
-                }
+                dataIndex: 'created_on_formatted',
+                sortable: true
             }, {
                 header: _('virtunewsletter.scheduled_for'),
-                dataIndex: 'scheduled_for',
-                sortable: true,
-                renderer: function(value) {
-                    if (value !== '') {
-                        var date = Date.parseDate(value, config.dateFormat);
-                        return date.format(config.displayFormat);
-                    }
-                }
+                dataIndex: 'scheduled_for_formatted',
+                sortable: true
             }, {
                 header: _('virtunewsletter.action'),
                 xtype: 'actioncolumn',

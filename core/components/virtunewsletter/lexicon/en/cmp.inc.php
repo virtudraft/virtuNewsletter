@@ -158,3 +158,4 @@ $_lang['virtunewsletter.email_provider_desc'] = 'Email provider which generates 
 $_lang['virtunewsletter.delete_email_provider'] = 'Delete email provider';
 $_lang['virtunewsletter.delete_categories'] = 'Delete categories';
 $_lang['virtunewsletter.keep'] = 'Keep';
+$_lang['virtunewsletter.stopped_at'] = 'Stop sending at';

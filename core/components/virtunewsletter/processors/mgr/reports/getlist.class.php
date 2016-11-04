@@ -95,6 +95,12 @@ class ReportsGetListProcessor extends modObjectGetListProcessor {
         } else {
             $objectArray['status_text'] = $status;
         }
+        $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
+        $objectArray['status_logged_on_formatted'] = '';
+        if (!empty($objectArray['status_logged_on'])) {
+            $dateTime = DateTime::createFromFormat('U', $objectArray['status_logged_on']);
+            $objectArray['status_logged_on_formatted'] = $dateTime->format($dateFormat);
+        }
 
         return $objectArray;
     }

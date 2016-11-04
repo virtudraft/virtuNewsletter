@@ -66,8 +66,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
         baseCls: 'modx-formpanel',
         bodyStyle: 'overflow: hidden;',
         border: false,
-        dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'Y-m-d',
         layout: 'form',
         labelAlign: 'left',
         labelWidth: 100,
@@ -78,13 +76,6 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                 fieldLabel: _('id'),
                 name: 'id',
                 value: config.record && config.record.id ? config.record.id : 0
-            }, {
-                xtype: 'textfield',
-                fieldLabel: _('virtunewsletter.subject'),
-                name: 'subject',
-                allowBlank: false,
-                anchor: '100%',
-                value: config.record && config.record.subject ? config.record.subject : ''
             }, {
                 layout: 'column',
                 columns: 2,
@@ -97,25 +88,23 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                         columnWidth: .5,
                         items: [
                             {
+                                xtype: 'textfield',
+                                fieldLabel: _('virtunewsletter.subject'),
+                                name: 'subject',
+                                allowBlank: false,
+                                anchor: '100%',
+                                value: config.record && config.record.subject ? config.record.subject : ''
+                            }, {
                                 xtype: 'virtunewsletter-combo-resources',
                                 anchor: '100%',
                                 fieldLabel: _('virtunewsletter.resource_id'),
                                 name: 'resource_id',
                                 value: config.record && config.record.resource_id ? config.record.resource_id : ''
+                            }, {
+                                fieldLabel: _('virtunewsletter.categories'),
+                                itemCls: 'x-check-group-alt',
+                                items: allCategories
                             }
-//                            {
-//                                xtype: 'modx-field-parent-change',
-//                                anchor: '100%',
-//                                fieldLabel: _('virtunewsletter.resource_id'),
-//                                name: 'resource_id2',
-//                                value: config.record && config.record.resource_id ? config.record.resource_id : '',
-//                                allowBlank: false
-//                            }, {
-//                                xtype: 'hidden',
-//                                name: 'resource_id',
-//                                value: config.record && config.record.resource_id ? config.record.resource_id : '',
-//                                id: 'modx-resource-parent-hidden'
-//                            }
                         ]
                     }, {
                         columnWidth: .5,
@@ -125,117 +114,139 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                                 fieldLabel: _('virtunewsletter.scheduled_for'),
                                 name: 'scheduled_for',
                                 allowBlank: true,
-                                format: 'Y-m-d', // make it display correct but sends it to server as Y-m-d
-                                dateFormat:'Y-m-d',
+                                format: MODx.config.manager_date_format,
+                                dateFormat: MODx.config.manager_date_format,
                                 submitFormat: 'U',
-                                renderer: Ext.util.Format.dateRenderer('Y-m-d'),
-                                altFormats:'U|u|m/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j',
                                 value: config.record &&
                                     config.record.scheduled_for &&
                                     config.record.scheduled_for > 0 ?
-                                    config.record.scheduled_for :
+                                    config.record.scheduled_for_formatted :
                                     ''
+                            }, {
+                                fieldLabel: _('virtunewsletter.stopped_at'),
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        flex: 1,
+                                        xtype: 'timefield',
+                                        name: 'stopped_at_time',
+                                        allowBlank: true,
+                                        format: MODx.config.manager_time_format,
+                                        value: config.record &&
+                                                config.record.stopped_at &&
+                                                config.record.stopped_at > 0 ?
+                                                config.record.stopped_at_time :
+                                                ''
+                                    }, {
+                                        flex: 1,
+                                        xtype: 'datefield',
+                                        name: 'stopped_at_date',
+                                        allowBlank: true,
+                                        format: MODx.config.manager_date_format,
+                                        value: config.record &&
+                                                config.record.stopped_at &&
+                                                config.record.stopped_at > 0 ?
+                                                config.record.stopped_at_date :
+                                                ''
+                                    }
+                                ]
+                            }, {
+                                fieldLabel: _('virtunewsletter.is_recurring'),
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        flex: 0,
+                                        xtype: 'xcheckbox',
+                                        boxLabel: _('yes'),
+                                        name: 'is_recurring',
+                                        checked: config.record && config.record.is_recurring ? config.record.is_recurring : 0,
+                                        listeners: {
+                                            check: {
+                                                fn: function (cb, checked) {
+                                                    var recurrenceNumber = this.form.findField('recurrence_number');
+                                                    var recurrenceRange = this.form.findField('recurrence_range');
+                                                    if (checked) {
+                                                        recurrenceNumber.enable();
+                                                        recurrenceNumber.allowBlank = false;
+                                                        if (recurrenceNumber.value === '') {
+                                                            recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                                        }
+                                                        recurrenceRange.enable();
+                                                        recurrenceRange.allowBlank = false;
+                                                        if (recurrenceRange.value === '') {
+                                                            recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                                        }
+                                                    } else {
+                                                        recurrenceNumber.disable();
+                                                        recurrenceNumber.allowBlank = true;
+                                                        recurrenceNumber.setValue('');
+                                                        recurrenceNumber.clearInvalid();
+                                                        recurrenceRange.disable();
+                                                        recurrenceRange.allowBlank = true;
+                                                        recurrenceRange.setValue('');
+                                                        recurrenceRange.clearInvalid();
+                                                    }
+                                                },
+                                                scope: this
+                                            }
+                                        }
+                                    }, {
+                                        flex: 1,
+                                        xtype: 'numberfield',
+                                        fieldLabel: _('virtunewsletter.number_of_times'),
+                                        name: 'recurrence_number',
+                                        value: config.record && config.record.recurrence_number ? config.record.recurrence_number : ''
+                                    }, {
+                                        flex: 2,
+                                        xtype: 'virtunewsletter-combo-recurrence-range',
+                                        fieldLabel: _('virtunewsletter.by'),
+                                        name: 'recurrence_range',
+                                        value: config.record && config.record.recurrence_range ? config.record.recurrence_range : ''
+                                    }
+                                ],
+                                listeners: {
+                                    'render': {
+                                        fn: function (obj) {
+                                            // for initial loading
+                                            var isRecurring = this.form.findField('is_recurring');
+                                            var recurrenceNumber = this.form.findField('recurrence_number');
+                                            var recurrenceRange = this.form.findField('recurrence_range');
+                                            if (!isRecurring.checked) {
+                                                recurrenceNumber.disable();
+                                                recurrenceNumber.allowBlank = true;
+                                                recurrenceNumber.setValue('');
+                                                recurrenceNumber.clearInvalid();
+                                                recurrenceRange.disable();
+                                                recurrenceRange.allowBlank = true;
+                                                recurrenceRange.setValue('');
+                                                recurrenceRange.clearInvalid();
+                                            } else {
+                                                recurrenceNumber.enable();
+                                                recurrenceNumber.allowBlank = false;
+                                                if (recurrenceNumber.value === '') {
+                                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
+                                                }
+                                                recurrenceRange.enable();
+                                                recurrenceRange.allowBlank = false;
+                                                if (recurrenceRange.value === '') {
+                                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
+                                                }
+                                            }
+                                        },
+                                        scope: this
+                                    }
+                                }
+                            }, {
+                                fieldLabel: _('virtunewsletter.active'),
+                                xtype: 'xcheckbox',
+                                boxLabel: _('yes'),
+                                name: 'is_active',
+                                anchor: '100%',
+                                checked: config.record && config.record.is_active ? 1 : 0
                             }
                         ]
                     }
                 ]
-            }, {
-                fieldLabel: _('virtunewsletter.is_recurring'),
-                layout: 'hbox',
-                items: [
-                    {
-                        flex: 0,
-                        xtype: 'xcheckbox',
-                        boxLabel: _('yes'),
-                        name: 'is_recurring',
-                        checked: config.record && config.record.is_recurring ? config.record.is_recurring : 0,
-                        listeners: {
-                            check: {
-                                fn: function (cb, checked) {
-                                    var recurrenceNumber = this.form.findField('recurrence_number');
-                                    var recurrenceRange = this.form.findField('recurrence_range');
-                                    if (checked) {
-                                        recurrenceNumber.enable();
-                                        recurrenceNumber.allowBlank = false;
-                                        if (recurrenceNumber.value === '') {
-                                            recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
-                                        }
-                                        recurrenceRange.enable();
-                                        recurrenceRange.allowBlank = false;
-                                        if (recurrenceRange.value === '') {
-                                            recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
-                                        }
-                                    } else {
-                                        recurrenceNumber.disable();
-                                        recurrenceNumber.allowBlank = true;
-                                        recurrenceNumber.setValue('');
-                                        recurrenceNumber.clearInvalid();
-                                        recurrenceRange.disable();
-                                        recurrenceRange.allowBlank = true;
-                                        recurrenceRange.setValue('');
-                                        recurrenceRange.clearInvalid();
-                                    }
-                                },
-                                scope: this
-                            }
-                        }
-                    }, {
-                        flex: 0,
-                        xtype: 'numberfield',
-                        fieldLabel: _('virtunewsletter.number_of_times'),
-                        name: 'recurrence_number',
-                        value: config.record && config.record.recurrence_number ? config.record.recurrence_number : ''
-                    }, {
-                        flex: 0,
-                        xtype: 'virtunewsletter-combo-recurrence-range',
-                        fieldLabel: _('virtunewsletter.by'),
-                        name: 'recurrence_range',
-                        value: config.record && config.record.recurrence_range ? config.record.recurrence_range : ''
-                    }
-                ],
-                listeners: {
-                    'render': {
-                        fn: function (obj) {
-                            // for initial loading
-                            var isRecurring = this.form.findField('is_recurring');
-                            var recurrenceNumber = this.form.findField('recurrence_number');
-                            var recurrenceRange = this.form.findField('recurrence_range');
-                            if (!isRecurring.checked) {
-                                recurrenceNumber.disable();
-                                recurrenceNumber.allowBlank = true;
-                                recurrenceNumber.setValue('');
-                                recurrenceNumber.clearInvalid();
-                                recurrenceRange.disable();
-                                recurrenceRange.allowBlank = true;
-                                recurrenceRange.setValue('');
-                                recurrenceRange.clearInvalid();
-                            } else {
-                                recurrenceNumber.enable();
-                                recurrenceNumber.allowBlank = false;
-                                if (recurrenceNumber.value === '') {
-                                    recurrenceNumber.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_number'));
-                                }
-                                recurrenceRange.enable();
-                                recurrenceRange.allowBlank = false;
-                                if (recurrenceRange.value === '') {
-                                    recurrenceRange.markInvalid(_('virtunewsletter.newsletter_err_ns_recurrence_range'));
-                                }
-                            }
-                        },
-                        scope: this
-                    }
-                }
-            }, {
-                fieldLabel: _('virtunewsletter.categories'),
-                itemCls: 'x-check-group-alt',
-                items: allCategories
-            }, {
-                fieldLabel: _('virtunewsletter.active'),
-                xtype: 'xcheckbox',
-                boxLabel: _('yes'),
-                name: 'is_active',
-                anchor: '100%',
-                checked: config.record && config.record.is_active ? 1 : 0
             }
         ],
         tbar: tbar

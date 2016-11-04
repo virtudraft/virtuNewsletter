@@ -176,6 +176,9 @@ if ($modx = & $object->xpdo) {
                     if ($oldPackage->compareVersion('2.1.0-pl', '>')) {
                         $manager->addField('vnewsSubscribers', 'email_provider', array('after' => 'name'));
                     }
+                    if ($oldPackage->compareVersion('2.4.0-pl', '>')) {
+                        $manager->addField('vnewsNewsletters', 'stopped_at', array('after' => 'scheduled_for'));
+                    }
                 }
             }
             break;

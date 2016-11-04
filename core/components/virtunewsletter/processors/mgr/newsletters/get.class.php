@@ -54,6 +54,23 @@ class NewslettersGetProcessor extends modObjectGetProcessor {
             }
         }
         $objectArray['categories'] = $newsCatsArray;
+        $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
+        $timeFormat = $this->modx->getOption('manager_time_format', null, 'g:i a');
+        $objectArray['scheduled_for_formatted'] = '';
+        if (!empty($objectArray['scheduled_for'])) {
+            $dateTime = DateTime::createFromFormat('U', $objectArray['scheduled_for']);
+            $objectArray['scheduled_for_formatted'] = $dateTime->format($dateFormat);
+        }
+        $objectArray['stopped_at_time'] = '';
+        $objectArray['stopped_at_date'] = '';
+        $stoppedAt = $objectArray['stopped_at'];
+        $objectArray['stopped_at_formatted'] = '';
+        if (!empty($stoppedAt)) {
+            $dateTime = DateTime::createFromFormat('U', $stoppedAt);
+            $objectArray['stopped_at_formatted'] = $dateTime->format("$dateFormat $timeFormat");
+            $objectArray['stopped_at_time'] = $dateTime->format($timeFormat);
+            $objectArray['stopped_at_date'] = $dateTime->format($dateFormat);
+        }
 
         return $this->success('', $objectArray);
     }

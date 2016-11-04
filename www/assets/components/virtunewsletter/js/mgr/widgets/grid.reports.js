@@ -7,13 +7,12 @@ VirtuNewsletter.grid.Reports = function(config) {
             action: 'mgr/reports/getList',
             newsletter_id: config.record.id
         },
-        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_text', 'status_logged_on'],
+        fields: ['id', 'newsletter_id', 'subscriber_id', 'email', 'name', 'status', 'status_text',
+            'status_logged_on', 'status_logged_on_formatted'],
         paging: true,
         remoteSort: true,
         anchor: '97%',
         autoExpandColumn: 'email',
-        dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
                 header: _('id'),
@@ -51,14 +50,10 @@ VirtuNewsletter.grid.Reports = function(config) {
                 width: 80
             }, {
                 header: _('virtunewsletter.created_on'),
-                dataIndex: 'status_logged_on',
+                dataIndex: 'status_logged_on_formatted',
                 sortable: true,
                 width: 100,
-                fixed: true,
-                renderer: function(value) {
-                    var date = Date.parseDate(value, config.dateFormat);
-                    return date.format(config.displayFormat);
-                }
+                fixed: true
             }
         ],
         tbar: [

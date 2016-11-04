@@ -78,10 +78,21 @@ class NewslettersCreateProcessor extends modObjectCreateProcessor {
         $this->setProperty('created_by', $userId);
         $schedule = $this->getProperty('scheduled_for');
         if (!empty($schedule)) {
-            date_default_timezone_set('UTC');
             $schedule = strtotime($schedule);
 
             $this->setProperty('scheduled_for', $schedule);
+        }
+        $stoppedAtTime = $this->getProperty('stopped_at_time');
+        $stoppedAtDate = $this->getProperty('stopped_at_date');
+        if (!empty($stoppedAtDate)) {
+            if (empty($stoppedAtTime)) {
+                $stoppedAtTime = '0:00 am';
+            }
+            $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
+            $timeFormat = $this->modx->getOption('manager_time_format', null, 'g:i a');
+            $dateTime = DateTime::createFromFormat("$dateFormat $timeFormat", "$stoppedAtDate $stoppedAtTime");
+            $unix = $dateTime->format('U');
+            $this->setProperty('stopped_at', $unix);
         }
 
         return parent::initialize();

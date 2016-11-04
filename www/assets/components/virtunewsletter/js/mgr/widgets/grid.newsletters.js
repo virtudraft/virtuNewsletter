@@ -9,14 +9,14 @@ VirtuNewsletter.grid.Newsletters = function(config) {
             parentId: config.record && config.record.id ? config.record.id : 0
         },
         autoHeight: true,
-        fields: ['id', 'subject', 'scheduled_for', 'subscribers', 'queue', 'is_recurring', 'is_active'],
+        fields: ['id', 'subject', 'scheduled_for', 'stopped_at', 'scheduled_for_formatted', 'stopped_at_formatted'
+            , 'subscribers', 'queue',
+            'queue_subscriber', 'is_recurring', 'is_active'],
         paging: true,
         remoteSort: true,
         preventRender: true,
         margins: 15,
         autoExpandColumn: 'subject',
-        dateFormat: config.dateFormat || 'U',
-        displayFormat: config.displayFormat || 'Y-m-d',
         columns: [
             {
                 header: _('id'),
@@ -30,28 +30,22 @@ VirtuNewsletter.grid.Newsletters = function(config) {
                 sortable: true
             }, {
                 header: _('virtunewsletter.scheduled_for'),
-                dataIndex: 'scheduled_for',
+                dataIndex: 'scheduled_for_formatted',
                 sortable: true,
-                width: 200,
-                fixed: true,
-                renderer: function(value) {
-                    if (value !== '') {
-                        var date = Date.parseDate(value, config.dateFormat);
-                        return date.format(config.displayFormat);
-                    }
-                }
+                width: 120,
+                fixed: true
             }, {
-                header: _('virtunewsletter.subscribers'),
-                dataIndex: 'subscribers',
+                header: _('virtunewsletter.stopped_at'),
+                dataIndex: 'stopped_at_formatted',
                 sortable: true,
-                width: 100,
+                width: 150,
                 fixed: true
             }, {
                 header: _('virtunewsletter.queue'),
-                dataIndex: 'queue',
-                sortable: true,
-                width: 100,
-                fixed: true
+                dataIndex: 'queue_subscriber',
+                sortable: false,
+                width: 50,
+                fixed: false
             }, {
                 xtype: 'checkcolumn',
                 header: _('virtunewsletter.recurring'),

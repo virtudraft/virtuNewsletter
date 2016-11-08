@@ -243,6 +243,13 @@ VirtuNewsletter.panel.NewsletterConfiguration = function (config) {
                                 name: 'is_active',
                                 anchor: '100%',
                                 checked: config.record && config.record.is_active ? 1 : 0
+                            }, {
+                                fieldLabel: _('virtunewsletter.paused'),
+                                xtype: 'xcheckbox',
+                                boxLabel: _('yes'),
+                                name: 'is_paused',
+                                anchor: '100%',
+                                checked: config.record && config.record.is_paused ? 1 : 0
                             }
                         ]
                     }

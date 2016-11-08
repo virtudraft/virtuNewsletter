@@ -11,7 +11,7 @@ VirtuNewsletter.grid.Newsletters = function(config) {
         autoHeight: true,
         fields: ['id', 'subject', 'scheduled_for', 'stopped_at', 'scheduled_for_formatted', 'stopped_at_formatted'
             , 'subscribers', 'queue',
-            'queue_subscriber', 'is_recurring', 'is_active'],
+            'queue_subscriber', 'is_recurring', 'is_active', 'is_paused'],
         paging: true,
         remoteSort: true,
         preventRender: true,
@@ -58,6 +58,14 @@ VirtuNewsletter.grid.Newsletters = function(config) {
                 xtype: 'checkcolumn',
                 header: _('virtunewsletter.active'),
                 dataIndex: 'is_active',
+                sortable: false,
+                width: 70,
+                fixed: true,
+                processEvent: this.processMouseEvent
+            }, {
+                xtype: 'checkcolumn',
+                header: _('virtunewsletter.paused'),
+                dataIndex: 'is_paused',
                 sortable: false,
                 width: 70,
                 fixed: true,

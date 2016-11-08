@@ -3,6 +3,7 @@ virtuNewsletter dev
 - added multithreaded option
 - added stop sending time to have limited event time
 - fixed time format to follow System Settings
+- added paused feature
 
 virtuNewsletter 2.3.2-pl (October 12, 2016)
 =================================================

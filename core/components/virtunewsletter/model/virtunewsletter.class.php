@@ -869,6 +869,7 @@ class VirtuNewsletter {
         $c->where(array(
             'vnewsReports.status:=' => 'queue',
             'Newsletters.is_active:=' => 1,
+            'Newsletters.is_paused:=' => 0,
         ));
         $time = time();
 //        $todayOnly = TRUE;
@@ -914,6 +915,7 @@ class VirtuNewsletter {
         ));
         $c->where(array(
             'vnewsNewsletters.is_active:=' => 1,
+            'vnewsNewsletters.is_paused:=' => 0,
         ));
         $c->having("count_queue > 0");
         $time = time();

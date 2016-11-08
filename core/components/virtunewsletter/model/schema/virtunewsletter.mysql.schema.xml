@@ -38,6 +38,7 @@
         <field key="recurrence_range" dbtype="varchar" precision="50" phptype="string" null="true" />
         <field key="recurrence_number" dbtype="tinyint" precision="2" attributes="unsigned" phptype="integer" null="true" />
         <field key="is_active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="1" />
+        <field key="is_paused" dbtype="tinyint" precision="1" attributes="unsigned" phptype="integer" null="false" default="0" />
 
         <index alias="resource_id" name="resource_id" primary="false" unique="false" type="BTREE" >
             <column key="resource_id" length="" collation="A" null="false" />

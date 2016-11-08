@@ -178,6 +178,7 @@ if ($modx = & $object->xpdo) {
                     }
                     if ($oldPackage->compareVersion('2.4.0-pl', '>')) {
                         $manager->addField('vnewsNewsletters', 'stopped_at', array('after' => 'scheduled_for'));
+                        $manager->addField('vnewsNewsletters', 'is_paused', array('after' => 'is_active'));
                     }
                 }
             }

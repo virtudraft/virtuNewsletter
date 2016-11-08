@@ -1,4 +1,4 @@
-virtuNewsletter dev
+virtuNewsletter 2.4.0-pl (November 8, 2016)
 =================================================
 - added multithreaded option
 - added stop sending time to have limited event time

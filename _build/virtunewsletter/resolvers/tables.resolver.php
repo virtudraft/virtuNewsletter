@@ -180,6 +180,11 @@ if ($modx = & $object->xpdo) {
                         $manager->addField('vnewsNewsletters', 'stopped_at', array('after' => 'scheduled_for'));
                         $manager->addField('vnewsNewsletters', 'is_paused', array('after' => 'is_active'));
                     }
+                    $multithreadSetting = $modx->getObject('modSystemSetting', array('key' => 'virtunewsletter.send_multithreaded '));
+                    if ($multithreadSetting) {
+                        $multithreadSetting->set('key', 'virtunewsletter.send_multithreaded');
+                        $multithreadSetting->save();
+                    }
                 }
             }
             break;

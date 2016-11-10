@@ -268,9 +268,9 @@ $settings['virtunewsletter.cronreport.getItems']->fromArray(array(
     'area' => 'Cron Job',
         ), '', true, true);
 
-$settings['virtunewsletter.send_multithreaded '] = $modx->newObject('modSystemSetting');
-$settings['virtunewsletter.send_multithreaded ']->fromArray(array(
-    'key' => 'virtunewsletter.send_multithreaded ',
+$settings['virtunewsletter.send_multithreaded'] = $modx->newObject('modSystemSetting');
+$settings['virtunewsletter.send_multithreaded']->fromArray(array(
+    'key' => 'virtunewsletter.send_multithreaded',
     'value' => 0,
     'xtype' => 'combo-boolean',
     'namespace' => 'virtunewsletter',

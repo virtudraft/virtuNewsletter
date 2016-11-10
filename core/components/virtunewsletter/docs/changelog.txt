@@ -1,3 +1,7 @@
+virtuNewsletter 2.4.1-pl (November 10, 2016)
+=================================================
+- fixed typo on virtunewsletter.send_multithreaded setting
+
 virtuNewsletter 2.4.0-pl (November 8, 2016)
 =================================================
 - added multithreaded option

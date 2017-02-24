@@ -1234,56 +1234,78 @@ class VirtuNewsletter {
     /**
      * Add subscriber to category
      * @param   int     $subscriberId   Subscriber's ID
-     * @param   string  $category       Category's Name
+     * @param   string  $category       Category's Name or ID
      */
     public function addSubscriberToCategory($subscriberId, $category) {
-        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
-                , array('vnewsSubscribersHasCategories' => array())
-                , array(
-            'name' => $category
-        ));
+        $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
+        if (!$subscriber) {
+            return false;
+        }
+        $c = $this->modx->newQuery('vnewsCategories');
+        if (is_numeric($category)) {
+            $c->where(array(
+                'id' => $category,
+            ));
+        } else {
+            $c->where(array(
+                'name' => $category
+            ));
+        }
+        $categoryObj = $this->modx->getObject('vnewsCategories', $c);
         if (!$categoryObj) {
-            return FALSE;
+            return false;
         }
 
-        $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
-        $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
-        $addManyParams = array(
+        $params = array(
             'subscriber_id' => $subscriber->getPrimaryKey(),
             'category_id' => $categoryObj->get('id')
         );
-        $subscribersHasCategories->fromArray($addManyParams);
+        $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
+        $c->where($params);
+        $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories', $c);
+        if ($subscribersHasCategories) {
+            return true;
+        }
+
+        $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
+        $subscribersHasCategories->fromArray($params);
         $addMany = array($subscribersHasCategories);
         $subscriber->addMany($addMany);
-        if ($subscriber->save() === FALSE) {
+        if ($subscriber->save() === false) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! ' . print_r($addManyParams, TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! ' . print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
-        return TRUE;
+        return true;
     }
 
     /**
      * Remove subscriber from category
      * @param   int     $subscriberId   Subscriber's ID
-     * @param   string  $category       Category's Name
+     * @param   string  $category       Category's Name or ID
      */
     public function removeSubscriberFromCategory($subscriberId, $category) {
-        $categoryObj = $this->modx->getObjectGraph('vnewsCategories'
-                , array('vnewsSubscribersHasCategories' => array())
-                , array(
-            'name' => $category
-        ));
+        $c = $this->modx->newQuery('vnewsCategories');
+        if (is_numeric($category)) {
+            $c->where(array(
+                'id' => $category,
+            ));
+        } else {
+            $c->where(array(
+                'name' => $category
+            ));
+        }
+        $categoryObj = $this->modx->getObject('vnewsCategories', $c);
         if (!$categoryObj) {
-            return FALSE;
+            return false;
         }
         $subscribersHasCategories = $this->modx->getObject('vnewsSubscribersHasCategories', array(
             'subscriber_id' => $subscriberId,
             'category_id' => $categoryObj->get('id')
         ));
         if (!$subscribersHasCategories) {
-            return FALSE;
+            return false;
         }
         return $subscribersHasCategories->remove();
     }

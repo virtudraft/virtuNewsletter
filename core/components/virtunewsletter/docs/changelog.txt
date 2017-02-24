@@ -1,3 +1,7 @@
+virtuNewsletter (dev)
+=================================================
+- changed VirtuNewsletter::addSubscriberToCategory() & VirtuNewsletter::removeSubscriberFromCategory() to allow category's id
+
 virtuNewsletter 2.4.1-pl (November 10, 2016)
 =================================================
 - fixed typo on virtunewsletter.send_multithreaded setting

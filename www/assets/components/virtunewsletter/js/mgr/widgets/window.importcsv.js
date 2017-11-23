@@ -1,11 +1,6 @@
 VirtuNewsletter.window.ImportCsv = function (config) {
     config = config || {};
 
-    var check = Ext.getCmp('virtunewsletter-window-importcsv');
-    if (check) {
-        check.destroy();
-    }
-
     var allCategories = [];
     if (config.record && config.record.allCategories) {
         for (var key in config.record.allCategories) {
@@ -22,7 +17,6 @@ VirtuNewsletter.window.ImportCsv = function (config) {
     }
 
     Ext.applyIf(config, {
-        id: 'virtunewsletter-window-importcsv',
         title: _('virtunewsletter.select_file'),
         width: 800,
         height: 'auto',
@@ -50,7 +44,6 @@ VirtuNewsletter.window.ImportCsv = function (config) {
                             }, {
                                 fieldLabel: _('virtunewsletter.select_file'),
                                 xtype: 'fileuploadfield',
-                                id: 'virtunewsletter-input-file',
                                 emptyText: '',
                                 name: 'file',
                                 buttonText: _('virtunewsletter.browse'),
@@ -131,7 +124,7 @@ Ext.extend(VirtuNewsletter.window.ImportCsv, MODx.Window, {
     upload: function () {
         var form = this.fp.getForm();
         if (form.isValid()) {
-            var file = Ext.get('virtunewsletter-input-file').getValue();
+            var file = form.findField('file').getValue();
             if (!file) {
                 Ext.MessageBox.alert(_('virtunewsletter.error'), _('virtunewsletter.file_err_ns'));
                 return false;

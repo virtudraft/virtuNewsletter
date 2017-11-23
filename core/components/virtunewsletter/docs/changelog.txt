@@ -1,6 +1,7 @@
 virtuNewsletter (dev)
 =================================================
 - changed VirtuNewsletter::addSubscriberToCategory() & VirtuNewsletter::removeSubscriberFromCategory() to allow category's id
+- fixed import window for multiple loading
 
 virtuNewsletter 2.4.1-pl (November 10, 2016)
 =================================================

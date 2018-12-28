@@ -26,7 +26,7 @@
 class VirtuNewsletter
 {
 
-    const VERSION = '2.4.1';
+    const VERSION = '2.4.2';
     const RELEASE = 'pl';
 
     /**
@@ -946,16 +946,17 @@ class VirtuNewsletter
     public function getMultiThreadedQueues($todayOnly = false, $limit = 0)
     {
         $c    = $this->modx->newQuery('vnewsNewsletters');
-        $c->leftJoin('vnewsReports', 'Reports', 'Reports.newsletter_id = vnewsNewsletters.id');
-        $c->select(array(
-            'vnewsNewsletters.id',
-            'count_queue' => "(SELECT COUNT(*) FROM {$this->modx->getTableName('vnewsReports')} WHERE newsletter_id = vnewsNewsletters.id)"
-        ));
+//        $c->leftJoin('vnewsReports', 'Reports', 'Reports.newsletter_id = vnewsNewsletters.id');
+//        $c->select(array(
+//            'vnewsNewsletters.id',
+//            // this counting slows down the server like shit!
+//            'count_queue' => "(SELECT COUNT(*) FROM {$this->modx->getTableName('vnewsReports')} WHERE newsletter_id = vnewsNewsletters.id AND status = 'queue')"
+//        ));
         $c->where(array(
             'vnewsNewsletters.is_active:=' => 1,
             'vnewsNewsletters.is_paused:=' => 0,
         ));
-        $c->having("count_queue > 0");
+//        $c->having("count_queue > 0");
         $time = time();
 //        $todayOnly = true;
         if ($todayOnly) {
@@ -984,7 +985,7 @@ class VirtuNewsletter
         $queues = array();
         foreach ($newsletters as $newsletter) {
             unset($c);
-            $c     = $this->modx->newQuery('vnewsReports');
+            $c = $this->modx->newQuery('vnewsReports');
             $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
             $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
             $c->select(array(
@@ -995,18 +996,23 @@ class VirtuNewsletter
                 'Newsletters.scheduled_for',
                 'Newsletters.is_recurring',
             ));
+
             $c->where(array(
                 'vnewsReports.status' => 'queue',
                 'Newsletters.id'      => $newsletter->get('id'),
             ));
+
             $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
             if (!empty($limit)) {
                 $c->limit($limit);
             }
             $c->sortby('Newsletters.id', 'asc');
             $c->sortby('vnewsReports.id', 'asc');
+
             $nQueues = $this->modx->getCollection('vnewsReports', $c);
-            $queues  = array_merge($queues, $nQueues);
+            if (!empty($nQueues)) {
+                $queues = array_merge($queues, $nQueues);
+            }
         }
 
         return $queues;

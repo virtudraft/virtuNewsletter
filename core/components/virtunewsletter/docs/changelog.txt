@@ -1,5 +1,6 @@
-virtuNewsletter (dev)
+virtuNewsletter 2.4.2-pl (December 28, 2018)
 =================================================
+- fixed queue counting
 - changed VirtuNewsletter::addSubscriberToCategory() & VirtuNewsletter::removeSubscriberFromCategory() to allow category's id
 - fixed import window for multiple loading
 

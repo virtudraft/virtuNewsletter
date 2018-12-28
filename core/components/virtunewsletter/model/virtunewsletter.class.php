@@ -23,7 +23,8 @@
  * @package virtunewsletter
  * @subpackage main_class
  */
-class VirtuNewsletter {
+class VirtuNewsletter
+{
 
     const VERSION = '2.4.1';
     const RELEASE = 'pl';
@@ -57,11 +58,13 @@ class VirtuNewsletter {
      * @var array
      */
     private $_placeholders = array();
+
     /**
      * store the chunk's HTML to property to save memory of loop rendering
      * @var array
      */
     private $_chunks = array();
+
     /**
      * store responses from email provider
      * @var array
@@ -73,28 +76,29 @@ class VirtuNewsletter {
      * @param   modX    $modx
      * @param   array   $config     parameters
      */
-    public function __construct(modX $modx, $config = array()) {
-        $this->modx = & $modx;
-        $config = is_array($config) ? $config : array();
-        $basePath = $this->modx->getOption('virtunewsletter.core_path', $config, $this->modx->getOption('core_path') . 'components/virtunewsletter/');
-        $assetsUrl = $this->modx->getOption('virtunewsletter.assets_url', $config, $this->modx->getOption('assets_url') . 'components/virtunewsletter/');
+    public function __construct(modX $modx, $config = array())
+    {
+        $this->modx   = & $modx;
+        $config       = is_array($config) ? $config : array();
+        $basePath     = $this->modx->getOption('virtunewsletter.core_path', $config, $this->modx->getOption('core_path').'components/virtunewsletter/');
+        $assetsUrl    = $this->modx->getOption('virtunewsletter.assets_url', $config, $this->modx->getOption('assets_url').'components/virtunewsletter/');
         $this->config = array_merge(array(
-            'version' => self::VERSION . '-' . self::RELEASE,
-            'basePath' => $basePath,
-            'corePath' => $basePath,
-            'modelPath' => $basePath . 'model/',
-            'processorsPath' => $basePath . 'processors/',
-            'chunksPath' => $basePath . 'elements/chunks/',
-            'templatesPath' => $basePath . 'templates/',
-            'jsUrl' => $assetsUrl . 'js/',
-            'cssUrl' => $assetsUrl . 'css/',
-            'assetsUrl' => $assetsUrl,
-            'connectorUrl' => $assetsUrl . 'conn/mgr.php',
-            'webConnectorUrl' => $assetsUrl . 'conn/web.php',
-                ), $config);
+            'version'         => self::VERSION.'-'.self::RELEASE,
+            'basePath'        => $basePath,
+            'corePath'        => $basePath,
+            'modelPath'       => $basePath.'model/',
+            'processorsPath'  => $basePath.'processors/',
+            'chunksPath'      => $basePath.'elements/chunks/',
+            'templatesPath'   => $basePath.'templates/',
+            'jsUrl'           => $assetsUrl.'js/',
+            'cssUrl'          => $assetsUrl.'css/',
+            'assetsUrl'       => $assetsUrl,
+            'connectorUrl'    => $assetsUrl.'conn/mgr.php',
+            'webConnectorUrl' => $assetsUrl.'conn/web.php',
+            ), $config);
 
         $this->modx->lexicon->load('virtunewsletter:default');
-        $tablePrefix = $this->modx->getOption('virtunewsletter.table_prefix', null, $this->modx->config[modX::OPT_TABLE_PREFIX] . 'virtunewsletter_');
+        $tablePrefix = $this->modx->getOption('virtunewsletter.table_prefix', null, $this->modx->config[modX::OPT_TABLE_PREFIX].'virtunewsletter_');
         $this->modx->addPackage('virtunewsletter', $this->config['modelPath'], $tablePrefix);
     }
 
@@ -102,7 +106,8 @@ class VirtuNewsletter {
      * Set class configuration exclusively for multiple snippet calls
      * @param   array   $config     snippet's parameters
      */
-    public function setConfigs(array $config = array()) {
+    public function setConfigs(array $config = array())
+    {
         $this->config = array_merge($this->config, $config);
     }
 
@@ -111,7 +116,8 @@ class VirtuNewsletter {
      * @param   string  $key    array's key
      * @param   string  $val    array's value
      */
-    public function setConfig($key, $val) {
+    public function setConfig($key, $val)
+    {
         $this->config[$key] = $val;
     }
 
@@ -120,7 +126,8 @@ class VirtuNewsletter {
      * @param   string  $key        array's key
      * @param   string  $default    default value
      */
-    public function getConfig($key, $default = null) {
+    public function getConfig($key, $default = null)
+    {
         if (!isset($this->config[$key])) {
             return $default;
         }
@@ -131,7 +138,8 @@ class VirtuNewsletter {
      * Set string error for boolean returned methods
      * @return  void
      */
-    public function setError($msg) {
+    public function setError($msg)
+    {
         $this->_error = $msg;
     }
 
@@ -139,7 +147,8 @@ class VirtuNewsletter {
      * Get string error for boolean returned methods
      * @return  string  output
      */
-    public function getError() {
+    public function getError()
+    {
         return $this->_error;
     }
 
@@ -147,7 +156,8 @@ class VirtuNewsletter {
      * Set string output for boolean returned methods
      * @return  void
      */
-    public function setOutput($msg) {
+    public function setOutput($msg)
+    {
         $this->_output = $msg;
     }
 
@@ -155,7 +165,8 @@ class VirtuNewsletter {
      * Get string output for boolean returned methods
      * @return  string  output
      */
-    public function getOutput() {
+    public function getOutput()
+    {
         return $this->_output;
     }
 
@@ -163,7 +174,8 @@ class VirtuNewsletter {
      * Add array response from email provider
      * @return  void
      */
-    public function addResponse(array $response = array()) {
+    public function addResponse(array $response = array())
+    {
         $this->_responses = array_merge($this->_responses, $response);
     }
 
@@ -171,7 +183,8 @@ class VirtuNewsletter {
      * Get array output for the response of email provider
      * @return  array  responses
      */
-    public function getResponses() {
+    public function getResponses()
+    {
         return $this->_responses;
     }
 
@@ -179,7 +192,8 @@ class VirtuNewsletter {
      * Reset the response of email provider
      * @return  void
      */
-    public function resetResponses() {
+    public function resetResponses()
+    {
         $this->_responses = array();
     }
 
@@ -189,9 +203,10 @@ class VirtuNewsletter {
      * @param   string  $value  value
      * @param   string  $prefix add prefix if it's required
      */
-    public function setPlaceholder($key, $value, $prefix = '') {
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
-        $this->_placeholders[$prefix . $key] = $this->trimString($value);
+    public function setPlaceholder($key, $value, $prefix = '')
+    {
+        $prefix                            = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $this->_placeholders[$prefix.$key] = $this->trimString($value);
     }
 
     /**
@@ -199,7 +214,8 @@ class VirtuNewsletter {
      * @param   string  $key    key
      * @return  string  value
      */
-    public function getPlaceholder($key) {
+    public function getPlaceholder($key)
+    {
         return $this->_placeholders[$key];
     }
 
@@ -211,11 +227,12 @@ class VirtuNewsletter {
      * @param   string  $delimiter      define placeholder's delimiter
      * @return  mixed   boolean|array of placeholders
      */
-    public function setPlaceholders($placeholders, $prefix = '', $merge = true, $delimiter = '.') {
+    public function setPlaceholders($placeholders, $prefix = '', $merge = true, $delimiter = '.')
+    {
         if (empty($placeholders)) {
-            return FALSE;
+            return false;
         }
-        $prefix = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
+        $prefix       = !empty($prefix) ? $prefix : (isset($this->config['phsPrefix']) ? $this->config['phsPrefix'] : '');
         $placeholders = $this->trimArray($placeholders);
         $placeholders = $this->implodePhs($placeholders, rtrim($prefix, $delimiter));
         // enclosed private scope
@@ -230,7 +247,8 @@ class VirtuNewsletter {
      * Get internal placeholders in an associative array
      * @return array
      */
-    public function getPlaceholders() {
+    public function getPlaceholders()
+    {
         return $this->_placeholders;
     }
 
@@ -242,10 +260,11 @@ class VirtuNewsletter {
      * @param   array   $holder     to hold temporary array results
      * @return  array   one level array
      */
-    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array()) {
+    public function implodePhs(array $array, $keyName = null, $separator = '.', array $holder = array())
+    {
         $phs = !empty($holder) ? $holder : array();
         foreach ($array as $k => $v) {
-            $key = !empty($keyName) ? $keyName . $separator . $k : $k;
+            $key = !empty($keyName) ? $keyName.$separator.$k : $k;
             if (is_array($v)) {
                 $phs = $this->implodePhs($v, $key, $separator, $phs);
             } else {
@@ -262,7 +281,8 @@ class VirtuNewsletter {
      * @link http://php.net/manual/en/function.trim.php
      * @return  string  trimmed text
      */
-    public function trimString($string, $charlist = null) {
+    public function trimString($string, $charlist = null)
+    {
         if (empty($string) && !is_numeric($string)) {
             return '';
         }
@@ -282,7 +302,8 @@ class VirtuNewsletter {
      * @link http://php.net/manual/en/function.trim.php
      * @return  array   trimmed array
      */
-    public function trimArray($input, $charlist = null) {
+    public function trimArray($input, $charlist = null)
+    {
         if (is_array($input)) {
             $output = array_map(array($this, 'trimArray'), $input);
         } else {
@@ -299,7 +320,8 @@ class VirtuNewsletter {
      * @return  string  parsed output
      * @link    http://forums.modx.com/thread/74071/help-with-getchunk-and-modx-speed-please?page=2#dis-post-413789
      */
-    public function parseTpl($tpl, array $phs = array()) {
+    public function parseTpl($tpl, array $phs = array())
+    {
         $output = '';
 
         if (isset($this->_chunks[$tpl]) && !empty($this->_chunks[$tpl])) {
@@ -307,12 +329,12 @@ class VirtuNewsletter {
         }
 
         if (preg_match('/^(@CODE|@INLINE)/i', $tpl)) {
-            $tplString = preg_replace('/^(@CODE|@INLINE)/i', '', $tpl);
+            $tplString           = preg_replace('/^(@CODE|@INLINE)/i', '', $tpl);
             // tricks @CODE: / @INLINE:
-            $tplString = ltrim($tplString, ':');
-            $tplString = trim($tplString);
+            $tplString           = ltrim($tplString, ':');
+            $tplString           = trim($tplString);
             $this->_chunks[$tpl] = $tplString;
-            $output = $this->parseTplCode($tplString, $phs);
+            $output              = $this->parseTplCode($tplString, $phs);
         } elseif (preg_match('/^@FILE/i', $tpl)) {
             $tplFile = preg_replace('/^@FILE/i', '', $tpl);
             // tricks @FILE:
@@ -335,23 +357,23 @@ class VirtuNewsletter {
             $chunk = $this->modx->getObject('modChunk', array('name' => $tplChunk), true);
             if (empty($chunk)) {
                 // try to use @splittingred's fallback
-                $f = $this->config['chunksPath'] . strtolower($tplChunk) . '.chunk.tpl';
+                $f = $this->config['chunksPath'].strtolower($tplChunk).'.chunk.tpl';
                 try {
                     $output = $this->parseTplFile($f, $phs);
                 } catch (Exception $e) {
                     $output = $e->getMessage();
-                    return 'Chunk: ' . $tplChunk . ' is not found, neither the file ' . $output;
+                    return 'Chunk: '.$tplChunk.' is not found, neither the file '.$output;
                 }
             } else {
 //                $output = $this->modx->getChunk($tplChunk, $phs);
                 /**
                  * @link    http://forums.modx.com/thread/74071/help-with-getchunk-and-modx-speed-please?page=4#dis-post-464137
                  */
-                $chunk = $this->modx->getParser()->getElement('modChunk', $tplChunk);
+                $chunk               = $this->modx->getParser()->getElement('modChunk', $tplChunk);
                 $this->_chunks[$tpl] = $chunk->get('content');
                 $chunk->setCacheable(false);
-                $chunk->_processed = false;
-                $output = $chunk->process($phs);
+                $chunk->_processed   = false;
+                $output              = $chunk->process($phs);
             }
         }
 
@@ -364,11 +386,12 @@ class VirtuNewsletter {
      * @param   array   $phs    placeholders
      * @return  string  parsed output
      */
-    public function parseTplCode($code, array $phs = array()) {
-        $chunk = $this->modx->newObject('modChunk');
+    public function parseTplCode($code, array $phs = array())
+    {
+        $chunk             = $this->modx->newObject('modChunk');
         $chunk->setContent($code);
         $chunk->setCacheable(false);
-        $phs = $this->replacePropPhs($phs);
+        $phs               = $this->replacePropPhs($phs);
         $chunk->_processed = false;
         return $chunk->process($phs);
     }
@@ -380,13 +403,14 @@ class VirtuNewsletter {
      * @return  string  parsed output
      * @throws  Exception if file is not found
      */
-    public function parseTplFile($file, array $phs = array()) {
+    public function parseTplFile($file, array $phs = array())
+    {
         if (!file_exists($file)) {
-            throw new Exception('File: ' . $file . ' is not found.');
+            throw new Exception('File: '.$file.' is not found.');
         }
-        $o = file_get_contents($file);
+        $o                    = file_get_contents($file);
         $this->_chunks[$file] = $o;
-        $chunk = $this->modx->newObject('modChunk');
+        $chunk                = $this->modx->newObject('modChunk');
 
         // just to create a name for the modChunk object.
         $name = strtolower(basename($file));
@@ -397,7 +421,7 @@ class VirtuNewsletter {
         $chunk->setCacheable(false);
         $chunk->setContent($o);
         $chunk->_processed = false;
-        $output = $chunk->process($phs);
+        $output            = $chunk->process($phs);
 
         return $output;
     }
@@ -417,7 +441,8 @@ class VirtuNewsletter {
      * @param   array   $options    option for iteration
      * @return  string  parsed content
      */
-    public function processElementTags($content, array $options = array()) {
+    public function processElementTags($content, array $options = array())
+    {
         $maxIterations = intval($this->modx->getOption('parser_max_iterations', $options, 10));
         if (!$this->modx->parser) {
             $this->modx->getParser();
@@ -432,8 +457,9 @@ class VirtuNewsletter {
      * @param   string|array    $subject    Property
      * @return  array           The replaced results
      */
-    public function replacePropPhs($subject) {
-        $pattern = array(
+    public function replacePropPhs($subject)
+    {
+        $pattern     = array(
             '/\{core_path\}/',
             '/\{base_path\}/',
             '/\{assets_url\}/',
@@ -469,9 +495,10 @@ class VirtuNewsletter {
      * @param   array   $where  optional conditional in array
      * @return  mixed   false|array
      */
-    public function getNewsletter($newsId, array $where = array()) {
+    public function getNewsletter($newsId, array $where = array())
+    {
         if (intval($newsId) < 1) {
-            return FALSE;
+            return false;
         }
         $c = $this->modx->newQuery('vnewsNewsletters');
         $c->where(array(
@@ -480,7 +507,7 @@ class VirtuNewsletter {
         if (!empty($where)) {
             $c->where($where);
         }
-        $newsletter = $this->modx->getObject('vnewsNewsletters', $c);
+        $newsletter      = $this->modx->getObject('vnewsNewsletters', $c);
         $newsletterArray = array();
         if ($newsletter) {
             $newsletterArray = $newsletter->toArray();
@@ -501,10 +528,11 @@ class VirtuNewsletter {
      * @param   int     $currentRecurrenceTime  optional current recurence time to override
      * @return  mixed   false|null|UNIX date of the next occurrence
      */
-    public function nextRecurrenceTime($newsId, $currentRecurrenceTime = '') {
+    public function nextRecurrenceTime($newsId, $currentRecurrenceTime = '')
+    {
         $newsletter = $this->modx->getObject('vnewsNewsletters', $newsId);
         if (!$newsletter) {
-            return FALSE;
+            return false;
         }
         if (empty($currentRecurrenceTime)) {
             $currentRecurrenceTime = $newsletter->get('scheduled_for');
@@ -516,8 +544,8 @@ class VirtuNewsletter {
         if (!$isRecurring) {
             $nextRecurrenceTime = NULL;
         } else {
-            $timeRange = 0;
-            $recurrenceRange = $newsletter->get('recurrence_range');
+            $timeRange        = 0;
+            $recurrenceRange  = $newsletter->get('recurrence_range');
             $recurrenceNumber = $newsletter->get('recurrence_number');
             if (intval($recurrenceNumber) > 0) {
                 if ($recurrenceRange === 'weekly') {
@@ -525,12 +553,12 @@ class VirtuNewsletter {
                     $timeRange = $daysRange * 24 * 60 * 60;
                 } elseif ($recurrenceRange === 'monthly') {
                     $numberOfDays = date('t', $currentRecurrenceTime);
-                    $daysRange = ceil($numberOfDays / $recurrenceNumber);
-                    $timeRange = $daysRange * 24 * 60 * 60;
+                    $daysRange    = ceil($numberOfDays / $recurrenceNumber);
+                    $timeRange    = $daysRange * 24 * 60 * 60;
                 } elseif ($recurrenceRange === 'yearly') {
                     $numberOfDays = date('z', mktime(0, 0, 0, 12, 31, date('Y', $currentRecurrenceTime))) + 1;
-                    $daysRange = ceil($numberOfDays / $recurrenceNumber);
-                    $timeRange = $daysRange * 24 * 60 * 60;
+                    $daysRange    = ceil($numberOfDays / $recurrenceNumber);
+                    $timeRange    = $daysRange * 24 * 60 * 60;
                 }
             }
 
@@ -547,23 +575,24 @@ class VirtuNewsletter {
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|report array
      */
-    public function setNewsletterQueue($newsId) {
+    public function setNewsletterQueue($newsId)
+    {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:'.$newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         $time = time();
 
         $outputReports = array();
-        $subscribers = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
+        $subscribers   = $this->modx->getObject('vnewsNewsletters', $newsletterArray['id'])->getSubscribers();
         if (!$subscribers) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:' . $newsletterArray['id'], '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get $subscribers w/ $newsId:'.$newsletterArray['id'], '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
 
         foreach ($subscribers as $subscriber) {
@@ -576,16 +605,16 @@ class VirtuNewsletter {
             }
             $report = $this->modx->newObject('vnewsReports');
             $params = array(
-                'subscriber_id' => $subscriber['id'],
-                'newsletter_id' => $newsletterArray['id'],
-                'status' => 'queue',
+                'subscriber_id'    => $subscriber['id'],
+                'newsletter_id'    => $newsletterArray['id'],
+                'status'           => 'queue',
                 'status_logged_on' => $time,
             );
             $report->fromArray($params);
-            if ($report->save() === FALSE) {
+            if ($report->save() === false) {
                 $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! '.print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(false);
                 continue;
             } else {
                 $outputReports[] = $report->toArray();
@@ -601,7 +630,8 @@ class VirtuNewsletter {
      * @param   int     $subscriberId   subscriber's ID
      * @return  mixed   false|subscribers array
      */
-    public function subscriberHasNewsletters($subscriberId) {
+    public function subscriberHasNewsletters($subscriberId)
+    {
         $newslettersArray = array();
 
         $c = $this->modx->newQuery('vnewsNewsletters');
@@ -629,22 +659,23 @@ class VirtuNewsletter {
      * @param   boolean $reQueueExisting    if exists, re-queue subscriber or not?
      * @return  boolean
      */
-    public function addSubscriberQueues($subscriberId, $reQueueExisting = true) {
+    public function addSubscriberQueues($subscriberId, $reQueueExisting = true)
+    {
         $newsletters = $this->modx->getObject('vnewsSubscribers', $subscriberId)->getNewsletters(array(
             'upcomingOnly' => true
         ));
         if (!$newsletters) {
-            return FALSE;
+            return false;
         }
         foreach ($newsletters as $item) {
             $newsletterArray = $this->getNewsletter($item['id']);
             if (empty($newsletterArray)) {
                 $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $item['id'], '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:'.$item['id'], '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(false);
                 continue;
             }
-            $params = array(
+            $params    = array(
                 'newsletter_id' => $newsletterArray['id'],
                 'subscriber_id' => $subscriberId,
             );
@@ -659,15 +690,15 @@ class VirtuNewsletter {
                 continue;
             }
 
-            $params = array_merge($params, array(
-                'status' => 'queue',
+            $params    = array_merge($params, array(
+                'status'           => 'queue',
                 'status_logged_on' => time(),
             ));
             $newReport = $this->modx->newObject('vnewsReports');
             $newReport->fromArray($params);
             $newReport->save();
         }
-        return TRUE;
+        return true;
     }
 
     /**
@@ -676,15 +707,16 @@ class VirtuNewsletter {
      * @param   int     $catId          category ID
      * @return  boolean
      */
-    public function removeSubscriberCategoryQueues($subscriberId, $catId) {
-        $c = $this->modx->newQuery('vnewsReports');
+    public function removeSubscriberCategoryQueues($subscriberId, $catId)
+    {
+        $c      = $this->modx->newQuery('vnewsReports');
         $c->leftJoin('vnewsNewsletters', 'Newsletter', 'Newsletter.id = vnewsReports.newsletter_id');
         $c->leftJoin('vnewsNewslettersHasCategories', 'NewslettersHasCategories', 'NewslettersHasCategories.newsletter_id = Newsletter.id');
         $c->leftJoin('vnewsCategories', 'Category', 'Category.id = NewslettersHasCategories.category_id');
         $c->where(array(
             'vnewsReports.subscriber_id' => $subscriberId,
-            'vnewsReports.status' => 'queue',
-            'Category.id' => $catId,
+            'vnewsReports.status'        => 'queue',
+            'Category.id'                => $catId,
         ));
         $queues = $this->modx->getCollection('vnewsReports', $c);
         if ($queues) {
@@ -701,11 +733,12 @@ class VirtuNewsletter {
      * @param   int     $subscriberId   subscriber's ID
      * @return  boolean
      */
-    public function removeSubscriberQueues($subscriberId) {
-        $c = $this->modx->newQuery('vnewsReports');
+    public function removeSubscriberQueues($subscriberId)
+    {
+        $c      = $this->modx->newQuery('vnewsReports');
         $c->where(array(
             'subscriber_id' => $subscriberId,
-            'status' => 'queue'
+            'status'        => 'queue'
         ));
         $queues = $this->modx->getCollection('vnewsReports', $c);
         if ($queues) {
@@ -726,7 +759,8 @@ class VirtuNewsletter {
      * @param   boolean $includeSent        including all sent queues? (default: false)
      * @return  boolean
      */
-    public function removeNewsletterQueues($newsletterId, $includeChildren = false, $includeSent = false) {
+    public function removeNewsletterQueues($newsletterId, $includeChildren = false, $includeSent = false)
+    {
         $ids = array($newsletterId);
         if ($includeChildren) {
             $children = $this->modx->getCollection('vnewsNewsletters', array(
@@ -756,7 +790,8 @@ class VirtuNewsletter {
      * @param   boolean $todayOnly  strict to today's queue (default: false)
      * @return  array   report's array
      */
-    public function setQueues($todayOnly = false) {
+    public function setQueues($todayOnly = false)
+    {
         $c = $this->modx->newQuery('vnewsNewsletters');
         $c->where(array(
             'is_active' => 1,
@@ -768,7 +803,7 @@ class VirtuNewsletter {
             ));
         }
         $newsletters = $this->modx->getCollection('vnewsNewsletters', $c);
-        $time = time();
+        $time        = time();
 
         $outputReports = array();
         foreach ($newsletters as $newsletter) {
@@ -778,7 +813,7 @@ class VirtuNewsletter {
                 if (empty($newsletterArray)) {
                     $this->modx->setDebug();
                     $this->modx->log(modX::LOG_LEVEL_ERROR, $this->getError(), '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
+                    $this->modx->setDebug(false);
                     continue;
                 }
             } else {
@@ -799,16 +834,16 @@ class VirtuNewsletter {
 
                 $report = $this->modx->newObject('vnewsReports');
                 $params = array(
-                    'subscriber_id' => $subscriber['id'],
-                    'newsletter_id' => $newsletterArray['id'],
-                    'status' => 'queue',
+                    'subscriber_id'    => $subscriber['id'],
+                    'newsletter_id'    => $newsletterArray['id'],
+                    'status'           => 'queue',
                     'status_logged_on' => $time,
                 );
                 $report->fromArray($params);
-                if ($report->save() === FALSE) {
+                if ($report->save() === false) {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save report! '.print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(false);
                 } else {
                     $outputReports[] = $report->toArray();
                 }
@@ -825,7 +860,8 @@ class VirtuNewsletter {
      * @param   int     $newsId newsletter's ID
      * @return  mixed   false|subscribers array
      */
-    public function newsletterHasSubscribers($newsId) {
+    public function newsletterHasSubscribers($newsId)
+    {
         $subscribersArray = array();
 
         $c = $this->modx->newQuery('vnewsSubscribers');
@@ -835,7 +871,7 @@ class VirtuNewsletter {
         $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = NewslettersHasCategories.newsletter_id');
         $c->where(array(
             'vnewsSubscribers.is_active' => 1,
-            'Newsletters.id' => $newsId
+            'Newsletters.id'             => $newsId
         ));
 
         $subscribers = $this->modx->getCollection('vnewsSubscribers', $c);
@@ -854,8 +890,9 @@ class VirtuNewsletter {
      * @param   int     $limit      override limit of System Settings
      * @return  array   queues collection in array
      */
-    public function getQueues($todayOnly = FALSE, $limit = 0) {
-        $c = $this->modx->newQuery('vnewsReports');
+    public function getQueues($todayOnly = false, $limit = 0)
+    {
+        $c    = $this->modx->newQuery('vnewsReports');
         $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
         $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
         $c->select(array(
@@ -867,14 +904,14 @@ class VirtuNewsletter {
             'Newsletters.is_recurring',
         ));
         $c->where(array(
-            'vnewsReports.status:=' => 'queue',
+            'vnewsReports.status:='   => 'queue',
             'Newsletters.is_active:=' => 1,
             'Newsletters.is_paused:=' => 0,
         ));
         $time = time();
-//        $todayOnly = TRUE;
+//        $todayOnly = true;
         if ($todayOnly) {
-            $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $today    = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $tomorrow = mktime(0, 0, 0, date('n'), date('j') + 1, date('Y'));
             $c->where(array(
                 'Newsletters.scheduled_for:>' => $today,
@@ -886,7 +923,7 @@ class VirtuNewsletter {
             ));
         }
         $c->where(array(
-            'Newsletters.stopped_at:=' => 0,
+            'Newsletters.stopped_at:='    => 0,
             'OR:Newsletters.stopped_at:>' => $time,
         ));
         $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
@@ -906,8 +943,9 @@ class VirtuNewsletter {
      * @param   int     $limit      override limit of System Settings
      * @return  array   queues collection in array
      */
-    public function getMultiThreadedQueues($todayOnly = FALSE, $limit = 0) {
-        $c = $this->modx->newQuery('vnewsNewsletters');
+    public function getMultiThreadedQueues($todayOnly = false, $limit = 0)
+    {
+        $c    = $this->modx->newQuery('vnewsNewsletters');
         $c->leftJoin('vnewsReports', 'Reports', 'Reports.newsletter_id = vnewsNewsletters.id');
         $c->select(array(
             'vnewsNewsletters.id',
@@ -919,9 +957,9 @@ class VirtuNewsletter {
         ));
         $c->having("count_queue > 0");
         $time = time();
-//        $todayOnly = TRUE;
+//        $todayOnly = true;
         if ($todayOnly) {
-            $today = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+            $today    = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
             $tomorrow = mktime(0, 0, 0, date('n'), date('j') + 1, date('Y'));
             $c->where(array(
                 'vnewsNewsletters.scheduled_for:>' => $today,
@@ -933,7 +971,7 @@ class VirtuNewsletter {
             ));
         }
         $c->where(array(
-            'vnewsNewsletters.stopped_at:=' => 0,
+            'vnewsNewsletters.stopped_at:='    => 0,
             'OR:vnewsNewsletters.stopped_at:>' => $time,
         ));
         $c->sortby('vnewsNewsletters.id', 'asc');
@@ -946,7 +984,7 @@ class VirtuNewsletter {
         $queues = array();
         foreach ($newsletters as $newsletter) {
             unset($c);
-            $c = $this->modx->newQuery('vnewsReports');
+            $c     = $this->modx->newQuery('vnewsReports');
             $c->leftJoin('vnewsNewsletters', 'Newsletters', 'Newsletters.id = vnewsReports.newsletter_id');
             $c->leftJoin('vnewsSubscribers', 'Subscribers', 'Subscribers.id = vnewsReports.subscriber_id');
             $c->select(array(
@@ -958,8 +996,8 @@ class VirtuNewsletter {
                 'Newsletters.is_recurring',
             ));
             $c->where(array(
-                'vnewsReports.status'   => 'queue',
-                'Newsletters.id' => $newsletter->get('id'),
+                'vnewsReports.status' => 'queue',
+                'Newsletters.id'      => $newsletter->get('id'),
             ));
             $limit = !empty($limit) ? $limit : intval($this->modx->getOption('virtunewsletter.email_limit'));
             if (!empty($limit)) {
@@ -968,7 +1006,7 @@ class VirtuNewsletter {
             $c->sortby('Newsletters.id', 'asc');
             $c->sortby('vnewsReports.id', 'asc');
             $nQueues = $this->modx->getCollection('vnewsReports', $c);
-            $queues = array_merge($queues, $nQueues);
+            $queues  = array_merge($queues, $nQueues);
         }
 
         return $queues;
@@ -981,7 +1019,8 @@ class VirtuNewsletter {
      * @param string    $emailProvider
      * @return boolean
      */
-    public function sendQueuesToProvider($queues, $emailProvider = '') {
+    public function sendQueuesToProvider($queues, $emailProvider = '')
+    {
         if (empty($queues)) {
             return false;
         }
@@ -992,7 +1031,7 @@ class VirtuNewsletter {
 
         $diffProviderQueues = array();
         if (!empty($emailProvider)) {
-            $queuesArray = array();
+            $queuesArray   = array();
             $newsletterIds = array();
             foreach ($queues as $queue) {
                 $queueArray = $queue->toArray('', false, true, true);
@@ -1007,25 +1046,25 @@ class VirtuNewsletter {
                     $diffProviderQueues[$queueArray['email_provider']][] = $queue;
                     continue;
                 }
-                $queuesArray[] = $queueArray;
+                $queuesArray[]                               = $queueArray;
                 $newsletterIds[$queueArray['newsletter_id']] = $queueArray['newsletter_id'];
             }
             foreach ($newsletterIds as $newsId) {
                 $newsletterArray = $this->getNewsletter($newsId);
-                $output = array(
+                $output          = array(
                     'newsletter_id' => $newsId,
-                    'subject' => $newsletterArray['subject'],
-                    'created_on' => $newsletterArray['created_on'],
+                    'subject'       => $newsletterArray['subject'],
+                    'created_on'    => $newsletterArray['created_on'],
                     'scheduled_for' => $newsletterArray['scheduled_for'],
-                    'message' => '',
-                    'recipients' => array(),
+                    'message'       => '',
+                    'recipients'    => array(),
                 );
-                $result = $this->sendToEmailProvider($emailProvider, $newsId, $queuesArray);
+                $result          = $this->sendToEmailProvider($emailProvider, $newsId, $queuesArray);
                 if (!$result) {
                     $output['message'] = $this->getError();
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send queues! ' . print_r($queuesArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send queues! '.print_r($queuesArray, true), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(false);
                 } else {
                     $output['recipients'] = $this->getResponses();
                     foreach ($output['recipients'] as $item) {
@@ -1037,12 +1076,12 @@ class VirtuNewsletter {
                                 continue;
                             }
                             $subscriberArray = $subscriber->toArray();
-                            $c = $this->modx->newQuery('vnewsReports');
+                            $c               = $this->modx->newQuery('vnewsReports');
                             $c->where(array(
                                 'newsletter_id' => $newsId,
                                 'subscriber_id' => $subscriberArray['id'],
                             ));
-                            $itemQueue = $this->modx->getObject('vnewsReports', $c);
+                            $itemQueue       = $this->modx->getObject('vnewsReports', $c);
                             if (!$itemQueue) {
                                 $itemQueue = $this->modx->newObject('vnewsReports');
                                 $itemQueue->set('newsletter_id', $newsId);
@@ -1050,10 +1089,10 @@ class VirtuNewsletter {
                             }
                             $itemQueue->set('status_logged_on', time());
                             $itemQueue->set('status', $item['status']);
-                            if ($itemQueue->save() === FALSE) {
+                            if ($itemQueue->save() === false) {
                                 $this->modx->setDebug();
-                                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($item, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                                $this->modx->setDebug(FALSE);
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! '.print_r($item, true), '', __METHOD__, __FILE__, __LINE__);
+                                $this->modx->setDebug(false);
                             }
                         }
                     }
@@ -1075,37 +1114,37 @@ class VirtuNewsletter {
                     continue;
                 }
                 $newsletterArray = $this->getNewsletter($queueArray['newsletter_id']);
-                $output = array(
+                $output          = array(
                     'newsletter_id' => $queueArray['newsletter_id'],
-                    'subject' => $newsletterArray['subject'],
-                    'created_on' => $newsletterArray['created_on'],
+                    'subject'       => $newsletterArray['subject'],
+                    'created_on'    => $newsletterArray['created_on'],
                     'scheduled_for' => $newsletterArray['scheduled_for'],
-                    'message' => '',
-                    'recipients' => array(),
+                    'message'       => '',
+                    'recipients'    => array(),
                 );
-                $sent = $this->sendNewsletter($queueArray['newsletter_id'], $queueArray['subscriber_id']);
+                $sent            = $this->sendNewsletter($queueArray['newsletter_id'], $queueArray['subscriber_id']);
                 if ($sent) {
                     $queue->set('status_logged_on', time());
                     $queue->set('status', 'sent');
-                    if ($queue->save() === FALSE) {
+                    if ($queue->save() === false) {
                         $this->modx->setDebug();
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                        $this->modx->setDebug(FALSE);
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to update a queue! '.print_r($queueArray, true), '', __METHOD__, __FILE__, __LINE__);
+                        $this->modx->setDebug(false);
                     } else {
                         $output['recipients'] = $queueArray;
                     }
                 } else {
                     $this->modx->setDebug();
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! ' . print_r($queueArray, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
-                    $output['message'] = 'Failed to send a queue! ' . print_r($queueArray, TRUE);
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! '.print_r($queueArray, true), '', __METHOD__, __FILE__, __LINE__);
+                    $this->modx->setDebug(false);
+                    $output['message'] = 'Failed to send a queue! '.print_r($queueArray, true);
                 }
                 $outputReports[] = $output;
             }
         }
         if (!empty($diffProviderQueues)) {
             foreach ($diffProviderQueues as $k => $v) {
-                $output = $this->sendQueuesToProvider($v, $k);
+                $output        = $this->sendQueuesToProvider($v, $k);
                 $outputReports = array_merge($outputReports, $output);
             }
         }
@@ -1119,7 +1158,8 @@ class VirtuNewsletter {
      * @param   int     $limit      override limit of System Settings
      * @return  array   reports' outputs in array
      */
-    public function processQueue($todayOnly = FALSE, $limit = 0) {
+    public function processQueue($todayOnly = false, $limit = 0)
+    {
         $isMultiThreaded = $this->modx->getOption('virtunewsletter.send_multithreaded');
         if ($isMultiThreaded) {
             $queues = $this->getMultiThreadedQueues($todayOnly, $limit);
@@ -1139,17 +1179,18 @@ class VirtuNewsletter {
      * @param   array   $fields required information (email) and additional one (name)
      * @return  boolean
      */
-    public function subscribe($fields) {
+    public function subscribe($fields)
+    {
         if (!isset($fields[$this->config['emailKey']]) || empty($fields[$this->config['emailKey']])) {
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_ns');
             $this->setError($msg);
-            return FALSE;
+            return false;
         }
         $email = trim($fields[$this->config['emailKey']]);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_invalid_email');
             $this->setError($msg);
-            return FALSE;
+            return false;
         }
         $registeredSubscriber = $this->modx->getObject('vnewsSubscribers', array(
             'email' => $email
@@ -1159,18 +1200,18 @@ class VirtuNewsletter {
                 'email' => $email
             ));
             $this->setError($msg);
-            return FALSE;
+            return false;
 //            $name = $registeredSubscriber->get('name');
 //            if (isset($fields[$this->config['nameKey']])) {
 //                $name = $fields[$this->config['nameKey']];
 //            }
 //            $registeredSubscriber->set('name', $name);
 //            $registeredSubscriber->set('is_active', 1);
-//            return TRUE;
+//            return true;
         }
         $newSubscriber = $this->modx->newObject('vnewsSubscribers');
 
-        $c = $this->modx->newQuery('vnewsUsers');
+        $c    = $this->modx->newQuery('vnewsUsers');
         $c->leftJoin('modUserProfile', 'Profile', 'Profile.internalKey = vnewsUsers.id');
         $c->where(array(
             'Profile.email' => $email
@@ -1184,27 +1225,27 @@ class VirtuNewsletter {
         if ($user) {
             if (empty($name)) {
                 $fullname = $user->getOne('Profile')->get('fullname');
-                $name = !empty($fullname) ? $fullname : $user->get('username');
+                $name     = !empty($fullname) ? $fullname : $user->get('username');
             }
             $userId = $user->get('id');
         }
 
         $params = array(
-            'user_id' => $userId,
-            'email' => $email,
-            'name' => $name,
+            'user_id'   => $userId,
+            'email'     => $email,
+            'name'      => $name,
             'is_active' => 0, // wait to confirm
-            'hash' => $this->setHash($email)
+            'hash'      => $this->setHash($email)
         );
 
         $newSubscriber->fromArray($params);
-        if ($newSubscriber->save() === FALSE) {
+        if ($newSubscriber->save() === false) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new subscriber! '.print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_save');
             $this->setError($msg);
-            return FALSE;
+            return false;
         }
 
         /**
@@ -1223,12 +1264,12 @@ class VirtuNewsletter {
         $msg = $this->modx->lexicon('virtunewsletter.subscriber_suc_save');
         $this->setOutput($msg);
 
-        $phs = $newSubscriber->toArray();
+        $phs          = $newSubscriber->toArray();
         $phs['subid'] = $phs['id']; // to avoid confusion on template
-        $phs = array_merge($phs, array('act' => 'subscribe'));
+        $phs          = array_merge($phs, array('act' => 'subscribe'));
         $this->setPlaceholders($phs);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -1236,7 +1277,8 @@ class VirtuNewsletter {
      * @param   int     $subscriberId   Subscriber's ID
      * @param   string  $category       Category's Name or ID
      */
-    public function addSubscriberToCategory($subscriberId, $category) {
+    public function addSubscriberToCategory($subscriberId, $category)
+    {
         $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
         if (!$subscriber) {
             return false;
@@ -1256,11 +1298,11 @@ class VirtuNewsletter {
             return false;
         }
 
-        $params = array(
+        $params                   = array(
             'subscriber_id' => $subscriber->getPrimaryKey(),
-            'category_id' => $categoryObj->get('id')
+            'category_id'   => $categoryObj->get('id')
         );
-        $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
+        $c                        = $this->modx->newQuery('vnewsSubscribersHasCategories');
         $c->where($params);
         $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories', $c);
         if ($subscribersHasCategories) {
@@ -1269,11 +1311,11 @@ class VirtuNewsletter {
 
         $subscribersHasCategories = $this->modx->newObject('vnewsSubscribersHasCategories');
         $subscribersHasCategories->fromArray($params);
-        $addMany = array($subscribersHasCategories);
+        $addMany                  = array($subscribersHasCategories);
         $subscriber->addMany($addMany);
         if ($subscriber->save() === false) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! ' . print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add subscriber to category! '.print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(false);
             return false;
         }
@@ -1285,7 +1327,8 @@ class VirtuNewsletter {
      * @param   int     $subscriberId   Subscriber's ID
      * @param   string  $category       Category's Name or ID
      */
-    public function removeSubscriberFromCategory($subscriberId, $category) {
+    public function removeSubscriberFromCategory($subscriberId, $category)
+    {
         $c = $this->modx->newQuery('vnewsCategories');
         if (is_numeric($category)) {
             $c->where(array(
@@ -1302,7 +1345,7 @@ class VirtuNewsletter {
         }
         $subscribersHasCategories = $this->modx->getObject('vnewsSubscribersHasCategories', array(
             'subscriber_id' => $subscriberId,
-            'category_id' => $categoryObj->get('id')
+            'category_id'   => $categoryObj->get('id')
         ));
         if (!$subscribersHasCategories) {
             return false;
@@ -1315,7 +1358,8 @@ class VirtuNewsletter {
      * @param   array   $where  criteria in an array
      * @return  mixed   false|array of arguments
      */
-    public function getSubscriber(array $where = array()) {
+    public function getSubscriber(array $where = array())
+    {
         $c = $this->modx->newQuery('vnewsSubscribers');
         if (!empty($where)) {
             $c->where($where);
@@ -1325,12 +1369,12 @@ class VirtuNewsletter {
             $emailDebug = $this->modx->getOption('virtunewsletter.email_debug');
             if ($emailDebug) {
                 $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with criteria: ' . print_r($where, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unabled to get subscriber with criteria: '.print_r($where, true), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(false);
             }
-            return FALSE;
+            return false;
         }
-        $subscriberArray = $subscriber->toArray();
+        $subscriberArray          = $subscriber->toArray();
         $subscriberArray['subid'] = $subscriberArray['id'];
         return $subscriberArray;
     }
@@ -1340,20 +1384,21 @@ class VirtuNewsletter {
      * @param   array   $where  criteria in an array
      * @return  mixed   false|array of arguments
      */
-    public function getAllSubscribers(array $where = array()) {
+    public function getAllSubscribers(array $where = array())
+    {
         $c = $this->modx->newQuery('vnewsSubscribers');
         if (!empty($where)) {
             $c->where($where);
         }
         $subscribers = $this->modx->getCollection('vnewsSubscribers', $c);
         if (!$subscribers) {
-            return FALSE;
+            return false;
         }
         $allSubscribersArray = array();
         foreach ($subscribers as $subscriber) {
-            $subscriberArray = $subscriber->toArray();
+            $subscriberArray          = $subscriber->toArray();
             $subscriberArray['subid'] = $subscriberArray['id'];
-            $allSubscribersArray[] = $subscriberArray;
+            $allSubscribersArray[]    = $subscriberArray;
         }
         return $allSubscribersArray;
     }
@@ -1363,15 +1408,16 @@ class VirtuNewsletter {
      * @param   array   $arguments  required arguments
      * @return  boolean
      */
-    public function confirmAction($arguments) {
+    public function confirmAction($arguments)
+    {
         $subscriber = $this->modx->getObject('vnewsSubscribers', array(
-            'id' => $arguments['id'],
+            'id'   => $arguments['id'],
             'hash' => $arguments['hash'],
         ));
         if (!$subscriber) {
             $msg = $this->modx->lexicon('virtunewsletter.subscriber_err_ne');
             $this->setError($msg);
-            return FALSE;
+            return false;
         }
         $this->setPlaceholder('emailTo', $subscriber->get('email'));
 
@@ -1392,10 +1438,10 @@ class VirtuNewsletter {
                     $categories = array_map('trim', @explode(',', $arguments['categories']));
                     if (!empty($categories)) {
                         foreach ($categories as $category) {
-                            $c = $this->modx->newQuery('vnewsSubscribersHasCategories');
+                            $c      = $this->modx->newQuery('vnewsSubscribersHasCategories');
                             $c->where(array(
                                 'subscriber_id' => $subscriber->get('id'),
-                                'category_id' => $category,
+                                'category_id'   => $category,
                             ));
                             $subCat = $this->modx->getObject('vnewsSubscribersHasCategories', $c);
                             if ($subCat) {
@@ -1417,7 +1463,7 @@ class VirtuNewsletter {
                 break;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -1425,8 +1471,9 @@ class VirtuNewsletter {
      * @param   string  $email  email address
      * @return  string  hashed string
      */
-    public function setHash($email) {
-        return str_rot13(base64_encode(hash('sha512', time() . $email)));
+    public function setHash($email)
+    {
+        return str_rot13(base64_encode(hash('sha512', time().$email)));
     }
 
     /**
@@ -1436,16 +1483,17 @@ class VirtuNewsletter {
      * @return  string  parsed HTML content
      * @author  Josh Gulledge <jgulledge19@hotmail.com>
      */
-    public function inlineCss($html) {
+    public function inlineCss($html)
+    {
         if (empty($html)) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'empty $html to create inline CSS', '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->setDebug(false);
+            return false;
         }
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Specificity.php';
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/Exception.php';
-        require_once MODX_CORE_PATH . 'components/virtunewsletter/vendors/CssToInlineStyles/src/CssToInlineStyles.php';
+        require_once MODX_CORE_PATH.'components/virtunewsletter/vendors/CssToInlineStyles/src/Specificity.php';
+        require_once MODX_CORE_PATH.'components/virtunewsletter/vendors/CssToInlineStyles/src/Exception.php';
+        require_once MODX_CORE_PATH.'components/virtunewsletter/vendors/CssToInlineStyles/src/CssToInlineStyles.php';
 
         // embedded CSS:
         preg_match_all('|<style(.*)>(.*)</style>|isU', $html, $css);
@@ -1459,7 +1507,7 @@ class VirtuNewsletter {
         $cssToInlineStyles = new TijsVerkoyen\CSSToInlineStyles\CSSToInlineStyles($html, $css_rules);
         $cssToInlineStyles->setEncoding($this->modx->getOption('mail_charset', null, 'UTF-8'));
         // the processed HTML
-        $html = $cssToInlineStyles->convert();
+        $html              = $cssToInlineStyles->convert();
 
         return $html;
     }
@@ -1470,53 +1518,54 @@ class VirtuNewsletter {
      * @param   int $subscriberId   Subscriber's ID
      * @return  boolean
      */
-    public function sendNewsletter($newsId, $subscriberId) {
+    public function sendNewsletter($newsId, $subscriberId)
+    {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:'.$newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         if (empty($newsletterArray['content'])) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:' . print_r($newsletterArray, 1), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:'.print_r($newsletterArray, 1), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
 
         $subscriber = $this->modx->getObject('vnewsSubscribers', $subscriberId);
         if (!$subscriber) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get subscriber w/ id:' . $subscriberId, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get subscriber w/ id:'.$subscriberId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         $subscriberArray = $subscriber->toArray();
         // vnewsNewslettersHasCategories
-        $c = $this->modx->newQuery('vnewsNewslettersHasCategories');
+        $c               = $this->modx->newQuery('vnewsNewslettersHasCategories');
         $c->where(array(
             'newsletter_id' => $newsId,
         ));
-        $newsCats = $this->modx->getCollection('vnewsNewslettersHasCategories', $c);
-        $categories = array();
+        $newsCats        = $this->modx->getCollection('vnewsNewslettersHasCategories', $c);
+        $categories      = array();
         if ($newsCats) {
-            foreach($newsCats as $newsCat) {
+            foreach ($newsCats as $newsCat) {
                 $categories[] = $newsCat->get('category_id');
             }
         }
-        $confirmLinkArgs = $this->getSubscriber(array('email' => $subscriberArray['email']));
-        $confirmLinkArgs = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
-        $phs = array_merge($subscriberArray, $confirmLinkArgs, array(
+        $confirmLinkArgs   = $this->getSubscriber(array('email' => $subscriberArray['email']));
+        $confirmLinkArgs   = array_merge($confirmLinkArgs, array('act' => 'unsubscribe'));
+        $phs               = array_merge($subscriberArray, $confirmLinkArgs, array(
             // to avoid confusion on template
-            'id' => $newsId,
-            'newsid' => $newsId,
-            'subid' => $subscriberArray['id'],
+            'id'         => $newsId,
+            'newsid'     => $newsId,
+            'subid'      => $subscriberArray['id'],
             'categories' => @implode(',', $categories),
         ));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
         $this->setPlaceholders($phs, $systemEmailPrefix);
-        $content = $this->processEmailMessage($newsId);
+        $content           = $this->processEmailMessage($newsId);
         return $this->sendMail($newsletterArray['subject'], $content, $subscriberArray['email']);
     }
 
@@ -1526,24 +1575,25 @@ class VirtuNewsletter {
      * @return  boolean
      * @todo    need to parse System Setting's and Context Setting's tags,
      */
-    public function processEmailMessage($newsId) {
+    public function processEmailMessage($newsId)
+    {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:'.$newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         if (empty($newsletterArray['content'])) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:' . print_r($subscriberArray, 1), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get content of the newsletter:'.print_r($subscriberArray, 1), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         $message = $newsletterArray['content'];
         $message = str_replace('%5B%5B%2B', '[[+', $message);
         $message = str_replace('%5D%5D', ']]', $message);
-        $phs = $this->getPlaceholders();
+        $phs     = $this->getPlaceholders();
         $message = $this->parseTplCode($message, $phs);
         $message = $this->processElementTags($message);
         // remove tags: http://www.php.net/manual/en/domdocument.savehtml.php#85165
@@ -1565,20 +1615,21 @@ class VirtuNewsletter {
      * @param   string  $emailFromName  Name of the sender
      * @return boolean
      */
-    public function sendMail($subject, $message, $emailTo, $emailFrom = '', $emailFromName = '') {
+    public function sendMail($subject, $message, $emailTo, $emailFrom = '', $emailFromName = '')
+    {
         if (!$this->modx->mail) {
             if (!$this->modx->getService('mail', 'mail.modPHPMailer')) {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to load modPHPMailer class!', '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
-                return FALSE;
+                $this->modx->setDebug(false);
+                return false;
             }
         }
         if (empty($emailTo)) {
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'Missing email target!', '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->setDebug(false);
+            return false;
         }
 
         if (empty($emailFrom)) {
@@ -1588,8 +1639,8 @@ class VirtuNewsletter {
                 if (empty($emailFrom)) {
                     $this->modx->setDebug();
                     $this->modx->log(modX::LOG_LEVEL_ERROR, 'Missing email sender!', '', __METHOD__, __FILE__, __LINE__);
-                    $this->modx->setDebug(FALSE);
-                    return FALSE;
+                    $this->modx->setDebug(false);
+                    return false;
                 }
             }
         }
@@ -1600,16 +1651,16 @@ class VirtuNewsletter {
         if ($this->modx->getOption('virtunewsletter.email_debug')) {
             $this->modx->setDebug();
             $debugOutput = array(
-                'subject' => $subject,
-                'message' => $message,
-                'emailTo' => $emailTo,
-                'emailFrom' => $emailFrom,
+                'subject'       => $subject,
+                'message'       => $message,
+                'emailTo'       => $emailTo,
+                'emailFrom'     => $emailFrom,
                 'emailFromName' => $emailFromName,
-                'placeholders' => $this->getPlaceholders(),
+                'placeholders'  => $this->getPlaceholders(),
             );
-            $this->modx->log(modX::LOG_LEVEL_ERROR, print_r($debugOutput, TRUE), '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return TRUE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, print_r($debugOutput, true), '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return true;
         }
 
         $this->modx->mail->set(modMail::MAIL_BODY, $message);
@@ -1620,18 +1671,18 @@ class VirtuNewsletter {
         $this->modx->mail->address('reply-to', $emailFrom);
         // https://support.google.com/mail/answer/180707?hl=en
         $x = explode('@', $emailFrom);
-        $this->modx->mail->header('mailed-by:' . $x[1]);
-        $this->modx->mail->header('signed-by:' . $x[1]);
+        $this->modx->mail->header('mailed-by:'.$x[1]);
+        $this->modx->mail->header('signed-by:'.$x[1]);
         $this->modx->mail->setHTML(true);
         if (!$this->modx->mail->send()) {
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: ' . $this->modx->mail->mailer->ErrorInfo, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: '.$this->modx->mail->mailer->ErrorInfo, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         $this->modx->mail->reset();
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -1641,57 +1692,58 @@ class VirtuNewsletter {
      * @param   array   $queuesArray    array of subscribers queue
      * @return  boolean
      */
-    public function sendToEmailProvider($name, $newsId, $queuesArray) {
+    public function sendToEmailProvider($name, $newsId, $queuesArray)
+    {
         $newsletterArray = $this->getNewsletter($newsId);
         if (empty($newsletterArray)) {
-            $this->setError('Unable to get newsletter w/ id:' . $newsId);
+            $this->setError('Unable to get newsletter w/ id:'.$newsId);
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:' . $newsId, '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to get newsletter w/ id:'.$newsId, '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
         $subscribersArray = array();
         foreach ($queuesArray as $queue) {
             $subscriber = $this->modx->getObject('vnewsSubscribers', $queue['subscriber_id']);
             if ($subscriber) {
-                $subscriberArray = $subscriber->toArray();
+                $subscriberArray          = $subscriber->toArray();
                 $subscriberArray['subid'] = $subscriberArray['id'];
-                $subscribersArray[] = $subscriberArray;
-            } else if (isset ($queue['email'])){
+                $subscribersArray[]       = $subscriberArray;
+            } else if (isset($queue['email'])) {
                 $subscribersArray[] = $queue;
             }
         }
 
-        include_once $this->config['corePath'] . 'providers/emailprovider.class.php';
-        $classFile = $this->config['corePath'] . 'providers/' . strtolower($name) . '.class.php';
+        include_once $this->config['corePath'].'providers/emailprovider.class.php';
+        $classFile = $this->config['corePath'].'providers/'.strtolower($name).'.class.php';
         if (!file_exists($classFile)) {
-            $this->setError($classFile . ' does not exist');
+            $this->setError($classFile.' does not exist');
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, $classFile . ' does not exist', '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, $classFile.' does not exist', '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
 
         $className = include_once $classFile;
         if (!class_exists($className)) {
-            $this->setError('Unable to load :' . $name . ' controller class');
+            $this->setError('Unable to load :'.$name.' controller class');
             $this->modx->setDebug();
-            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to load :' . $name . ' controller class', '', __METHOD__, __FILE__, __LINE__);
-            $this->modx->setDebug(FALSE);
-            return FALSE;
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Unable to load :'.$name.' controller class', '', __METHOD__, __FILE__, __LINE__);
+            $this->modx->setDebug(false);
+            return false;
         }
 
         $this->modx->virtunewsletter = $this;
-        $object = new $className($this->modx);
+        $object                      = new $className($this->modx);
         $object->setSender(array(
-            'email_sender' => $this->modx->getOption('virtunewsletter.email_sender'),
-            'email_from_name' => $this->modx->getOption('virtunewsletter.email_from_name'),
-            'email_reply_to' => $this->modx->getOption('virtunewsletter.email_reply_to'),
+            'email_sender'      => $this->modx->getOption('virtunewsletter.email_sender'),
+            'email_from_name'   => $this->modx->getOption('virtunewsletter.email_from_name'),
+            'email_reply_to'    => $this->modx->getOption('virtunewsletter.email_reply_to'),
             'email_bcc_address' => $this->modx->getOption('virtunewsletter.email_bcc_address'),
         ));
         $object->setRecipients($subscribersArray);
         // to avoid confusion on template
-        $newsletterArray['newsid'] = $newsletterArray['id'];
+        $newsletterArray['newsid']   = $newsletterArray['id'];
         $object->setNewsletter($newsletterArray);
         $object->setMessage(array(
             'subject' => $newsletterArray['subject'],
@@ -1708,25 +1760,26 @@ class VirtuNewsletter {
      * @param   array   $options    options
      * @return  string  content output
      */
-    public function outputContent($resourceId, array $options = array()) {
+    public function outputContent($resourceId, array $options = array())
+    {
         $content = '';
         if ($this->modx->getRequest()) {
-            $this->modx->resourceMethod = "id";
+            $this->modx->resourceMethod     = "id";
             $this->modx->resourceIdentifier = $resourceId;
-            $ctx = $this->modx->getObject('modResource', $resourceId)->get('context_key');
+            $ctx                            = $this->modx->getObject('modResource', $resourceId)->get('context_key');
             $this->modx->context->set('key', $ctx);
-            $this->modx->resource = $this->modx->request->getResource($this->modx->resourceMethod, $this->modx->resourceIdentifier);
+            $this->modx->resource           = $this->modx->request->getResource($this->modx->resourceMethod, $this->modx->resourceIdentifier);
             if ($this->modx->resource && $this->modx->getResponse()) {
                 if (!($this->modx->response->contentType = $this->modx->resource->getOne('ContentType'))) {
                     if ($this->modx->getDebug() === true) {
-                        $this->modx->log(modX::LOG_LEVEL_DEBUG, "No valid content type for RESOURCE: " . print_r($this->modx->resource->toArray(), true));
+                        $this->modx->log(modX::LOG_LEVEL_DEBUG, "No valid content type for RESOURCE: ".print_r($this->modx->resource->toArray(), true));
                     }
                     $this->modx->log(modX::LOG_LEVEL_FATAL, "The requested resource has no valid content type specified.");
                 }
 
-                $this->modx->resource->_output = $this->modx->resource->process();
-                $this->modx->resource->_jscripts = $this->modx->jscripts;
-                $this->modx->resource->_sjscripts = $this->modx->sjscripts;
+                $this->modx->resource->_output         = $this->modx->resource->process();
+                $this->modx->resource->_jscripts       = $this->modx->jscripts;
+                $this->modx->resource->_sjscripts      = $this->modx->sjscripts;
                 $this->modx->resource->_loadedjscripts = $this->modx->loadedjscripts;
 
                 /* FIXME: only do this for HTML content ? */
@@ -1734,12 +1787,12 @@ class VirtuNewsletter {
                     /* Insert Startup jscripts & CSS scripts into template - template must have a </head> tag */
                     if (($js = $this->modx->getRegisteredClientStartupScripts()) && (strpos($this->modx->resource->_output, '</head>') !== false)) {
                         /* change to just before closing </head> */
-                        $this->modx->resource->_output = preg_replace("/(<\/head>)/i", $js . "\n\\1", $this->modx->resource->_output, 1);
+                        $this->modx->resource->_output = preg_replace("/(<\/head>)/i", $js."\n\\1", $this->modx->resource->_output, 1);
                     }
 
                     /* Insert jscripts & html block into template - template must have a </body> tag */
                     if ((strpos($this->modx->resource->_output, '</body>') !== false) && ($js = $this->modx->getRegisteredClientScripts())) {
-                        $this->modx->resource->_output = preg_replace("/(<\/body>)/i", $js . "\n\\1", $this->modx->resource->_output, 1);
+                        $this->modx->resource->_output = preg_replace("/(<\/body>)/i", $js."\n\\1", $this->modx->resource->_output, 1);
                     }
                 }
 
@@ -1762,28 +1815,29 @@ class VirtuNewsletter {
      * @param   string  $content    raw content
      * @return  string  parsed content
      */
-    public function prepareEmailContent($content) {
+    public function prepareEmailContent($content)
+    {
         // keeping the email's placeholders' tags
-        $columns = $this->modx->getSelectColumns('vnewsSubscribers');
-        $columns = str_replace('`', '', $columns);
-        $phsArray = array_map('trim', @explode(',', $columns));
+        $columns           = $this->modx->getSelectColumns('vnewsSubscribers');
+        $columns           = str_replace('`', '', $columns);
+        $phsArray          = array_map('trim', @explode(',', $columns));
         $systemEmailPrefix = $this->modx->getOption('virtunewsletter.email_prefix');
-        $phsArray = array_merge($phsArray, array('newsid', 'subid', 'act'));
-        $search = array();
-        $replace = array();
+        $phsArray          = array_merge($phsArray, array('newsid', 'subid', 'act'));
+        $search            = array();
+        $replace           = array();
         foreach ($phsArray as $phs) {
-            $search[] = '[[+' . $systemEmailPrefix . $phs;
-            $replace[] = '&#91;&#91;+' . $systemEmailPrefix . $phs;
+            $search[]  = '[[+'.$systemEmailPrefix.$phs;
+            $replace[] = '&#91;&#91;+'.$systemEmailPrefix.$phs;
         }
         $content = str_replace($search, $replace, $content);
         // parsing what left
         $content = $this->processElementTags($content);
         // revert back the tags
-        $search = array();
+        $search  = array();
         $replace = array();
         foreach ($phsArray as $phs) {
-            $search[] = '&#91;&#91;+' . $systemEmailPrefix . $phs;
-            $replace[] = '[[+' . $systemEmailPrefix . $phs;
+            $search[]  = '&#91;&#91;+'.$systemEmailPrefix.$phs;
+            $replace[] = '[[+'.$systemEmailPrefix.$phs;
         }
         $content = str_replace($search, $replace, $content);
 
@@ -1795,24 +1849,25 @@ class VirtuNewsletter {
      * @param   int     $parentId   Newsletter's ID of the recurring parent
      * @return  mixed   false | array
      */
-    public function createNextRecurrence($parentId) {
+    public function createNextRecurrence($parentId)
+    {
         $parentNewsletter = $this->modx->getObject('vnewsNewsletters', $parentId);
         if (!$parentNewsletter) {
-            return FALSE;
+            return false;
         }
         $parentNewsletterArray = $parentNewsletter->toArray();
         if (empty($parentNewsletterArray['is_recurring']) || empty($parentNewsletterArray['is_active'])) {
-            return FALSE;
+            return false;
         }
         // remove all queue for self
         $this->modx->removeCollection('vnewsReports', array(
             'newsletter_id' => $parentNewsletterArray['id'],
         ));
-        $c = $this->modx->newQuery('vnewsNewsletters');
-        $nextRecurrenceTime = $this->nextRecurrenceTime($parentNewsletterArray['id']);
-        $time = time();
+        $c                   = $this->modx->newQuery('vnewsNewsletters');
+        $nextRecurrenceTime  = $this->nextRecurrenceTime($parentNewsletterArray['id']);
+        $time                = time();
         $c->where(array(
-            'parent_id' => $parentNewsletterArray['id'],
+            'parent_id'        => $parentNewsletterArray['id'],
             'scheduled_for:>=' => $time,
             'scheduled_for:<=' => $nextRecurrenceTime
         ));
@@ -1824,7 +1879,7 @@ class VirtuNewsletter {
             // if its content is as same as the current one, skip this
             $currentContent = $this->prepareEmailContent($parentNewsletterArray['content']);
 
-            $c = $this->modx->newQuery('vnewsNewsletters');
+            $c                = $this->modx->newQuery('vnewsNewsletters');
             $c->where(array(
                 'parent_id' => $parentNewsletterArray['id'],
             ));
@@ -1835,46 +1890,46 @@ class VirtuNewsletter {
                 $latestContent = $this->prepareEmailContent($latestNewsletter->get('content'));
                 if ($latestContent === $currentContent) {
                     $this->setError('$latestContent === $currentContent');
-                    return FALSE;
+                    return false;
                 }
             }
 
             $recurringNewsletter = $this->modx->newObject('vnewsNewsletters');
-            $params = array(
-                'parent_id' => $parentNewsletterArray['id'],
-                'resource_id' => $parentNewsletterArray['resource_id'],
-                'subject' => $this->processElementTags($parentNewsletterArray['subject']),
-                'content' => $currentContent,
-                'created_by' => $parentNewsletterArray['created_by'],
-                'created_on' => $time,
+            $params              = array(
+                'parent_id'     => $parentNewsletterArray['id'],
+                'resource_id'   => $parentNewsletterArray['resource_id'],
+                'subject'       => $this->processElementTags($parentNewsletterArray['subject']),
+                'content'       => $currentContent,
+                'created_by'    => $parentNewsletterArray['created_by'],
+                'created_on'    => $time,
                 'scheduled_for' => $nextRecurrenceTime,
-                'is_recurring' => 0,
-                'is_active' => $parentNewsletterArray['is_active'],
+                'is_recurring'  => 0,
+                'is_active'     => $parentNewsletterArray['is_active'],
             );
             $recurringNewsletter->fromArray($params);
-            if ($recurringNewsletter->save() === FALSE) {
+            if ($recurringNewsletter->save() === false) {
                 $this->modx->setDebug();
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new recurring newsletter! ' . print_r($params, TRUE), '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
-                return FALSE;
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to save a new recurring newsletter! '.print_r($params, true), '', __METHOD__, __FILE__, __LINE__);
+                $this->modx->setDebug(false);
+                return false;
             }
-            $categories = $parentNewsletter->getMany('NewslettersHasCategories');
+            $categories                    = $parentNewsletter->getMany('NewslettersHasCategories');
             $recurringNewsletterCategories = array();
             foreach ($categories as $category) {
-                $addCategory = $this->modx->newObject('vnewsNewslettersHasCategories');
-                $catParams = array(
+                $addCategory                     = $this->modx->newObject('vnewsNewslettersHasCategories');
+                $catParams                       = array(
                     'newsletter_id' => $recurringNewsletter->getPrimaryKey(),
-                    'category_id' => $category->get('category_id')
+                    'category_id'   => $category->get('category_id')
                 );
                 $addCategory->fromArray($catParams);
                 $recurringNewsletterCategories[] = $addCategory;
             }
             $recurringNewsletter->addMany($recurringNewsletterCategories);
-            if ($recurringNewsletter->save() === FALSE) {
+            if ($recurringNewsletter->save() === false) {
                 $this->modx->setDebug();
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to add categories for the new recurring newsletter! ', '', __METHOD__, __FILE__, __LINE__);
-                $this->modx->setDebug(FALSE);
-                return FALSE;
+                $this->modx->setDebug(false);
+                return false;
             }
         }
         $newsletterArray = $recurringNewsletter->toArray();
@@ -1887,7 +1942,8 @@ class VirtuNewsletter {
      * @param   int     $parentId   Newsletter's ID of the recurring parent
      * @return  mixed   false | array
      */
-    public function removeAllRecurrences($parentId) {
+    public function removeAllRecurrences($parentId)
+    {
         $collection = $this->modx->getCollection('vnewsNewsletters', array(
             'parent_id' => $parentId,
         ));
@@ -1904,8 +1960,7 @@ class VirtuNewsletter {
             ));
         }
         return $this->modx->removeCollection('vnewsNewsletters', array(
-                    'parent_id' => $parentId,
+                'parent_id' => $parentId,
         ));
     }
-
 }

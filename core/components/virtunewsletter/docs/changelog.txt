@@ -1,3 +1,8 @@
+virtuNewsletter 2.4.3-pl (June 20, 2019)
+=================================================
+- fixed installer
+- updated year
+
 virtuNewsletter 2.4.2-pl (December 28, 2018)
 =================================================
 - fixed queue counting

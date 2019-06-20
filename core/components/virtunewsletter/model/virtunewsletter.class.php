@@ -3,7 +3,7 @@
 /**
  * virtuNewsletter
  *
- * Copyright 2013-2016 by goldsky <goldsky@virtudraft.com>
+ * Copyright 2013-2019 by goldsky <goldsky@virtudraft.com>
  *
  * This file is part of virtuNewsletter, a newsletter system for MODX
  * Revolution.
@@ -26,7 +26,7 @@
 class VirtuNewsletter
 {
 
-    const VERSION = '2.4.2';
+    const VERSION = '2.4.3';
     const RELEASE = 'pl';
 
     /**

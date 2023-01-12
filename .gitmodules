@@ -1,3 +1,6 @@
 [submodule "core/components/virtunewsletter/vendors/CssToInlineStyles"]
 	path = core/components/virtunewsletter/vendors/CssToInlineStyles
 	url = https://github.com/tijsverkoyen/CssToInlineStyles.git
+[submodule "core/components/virtunewsletter/vendors/mailgun-php"]
+	path = core/components/virtunewsletter/vendors/mailgun-php
+	url = https://github.com/mailgun/mailgun-php.git

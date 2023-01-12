@@ -72,6 +72,12 @@ class VirtuNewsletter
     private $_responses = array();
 
     /**
+     * Flag to halt email sending when error occurs
+     * @var boolean
+     */
+    public $haltSending = false;
+    
+    /**
      * constructor
      * @param   modX    $modx
      * @param   array   $config     parameters
@@ -1027,6 +1033,9 @@ class VirtuNewsletter
      */
     public function sendQueuesToProvider($queues, $emailProvider = '')
     {
+        if ($this->haltSending) {
+            return false;
+        }
         if (empty($queues)) {
             return false;
         }
@@ -1691,6 +1700,9 @@ class VirtuNewsletter
             $this->modx->setDebug();
             $this->modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: '.$this->modx->mail->mailer->ErrorInfo, '', __METHOD__, __FILE__, __LINE__);
             $this->modx->setDebug(false);
+            if (strpos($this->modx->mail->mailer->ErrorInfo, 'SMTP connect() failed')) {
+                $this->haltSending = true;
+            }
             return false;
         }
         $this->modx->mail->reset();

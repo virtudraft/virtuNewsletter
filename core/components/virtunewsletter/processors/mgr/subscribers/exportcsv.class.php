@@ -1,4 +1,5 @@
 <?php
+
 /**
  * virtuNewsletter
  *
@@ -24,22 +25,17 @@
  * @package virtunewsletter
  * @subpackage processor
  */
-class SubscribersExportCsvProcessor extends modProcessor
-{
+class SubscribersExportCsvProcessor extends modProcessor {
 
-    public function checkPermissions()
-    {
+    public function checkPermissions() {
         return true;
     }
 
-    public function getLanguageTopics()
-    {
+    public function getLanguageTopics() {
         return array('virtunewsletter:cmp');
     }
 
-    public function process()
-    {
-        return $this->failure("test");
+    public function process() {
         $download = $this->getProperty('download');
         if (!empty($download)) {
             $o = $this->download($download);
@@ -48,39 +44,38 @@ class SubscribersExportCsvProcessor extends modProcessor
         }
         return $o;
     }
+
     /**
      * Download the file
      *
      * @param string $file
      * @return bool|string
      */
-//    public function download($file) {
-//        $fileName = $this->modx->virtunewsletter->config['corePath'] . 'exports/' . $file;
-//        if (!is_file($fileName))
-//            return '';
-//        $output = file_get_contents($fileName);
-//        if (empty($output))
-//            return '';
-//
-//        header('Content-Type: application/force-download');
-//        header('Content-Disposition: attachment; filename="subscribers.csv"');
-//        return $output;
-//    }
+    public function download($file) {
+        $fileName = $this->modx->virtunewsletter->config['corePath'] . 'exports/' . $file;
+        if (!is_file($fileName))
+            return '';
+        $output = file_get_contents($fileName);
+        if (empty($output))
+            return '';
+
+        header('Content-Type: application/force-download');
+        header('Content-Disposition: attachment; filename="subscribers.csv"');
+        return $output;
+    }
 
     /**
      * Export the properties into a temporary export file
      *
      * @return mixed
      */
-    public function export()
-    {
-        $f   = 'subscribers.csv';
-        $out = fopen($this->modx->virtunewsletter->config['corePath'].'exports/'.$f, 'w');
-        if (!$out) {
-            return false;
-        }
-        $columns      = $this->modx->getSelectColumns('vnewsSubscribers');
-        $columns      = str_replace('`', '', $columns);
+    public function export() {
+        header('Content-Type: application/force-download');
+        header('Content-Disposition: attachment; filename="subscribers.csv"');
+        $f = 'subscribers.csv';
+        $out = fopen($this->modx->virtunewsletter->config['corePath'] . 'exports/' . $f, 'w');
+        $columns = $this->modx->getSelectColumns('vnewsSubscribers');
+        $columns = str_replace('`', '', $columns);
         $columnsArray = array_map('trim', @explode(',', $columns));
         foreach ($columnsArray as $k => $v) {
             if ($v === 'hash') {
@@ -92,29 +87,27 @@ class SubscribersExportCsvProcessor extends modProcessor
 
         fputcsv($out, $columnsArray);
         $collections = $this->modx->getCollection('vnewsSubscribers');
-        if (!$collections) {
-            $this->failure("No data exported");
-            return false;
-        }
-        foreach ($collections as $item) {
-            $itemArray = $item->toArray();
-            foreach ($itemArray as $k => $v) {
-                if ($k === 'hash') {
-                    unset($itemArray[$k]);
+        if ($collections) {
+            foreach ($collections as $item) {
+                $itemArray = $item->toArray();
+                foreach ($itemArray as $k => $v) {
+                    if ($k === 'hash') {
+                        unset($itemArray[$k]);
+                    }
                 }
+                $itemArray = array_merge($itemArray, array(
+                    @implode(', ', $item->getCategoryNames()),
+                    @implode(', ', $item->getUserGroupNames()),
+                ));
+                $itemArray = array_values($itemArray);
+                fputcsv($out, $itemArray);
             }
-            $itemArray = array_merge($itemArray, array(
-                @implode(', ', $item->getCategoryNames()),
-                @implode(', ', $item->getUserGroupNames()),
-            ));
-            $itemArray = array_values($itemArray);
-            fputcsv($out, $itemArray);
         }
         fclose($out);
 
-//        return $this->success($f);
-        return $this->success($this->modx->virtunewsletter->config['corePath'].'exports/'.$f);
+        return $this->success($f);
     }
+
 }
 
 return 'SubscribersExportCsvProcessor';

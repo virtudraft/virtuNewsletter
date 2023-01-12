@@ -1140,6 +1140,13 @@ class VirtuNewsletter
                         $output['recipients'] = $queueArray;
                     }
                 } else {
+                    /**
+                     * 20221107 Added fail status to prevent requeue
+                     */
+                    $queue->set('status_logged_on', time());
+                    $queue->set('status', 'failed');
+                    $queue->save();
+                    
                     $this->modx->setDebug();
                     $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to send a queue! '.print_r($queueArray, true), '', __METHOD__, __FILE__, __LINE__);
                     $this->modx->setDebug(false);

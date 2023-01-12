@@ -29,7 +29,7 @@ set_time_limit(86400); // run script for 1 day
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
-class VirtuNewsletterWebProcessProcessor extends modProcessor
+class VirtuNewsletterWebCronQueuesProcessProcessor extends modProcessor
 {
 
     public function initialize()
@@ -41,7 +41,7 @@ class VirtuNewsletterWebProcessProcessor extends modProcessor
         if ($siteId !== $this->modx->site_id) {
             die('Wrong authentification!');
         }
-        parent::initialize();
+        return parent::initialize();
     }
 
     public function process()
@@ -93,6 +93,8 @@ class VirtuNewsletterWebProcessProcessor extends modProcessor
                         $outputArray[] = $this->modx->virtunewsletter->processElementTags($parsed);
                     }
                     $output = @implode("\n", $outputArray);
+                } else {
+                    $output = "No queue";
                 }
 
                 echo $output;
@@ -103,3 +105,5 @@ class VirtuNewsletterWebProcessProcessor extends modProcessor
         exit;
     }
 }
+
+return "VirtuNewsletterWebCronQueuesProcessProcessor";

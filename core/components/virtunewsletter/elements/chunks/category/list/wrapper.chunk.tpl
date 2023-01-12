@@ -1,0 +1,1 @@
+[[+virtuNewsletter.category.items]]

@@ -63,7 +63,7 @@ class NewslettersGetListProcessor extends modObjectGetListProcessor {
         $c = $this->modx->newQuery('vnewsReports');
         $c->where(array(
             'newsletter_id' => $objectArray['id'],
-            'status' => queue,
+            'status' => 'queue',
         ));
         $dateFormat = $this->modx->getOption('manager_date_format', null, 'Y-m-d');
         $timeFormat = $this->modx->getOption('manager_time_format', null, 'g:i a');

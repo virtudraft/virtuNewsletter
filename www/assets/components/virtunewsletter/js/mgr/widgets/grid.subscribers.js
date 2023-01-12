@@ -294,7 +294,10 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             listeners: {
                 'success': {
                     fn: function(r) {
-                        location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                        console.log('r', r)
+                        if (r.success) {
+                            location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/download&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                        }
                     },
                     scope: this
                 },
@@ -304,6 +307,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                 }
             }
         });
+        return false;
     },
     getSelectedAsList: function() {
         var selected = this.getSelectionModel().getSelections();

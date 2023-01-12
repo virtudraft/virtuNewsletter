@@ -1,5 +1,4 @@
 <?php
-
 /**
  * virtuNewsletter
  *
@@ -20,16 +19,23 @@
  * virtuNewsletter; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+
 /**
  * @package virtunewsletter
  * @subpackage processor
  */
+class VirtuNewsletterDashboardNewslettersProcessor extends modProcessor
+{
 
-$output = array (
-    'subscribers_total' => $modx->getCount('vnewsSubscribers'),
-    'subscribers_active' => $modx->getCount('vnewsSubscribers', array('is_active' => 1)),
-    'subscribers_nonmember' => $modx->getCount('vnewsSubscribers', array('user_id' => 0)),
-    'subscribers_nonmember_active' => $modx->getCount('vnewsSubscribers', array('user_id' => 0, 'is_active' => 1)),
-);
+    public function process()
+    {
+        $output = array(
+            'emails_queueing'    => $this->modx->getCount('vnewsReports', array('status' => 'queue')),
+            'upcoming_schedules' => $this->modx->getCount('vnewsNewsletters', array('scheduled_for:>=' => time(), 'is_active:=' => 1)),
+        );
 
-return $this->success('', $output);
+        return $this->success('', $output);
+    }
+}
+
+return "VirtuNewsletterDashboardNewslettersProcessor";

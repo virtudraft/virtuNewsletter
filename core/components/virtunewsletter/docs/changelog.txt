@@ -1,3 +1,10 @@
+virtuNewsletter 2.4.4-pl (Jan 13, 2023)
+=================================================
+- added getSubscribedEmail and getCategories snippets
+- added fail status to prevent requeue
+- added halt sending flag
+- updated year
+
 virtuNewsletter 2.4.3-pl (June 20, 2019)
 =================================================
 - fixed installer

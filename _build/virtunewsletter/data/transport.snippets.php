@@ -82,4 +82,23 @@ $properties = include $sources['properties'] . 'virtunewsletter.list.snippet.pro
 $snippets[3]->setProperties($properties);
 unset($properties);
 
+$snippets[4] = $modx->newObject('modSnippet');
+$snippets[4]->fromArray(array(
+    'property_preprocess' => 0,
+    'name' => 'virtuNewsletter.getSubscribedEmail',
+    'description' => 'To get the subscribed email of the logged in user for newsletter',
+    'snippet' => getSnippetContent($sources['source_core'] . '/elements/snippets/virtunewsletter.getsubscribedemail.snippet.php'),
+        ), '', true, true);
+
+$snippets[5] = $modx->newObject('modSnippet');
+$snippets[5]->fromArray(array(
+    'property_preprocess' => 0,
+    'name' => 'virtuNewsletter.getCategories',
+    'description' => 'To get the newsletter\'s categories',
+    'snippet' => getSnippetContent($sources['source_core'] . '/elements/snippets/virtunewsletter.category.getlist.snippet.php'),
+        ), '', true, true);
+$properties = include $sources['properties'] . 'virtunewsletter.getcategories.snippet.properties.php';
+$snippets[5]->setProperties($properties);
+unset($properties);
+
 return $snippets;

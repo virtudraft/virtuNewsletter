@@ -1,4 +1,4 @@
-VirtuNewsletter.grid.Subscribers = function(config) {
+VirtuNewsletter.grid.Subscribers = function (config) {
     config = config || {};
 
     var checkBoxSelMod = new Ext.grid.CheckboxSelectionModel({
@@ -11,7 +11,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
             action: 'mgr/subscribers/getList',
             newsletter_id: config.newsletter_id
         },
-        fields: ['id', 'user_id', 'email', 'name', 'usergroups','email_provider',
+        fields: ['id', 'user_id', 'email', 'name', 'usergroups', 'email_provider',
             'categories_text', 'categories', 'is_active', 'allCategories'],
         paging: true,
         remoteSort: true,
@@ -61,7 +61,7 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 sortable: true,
                 width: 70,
                 fixed: true,
-                processEvent: function(name, e, grid, rowIndex, colIndex) {
+                processEvent: function (name, e, grid, rowIndex, colIndex) {
                     if (name === 'mousedown') {
                         var record = grid.store.getAt(rowIndex);
                         record.set(this.dataIndex, !record.data[this.dataIndex]);
@@ -73,12 +73,12 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                             },
                             listeners: {
                                 'success': {
-                                    fn: function() {
+                                    fn: function () {
                                         grid.refresh();
                                     }
                                 },
                                 'failure': {
-                                    fn: function(r) {
+                                    fn: function (r) {
                                         grid.refresh();
                                     }
                                 }
@@ -114,10 +114,10 @@ VirtuNewsletter.grid.Subscribers = function(config) {
                 emptyText: _('virtunewsletter.search...'),
                 listeners: {
                     'change': {fn: this.search, scope: this},
-                    'render': {fn: function(cmp) {
+                    'render': {fn: function (cmp) {
                             new Ext.KeyMap(cmp.getEl(), {
                                 key: Ext.EventObject.ENTER,
-                                fn: function() {
+                                fn: function () {
                                     this.fireEvent('change', this);
                                     this.blur();
                                     return true;
@@ -146,13 +146,13 @@ VirtuNewsletter.grid.Subscribers = function(config) {
     VirtuNewsletter.grid.Subscribers.superclass.constructor.call(this, config);
 };
 Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
-    search: function(tf, nv, ov) {
+    search: function (tf, nv, ov) {
         var s = this.getStore();
         s.baseParams.query = tf.getValue();
         this.getBottomToolbar().changePage(1);
         this.refresh();
     },
-    syncUsergroups: function() {
+    syncUsergroups: function () {
         if (!this.pageMask) {
             this.pageMask = new Ext.LoadMask(Ext.getBody(), {
                 msg: _('virtunewsletter.please_wait')
@@ -168,7 +168,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function(r) {
+                    fn: function (r) {
                         if (r.success) {
                             if (r.object && r.object.count && r.object.start) {
                                 this.resyncUsergroups(r.object.start);
@@ -182,12 +182,12 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                     scope: this
                 },
                 'failure': {
-                    fn: function(r) {
+                    fn: function (r) {
                     },
                     scope: this
                 },
                 'cancel': {
-                    fn: function() {
+                    fn: function () {
                         this.pageMask.hide();
                     },
                     scope: this
@@ -195,7 +195,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             }
         });
     },
-    resyncUsergroups: function(start) {
+    resyncUsergroups: function (start) {
         start = start || 0;
 
         MODx.Ajax.request({
@@ -206,7 +206,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function(r) {
+                    fn: function (r) {
                         if (r.success) {
                             if (r.object && r.object.count && r.object.start) {
                                 this.resyncUsergroups(r.object.start);
@@ -224,7 +224,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             }
         });
     },
-    getMenu: function() {
+    getMenu: function () {
         var menu = [
             {
                 text: _('virtunewsletter.subscriber_update'),
@@ -237,7 +237,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
 
         return menu;
     },
-    removeSubscriber: function(btn, e) {
+    removeSubscriber: function (btn, e) {
         MODx.msg.confirm({
             title: _('virtunewsletter.subscriber_remove'),
             text: _('virtunewsletter.remove_confirm'),
@@ -254,7 +254,7 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             }
         });
     },
-    importCsv: function() {
+    importCsv: function () {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
             params: {
@@ -262,11 +262,11 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function(res) {
+                    fn: function (res) {
                         if (res.success === true) {
                             var record = {};
                             record.allCategories = {};
-                            Ext.each(res.results, function(value) {
+                            Ext.each(res.results, function (value) {
                                 record.allCategories[value.id] = value.name;
                             });
                             var importCsvWin = MODx.load({
@@ -279,13 +279,13 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                     scope: this
                 },
                 'failure': {
-                    fn: function(r) {},
+                    fn: function (r) {},
                     scope: this
                 }
             }
         });
     },
-    exportCsv: function() {
+    exportCsv: function () {
         MODx.Ajax.request({
             url: VirtuNewsletter.config.connectorUrl,
             params: {
@@ -293,30 +293,33 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function(r) {
-                        location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                    fn: function (r) {
+                        if (r.success) {
+                            location.href = VirtuNewsletter.config.connectorUrl + '?action=mgr/subscribers/exportcsv&download=' + r.message + '&HTTP_MODAUTH=' + MODx.siteId;
+                        }
                     },
                     scope: this
                 },
                 'failure': {
-                    fn: function(r) {},
+                    fn: function (r) {},
                     scope: this
                 }
             }
         });
+        return false;
     },
-    getSelectedAsList: function() {
+    getSelectedAsList: function () {
         var selected = this.getSelectionModel().getSelections();
         if (selected.length <= 0)
             return false;
 
         var cs = [];
-        Ext.each(selected, function(item, idx) {
+        Ext.each(selected, function (item, idx) {
             cs.push(item.id);
         });
         return cs.join();
     },
-    batchDelete: function(btn, e) {
+    batchDelete: function (btn, e) {
         var ids = this.getSelectedAsList();
         if (!ids) {
             return false;
@@ -331,19 +334,19 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function() {
+                    fn: function () {
                         return this.refresh();
                     },
                     scope: this
                 },
                 'failure': {
-                    fn: function() {},
+                    fn: function () {},
                     scope: this
                 }
             }
         });
     },
-    batchUpdate: function(btn, e) {
+    batchUpdate: function (btn, e) {
         var ids = this.getSelectedAsList();
         if (!ids) {
             return false;
@@ -355,11 +358,11 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
             },
             listeners: {
                 'success': {
-                    fn: function(res) {
+                    fn: function (res) {
                         if (res.success === true) {
                             var record = {};
                             record.allCategories = {};
-                            Ext.each(res.results, function(value) {
+                            Ext.each(res.results, function (value) {
                                 record.allCategories[value.id] = value.name;
                             });
                             var win = new VirtuNewsletter.window.BatchSubscribers({
@@ -378,13 +381,13 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
                     scope: this
                 },
                 'failure': {
-                    fn: function() {},
+                    fn: function () {},
                     scope: this
                 }
             }
         });
     },
-    updateSubscriber: function() {
+    updateSubscriber: function () {
         var win = new VirtuNewsletter.window.Subscriber({
             title: _('virtunewsletter.subscriber_update'),
             baseParams: {
@@ -396,8 +399,8 @@ Ext.extend(VirtuNewsletter.grid.Subscribers, MODx.grid.Grid, {
         var record = this.menu.record;
         win.setValues(record);
         var cb;
-        Ext.each(record.categories, function(item) {
-            cb = win.fp.getForm().findField('categories['+item+']');
+        Ext.each(record.categories, function (item) {
+            cb = win.fp.getForm().findField('categories[' + item + ']');
             if (cb) {
                 cb.checked = true;
                 cb.addClass('x-form-cb-checked x-form-dirty');

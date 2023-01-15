@@ -52,7 +52,7 @@ class SubscribersExportCsvProcessor extends modProcessor {
      * @return bool|string
      */
     public function download($file) {
-        $fileName = $this->modx->virtunewsletter->config['corePath'] . 'exports/' . $file;
+        $fileName = $this->modx->virtunewsletter->config['corePath'] . 'export/' . $file;
         if (!is_file($fileName))
             return '';
         $output = file_get_contents($fileName);
@@ -70,10 +70,14 @@ class SubscribersExportCsvProcessor extends modProcessor {
      * @return mixed
      */
     public function export() {
+        $collections = $this->modx->getCollection('vnewsSubscribers');
+        if (!$collections) {
+            return $this->failure('No subscribers is recorded');
+        }
         header('Content-Type: application/force-download');
         header('Content-Disposition: attachment; filename="subscribers.csv"');
         $f = 'subscribers.csv';
-        $out = fopen($this->modx->virtunewsletter->config['corePath'] . 'exports/' . $f, 'w');
+        $out = fopen($this->modx->virtunewsletter->config['corePath'] . 'export/' . $f, 'w');
         $columns = $this->modx->getSelectColumns('vnewsSubscribers');
         $columns = str_replace('`', '', $columns);
         $columnsArray = array_map('trim', @explode(',', $columns));
@@ -86,22 +90,19 @@ class SubscribersExportCsvProcessor extends modProcessor {
         $columnsArray = array_values($columnsArray);
 
         fputcsv($out, $columnsArray);
-        $collections = $this->modx->getCollection('vnewsSubscribers');
-        if ($collections) {
-            foreach ($collections as $item) {
-                $itemArray = $item->toArray();
-                foreach ($itemArray as $k => $v) {
-                    if ($k === 'hash') {
-                        unset($itemArray[$k]);
-                    }
+        foreach ($collections as $item) {
+            $itemArray = $item->toArray();
+            foreach ($itemArray as $k => $v) {
+                if ($k === 'hash') {
+                    unset($itemArray[$k]);
                 }
-                $itemArray = array_merge($itemArray, array(
-                    @implode(', ', $item->getCategoryNames()),
-                    @implode(', ', $item->getUserGroupNames()),
-                ));
-                $itemArray = array_values($itemArray);
-                fputcsv($out, $itemArray);
             }
+            $itemArray = array_merge($itemArray, array(
+                @implode(', ', $item->getCategoryNames()),
+                @implode(', ', $item->getUserGroupNames()),
+            ));
+            $itemArray = array_values($itemArray);
+            fputcsv($out, $itemArray);
         }
         fclose($out);
 
